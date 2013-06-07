@@ -3,6 +3,8 @@
 //
 
 
+using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Linq.Expressions;
@@ -14,27 +16,39 @@ namespace Sublimate
 	public class ServiceExpressionBuilder
 	{
 		public ServiceModel ServiceModel { get; private set; }
-
+		
 		public ServiceExpressionBuilder(ServiceModel serviceModel)
 		{
 			this.ServiceModel = serviceModel;
 		}
 
+		public virtual Type GetTypeFromName(string name)
+		{
+			var type = TypeSystem.GetPrimitiveType(name);
+
+			if (type != null)
+			{
+				return type;
+			}
+
+			return this.ServiceModel.GetServiceType(name);
+		}
+
 		public virtual Expression Build(ServiceTypeProperty property)
 		{
-			return new PropertyDefinitionExpression(property.Name, this.ServiceModel.GetServiceType(property.TypeName));
+			return new PropertyDefinitionExpression(property.Name, this.GetTypeFromName(property.TypeName));
 		}
 
 		public virtual Expression Build(ServiceType serviceType)
 		{
 			var propertyDefinitions = serviceType.Properties.Select(Build).ToList();
 
-			return new TypeDefinitionExpression(null, new CodeBlockExpression(new ReadOnlyCollection<Expression>(propertyDefinitions)), serviceType.Name, this.ServiceModel.GetServiceType("ServiceObject"));
+			return new TypeDefinitionExpression(this.GetTypeFromName(serviceType.Name), new SublimateType("ServiceObject"), null, new GroupedExpressionsExpression(new ReadOnlyCollection<Expression>(propertyDefinitions)));
 		}
 
 		public virtual Expression Build(ServiceParameter parameter, int index)
 		{
-			return new ParameterDefinitionExpression(parameter.Name, this.ServiceModel.GetServiceType(parameter.TypeName), index);
+			return new ParameterDefinitionExpression(parameter.Name, this.GetTypeFromName(parameter.TypeName), index);
 		}
 
 		public virtual Expression Build(ServiceMethod method)
@@ -49,7 +63,7 @@ namespace Sublimate
 		{
 			var methodDefinitions = serviceGateway.Methods.Select(Build).ToList();
 
-			return new TypeDefinitionExpression(null, new CodeBlockExpression(new ReadOnlyCollection<Expression>(methodDefinitions)), serviceGateway.Name, this.ServiceModel.GetServiceType("ServiceGateway"));
+			return new TypeDefinitionExpression(new SublimateType(serviceGateway.Name), new SublimateType("ServiceGateway"), null, new GroupedExpressionsExpression(methodDefinitions), false, null);
 		}
 	}
 }

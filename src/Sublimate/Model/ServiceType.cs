@@ -19,8 +19,19 @@ namespace Sublimate.Model
 		[XmlAttribute]
 		public string Name { get; set; }
 
+		[XmlAttribute]
+		public string BaseTypeName { get; set; }
+
 		[XmlElement, XmlListElement(typeof(ServiceTypeProperty))]
 		public List<ServiceTypeProperty> Properties { get; set; }
+
+		public static ServiceType CreateServiceType(string name)
+		{
+			return new ServiceType()
+			{
+				Name = name
+			};
+		}
 
 		public override int GetHashCode()
 		{

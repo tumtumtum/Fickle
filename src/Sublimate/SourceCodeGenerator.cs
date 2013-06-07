@@ -52,45 +52,55 @@ namespace Sublimate
 			this.Write(" ");
 		}
 
-		private Dictionary<PrimitiveType, string> typeNameByPrimitiveType;
+		private Dictionary<Type, string> typeNameByPrimitiveType;
+		private Dictionary<Type, bool> isReferenceTypeByType;
 
-		protected virtual void AddPrimitiveTypeName(PrimitiveType primitiveType, string name)
+		protected virtual void AddPrimitiveTypeDecl(Type type, string name, bool isReferenceType)
 		{
-			typeNameByPrimitiveType[primitiveType] = name;
+			typeNameByPrimitiveType[type] = name;
+			isReferenceTypeByType[type] = isReferenceType;
 		}
 
-		protected virtual void Write(ServiceType serviceType)
+		protected virtual bool IsReferenceType(Type type)
 		{
-			if (serviceType.IsPrimitive)
+			bool value;
+
+			if (isReferenceTypeByType.TryGetValue(type, out value))
 			{
-				if (typeNameByPrimitiveType == null)
+				return value;
+			}
+
+			return true;
+		}
+
+		protected virtual void Write(Type type)
+		{
+			this.Write(type, false);
+		}
+
+		protected virtual void Write(Type type, bool nameOnly)
+		{
+			if (typeNameByPrimitiveType == null)
+			{
+				typeNameByPrimitiveType = new Dictionary<Type, string>();
+				isReferenceTypeByType = new Dictionary<Type, bool>();
+
+				foreach (PrimitiveTypeNameAttribute attribute in this.GetType().GetCustomAttributes(typeof(PrimitiveTypeNameAttribute), true))
 				{
-					typeNameByPrimitiveType = new Dictionary<PrimitiveType, string>();
-
-					foreach (PrimitiveTypeNameAttribute attribute in this.GetType().GetCustomAttributes(typeof(PrimitiveTypeNameAttribute), true))
-					{
-						this.AddPrimitiveTypeName(attribute.PrimitiveType, attribute.Name);
-					}
-				}
-
-				PrimitiveType value;
-
-				if (!Enum.TryParse(serviceType.Name, out value))
-				{
-					throw new InvalidOperationException("Unsupported type: " + serviceType.Name);
-				}
-
-				string name;
-
-				if (typeNameByPrimitiveType.TryGetValue(value, out name))
-				{
-					this.Write(name);
-
-					return;
+					this.AddPrimitiveTypeDecl(attribute.Type, attribute.Name, attribute.IsReferenceType);
 				}
 			}
 
-			this.Write(serviceType.Name);
+			string name;
+
+			if (typeNameByPrimitiveType.TryGetValue(type, out name))
+			{
+				this.Write(name);
+
+				return;
+			}
+
+			this.Write(type.Name);
 		}
 
 		protected virtual void WriteIndent()
@@ -138,6 +148,8 @@ namespace Sublimate
 
 		public virtual void WriteLine()
 		{
+			this.CheckAndWriteIndent();
+
 			this.writer.WriteLine();
 
 			indentRequired = true;
@@ -145,6 +157,8 @@ namespace Sublimate
 
 		public virtual void WriteLine(char c)
 		{
+			this.CheckAndWriteIndent();
+
 			this.writer.WriteLine(c);
 
 			indentRequired = true;
@@ -152,6 +166,8 @@ namespace Sublimate
 
 		public virtual void WriteLine(string value)
 		{
+			this.CheckAndWriteIndent();
+
 			this.writer.WriteLine(value);
 
 			indentRequired = true;
@@ -159,6 +175,8 @@ namespace Sublimate
 
 		public virtual void WriteLine(string format, params object[] args)
 		{
+			this.CheckAndWriteIndent();
+
 			this.writer.WriteLine(format, args);
 
 			indentRequired = true;

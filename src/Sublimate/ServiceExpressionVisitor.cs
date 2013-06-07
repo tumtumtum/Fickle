@@ -2,21 +2,21 @@
 // Copyright (c) 2013 Thong Nguyen (tumtumtum@gmail.com)
 //
 
+using System.Collections.ObjectModel;
 using System.Linq.Expressions;
 using Sublimate.Expressions;
-using ExpressionVisitor = Platform.Linq.ExpressionVisitor;
 
 namespace Sublimate
 {
 	public class ServiceExpressionVisitor
 		: ExpressionVisitor
 	{
-		protected override Expression Visit(Expression expression)
+		protected override Expression VisitExtension(Expression expression)
 		{
 			switch ((int)expression.NodeType)
 			{
-				case (int)ServiceExpressionType.CodeBlock:
-					return this.VisitBlockExpression((CodeBlockExpression)expression);
+				case (int)ServiceExpressionType.Statement:
+					return this.VisitStatementExpression((StatementsExpression)expression);
 				case (int)ServiceExpressionType.GroupedExpressions:
 					return this.VisitGroupedExpressionsExpression((GroupedExpressionsExpression)expression);
 				case (int)ServiceExpressionType.MethodDefinition:
@@ -38,6 +38,11 @@ namespace Sublimate
 			return base.Visit(expression);
 		}
 
+		protected virtual ReadOnlyCollection<Expression> VisitExpressionList(ReadOnlyCollection<Expression> original)
+		{
+			return this.Visit(original);
+		}
+
 		protected virtual Expression VisitGroupedExpressionsExpression(GroupedExpressionsExpression expression)
 		{
 			var expressions = this.VisitExpressionList(expression.Expressions);
@@ -50,13 +55,13 @@ namespace Sublimate
 			return expression;
 		}
 
-		protected virtual Expression VisitBlockExpression(CodeBlockExpression expression)
+		protected virtual Expression VisitStatementExpression(StatementsExpression expression)
 		{
 			var expressions = this.VisitExpressionList(expression.Expressions);
-
+			
 			if (expressions != expression.Expressions)
 			{
-				return new CodeBlockExpression(expressions);
+				return new StatementsExpression(expressions);
 			}
 
 			return expression;
@@ -100,7 +105,7 @@ namespace Sublimate
 
 			if (header != expression.Header || body != expression.Body)
 			{
-				return new TypeDefinitionExpression(header, body, expression.Name, expression.BaseType);
+				return new TypeDefinitionExpression(expression.Type, expression.BaseType, header, body, expression.IsPredeclaration, expression.InterfaceTypes);
 			}
 
 			return expression;

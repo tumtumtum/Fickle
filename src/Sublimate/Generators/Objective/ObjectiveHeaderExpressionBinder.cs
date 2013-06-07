@@ -32,7 +32,7 @@ namespace Sublimate.Generators.Objective
 
 			if (name.StartsWith("new"))
 			{
-				var attributedPropertyGetter = new MethodDefinitionExpression(name, null, property.PropertyType, true, "(objc_method_family(none))");
+				var attributedPropertyGetter = new MethodDefinitionExpression(name, null, property.PropertyType, null, true, "(objc_method_family(none))");
 
 				return new GroupedExpressionsExpression(new ReadOnlyCollection<Expression>(new List<Expression> { propertyDefinition, attributedPropertyGetter }));
 			}
@@ -49,19 +49,19 @@ namespace Sublimate.Generators.Objective
 			var referencedTypes = ReferencedTypesCollector.CollectReferencedTypes(expression);
 			referencedTypes.Sort((x, y) => String.Compare(x.Name, y.Name, StringComparison.InvariantCultureIgnoreCase));
 
-			var lookup = new HashSet<PrimitiveType>(referencedTypes.Where(c => c.PrimitiveType.HasValue).Select(c => c.PrimitiveType.Value));
+			var lookup = new HashSet<Type>(referencedTypes.Where(TypeSystem.IsPrimitiveType).Select(c => c));
 
-			if (lookup.Contains(PrimitiveType.Guid))
+			if (lookup.Contains(typeof(Guid)) || lookup.Contains(typeof(Guid?)))
 			{
 				includeExpressions.Add(new IncludeStatementExpression("PKUUID.h"));
 			}
 
-			if (lookup.Contains(PrimitiveType.TimeSpan))
+			if (lookup.Contains(typeof(TimeSpan)) || lookup.Contains(typeof(TimeSpan?)))
 			{
 				includeExpressions.Add(new IncludeStatementExpression("PKTimeSpan.h"));
 			}
 
-			var referencedTypeExpressions = referencedTypes.Where(c => !c.IsPrimitive).Select(c => (Expression)new ReferencedTypeExpression(c)).ToList();
+			var referencedTypeExpressions = referencedTypes.Where(c => c is SublimateType && ((SublimateType)c).ServiceType != null).Select(c => (Expression)new ReferencedTypeExpression(c)).ToList();
 
 			var comment = new CommentExpression("This file is AUTO GENERATED");
 
@@ -83,7 +83,7 @@ namespace Sublimate.Generators.Objective
 				}
 			});
 
-			return new TypeDefinitionExpression(header, body, expression.Name, expression.BaseType, true, interfaceTypes);
+			return new TypeDefinitionExpression(expression.Type, expression.BaseType, header, body, true, interfaceTypes);
 		}
 	}
 }

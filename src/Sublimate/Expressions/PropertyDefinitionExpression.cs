@@ -1,4 +1,5 @@
-﻿using System.Linq.Expressions;
+﻿using System;
+using System.Linq.Expressions;
 using Sublimate.Model;
 
 namespace Sublimate.Expressions
@@ -14,12 +15,12 @@ namespace Sublimate.Expressions
 			}
 		}
 
-		public PropertyDefinitionExpression(string propertyName, ServiceType propertyType)
+		public PropertyDefinitionExpression(string propertyName, Type propertyType)
 			: this(propertyName, propertyType, false)
 		{	
 		}
 
-		public PropertyDefinitionExpression(string propertyName, ServiceType propertyType, bool isPredeclatation)
+		public PropertyDefinitionExpression(string propertyName, Type propertyType, bool isPredeclatation)
 		{	
 			this.PropertyType = propertyType;
 			this.PropertyName = propertyName;
@@ -28,6 +29,6 @@ namespace Sublimate.Expressions
 
 		public string PropertyName { get; private set; }
 		public bool IsPredeclatation { get; private set; }
-		public ServiceType PropertyType { get; private set; }
+		public Type PropertyType { get; private set; }
 	}
 }

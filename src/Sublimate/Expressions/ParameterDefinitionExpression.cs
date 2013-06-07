@@ -1,5 +1,5 @@
-﻿using System.Linq.Expressions;
-using Sublimate.Model;
+﻿using System;
+using System.Linq.Expressions;
 
 namespace Sublimate.Expressions
 {
@@ -16,9 +16,9 @@ namespace Sublimate.Expressions
 
 		public int Index { get; private set; }
 		public string ParameterName { get; private set; }
-		public ServiceType ParameterType { get; private set; }
+		public Type ParameterType { get; private set; }
 		
-		public ParameterDefinitionExpression(string parameterName, ServiceType parameterType, int index)
+		public ParameterDefinitionExpression(string parameterName, Type parameterType, int index)
 		{
 			this.Index = index;
 			this.ParameterName = parameterName;

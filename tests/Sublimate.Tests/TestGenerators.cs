@@ -30,8 +30,38 @@ namespace Sublimate.Tests
 					},
 					new ServiceTypeProperty()
 					{
+						Name = "BirthDate",
+						TypeName = "DateTime"
+					},
+					new ServiceTypeProperty()
+					{
+						Name = "TimeAwake",
+						TypeName = "TimeSpan"
+					},
+					new ServiceTypeProperty()
+					{
+						Name = "NullableLengthInMicrons",
+						TypeName = "Long?"
+					},
+					new ServiceTypeProperty()
+					{
+						Name = "LengthInMicrons",
+						TypeName = "Long"
+					},
+					new ServiceTypeProperty()
+					{
+						Name = "NullableLengthInMicrons",
+						TypeName = "Long?"
+					},
+					new ServiceTypeProperty()
+					{
 						Name = "Age",
 						TypeName = "Int"
+					},
+					new ServiceTypeProperty()
+					{
+						Name = "NullableAge",
+						TypeName = "Int?"
 					},
 					new ServiceTypeProperty()
 					{
@@ -59,13 +89,17 @@ namespace Sublimate.Tests
 				this.CreatePersonType()
 			};
 
-			var expression = new ServiceExpressionBuilder(serviceModel).Build(personType);
+			var headerExpression = new ServiceExpressionBuilder(serviceModel).Build(personType);
+			headerExpression = ObjectiveHeaderExpressionBinder.Bind(headerExpression);
 
-			expression = ObjectiveHeaderExpressionBinder.Bind(expression);
-			
+			var classExpression = new ServiceExpressionBuilder(serviceModel).Build(personType);
+			classExpression = ObjectiveClassExpressionBinder.Bind(classExpression);
+
 			var objectiveCodeGenerator = new ObjectiveCodeGenerator(Console.Out);
 
-			objectiveCodeGenerator.Generate(expression);
+			objectiveCodeGenerator.Generate(headerExpression);
+			Console.WriteLine();
+			objectiveCodeGenerator.Generate(classExpression);
 		}
 	}
 }

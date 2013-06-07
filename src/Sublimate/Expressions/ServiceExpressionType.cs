@@ -3,7 +3,7 @@
 	public enum ServiceExpressionType
 	{
 		GroupedExpressions = 0x1000,
-		CodeBlock = GroupedExpressions + 1,
+		Statement = GroupedExpressions + 1,
 		MethodDefinition = GroupedExpressions + 2,
 		ParameterDefinition = GroupedExpressions + 3,
 		PropertyDefinition = GroupedExpressions + 4,

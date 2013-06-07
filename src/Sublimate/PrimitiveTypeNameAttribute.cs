@@ -1,5 +1,4 @@
 ﻿using System;
-using Sublimate.Model;
 
 namespace Sublimate
 {
@@ -7,13 +6,15 @@ namespace Sublimate
 	public class PrimitiveTypeNameAttribute
 		: Attribute
 	{
+		public Type Type { get; set; }
 		public string Name { get; set; }
-		public PrimitiveType PrimitiveType { get; set; }
+		public bool IsReferenceType { get; set; }
 		
-		public PrimitiveTypeNameAttribute(PrimitiveType primitiveType, string name)
+		public PrimitiveTypeNameAttribute(Type type, string name, bool isReferenceType)
 		{
 			this.Name = name;
-			this.PrimitiveType = primitiveType;
+			this.Type = type;
+			this.IsReferenceType = isReferenceType;
 		}
 	}
 }

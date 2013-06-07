@@ -15,31 +15,41 @@ namespace Sublimate.Model
 		[XmlElement]
 		public List<ServiceGateway> Gateways { get; set; }
 
-		private Dictionary<string, ServiceType> serviceTypesByName;
+		private Dictionary<string, Type> serviceTypesByName;
 
-		public virtual ServiceType GetServiceType(string name)
+		public virtual Type GetServiceType(string name)
 		{
 			if (this.serviceTypesByName == null)
 			{
-				this.serviceTypesByName = this.Types.ToDictionary(c => c.Name, c => c, StringComparer.InvariantCultureIgnoreCase);
+				this.serviceTypesByName = this.Types.Select(c => (Type)new SublimateType(c)).ToDictionary(c => c.Name, c => c, StringComparer.InvariantCultureIgnoreCase);
 
-				foreach (var value in Enum.GetValues(typeof(PrimitiveType)))
+				foreach (SublimateType type in this.serviceTypesByName.Values)
 				{
-					var enumValueName = Enum.GetName(typeof(PrimitiveType), value);
-
-					this.serviceTypesByName[enumValueName] = new ServiceType
+					if (!string.IsNullOrEmpty(type.ServiceType.BaseTypeName))
 					{
-						Name = enumValueName,
-						PrimitiveType = (PrimitiveType)value
-					};
+						Type baseType;
+
+						if (this.serviceTypesByName.TryGetValue(type.ServiceType.BaseTypeName, out baseType))
+						{
+							type.SetBaseType(baseType);
+						}
+						else
+						{
+							type.SetBaseType(new SublimateType(type.ServiceType.BaseTypeName));
+						}
+					}
+					else
+					{
+						type.SetBaseType(typeof(object));
+					}
 				}
 			}
 
-			ServiceType serviceType;
+			Type retval;
 
-			if (this.serviceTypesByName.TryGetValue(name, out serviceType))
+			if (this.serviceTypesByName.TryGetValue(name, out retval))
 			{
-				return serviceType;
+				return retval;
 			}
 
 			throw new InvalidOperationException("Type not found: " + name);

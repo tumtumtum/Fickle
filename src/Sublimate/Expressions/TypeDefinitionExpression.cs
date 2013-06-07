@@ -1,4 +1,5 @@
-﻿using System.Collections.ObjectModel;
+﻿using System;
+using System.Collections.ObjectModel;
 using System.Linq.Expressions;
 using Sublimate.Model;
 
@@ -15,21 +16,38 @@ namespace Sublimate.Expressions
 			}
 		}
 
+		public override Type Type
+		{
+			get
+			{
+				return type;
+			}
+		}
+		private Type type;
+
+		public Type BaseType { get; private set; }
+		
+		public string Name
+		{
+			get
+			{
+				return this.type.Name;
+			}
+		}
+
 		public bool IsPredeclaration { get; private set; }
-		public string Name { get; private set; }
-		public ServiceType BaseType { get; private set; }
 		public ReadOnlyCollection<ServiceType> InterfaceTypes { get; private set; }
 		public Expression Header { get; private set; }
 		public Expression Body { get; private set; }
 
-		public TypeDefinitionExpression(Expression header, Expression body, string name, ServiceType baseType)
-			: this(header, body, name, baseType, false, null)
+		public TypeDefinitionExpression(Type type, Type baseType, Expression header, Expression body)
+			: this(type, baseType, header, body, false, null)
 		{
 		}
 
-		public TypeDefinitionExpression(Expression header, Expression body, string name, ServiceType baseType, bool isPredeclaration, ReadOnlyCollection<ServiceType> interfaceTypes)
+		public TypeDefinitionExpression(Type type, Type baseType, Expression header, Expression body, bool isPredeclaration, ReadOnlyCollection<ServiceType> interfaceTypes)
 		{
-			this.Name = name;
+			this.type = type;
 			this.Body = body;
 			this.Header = header;
 			this.BaseType = baseType;

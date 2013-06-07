@@ -1,4 +1,5 @@
-﻿using System.Linq.Expressions;
+﻿using System;
+using System.Linq.Expressions;
 using Sublimate.Model;
 
 namespace Sublimate.Expressions
@@ -14,9 +15,9 @@ namespace Sublimate.Expressions
 			}
 		}
 
-		public ServiceType ReferencedType { get; private set; }
+		public Type ReferencedType { get; private set; }
 
-		public ReferencedTypeExpression(ServiceType referencedType)
+		public ReferencedTypeExpression(Type referencedType)
 		{
 			this.ReferencedType = referencedType;
 		}

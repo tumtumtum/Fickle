@@ -12,15 +12,25 @@ using Sublimate.Model;
 
 namespace Sublimate.Generators.Objective
 {
-	[PrimitiveTypeName(PrimitiveType.Byte, "uint8_t")]
-	[PrimitiveTypeName(PrimitiveType.Char, "unichar")]
-	[PrimitiveTypeName(PrimitiveType.Int, "int32_t")]
-	[PrimitiveTypeName(PrimitiveType.Short, "int_16_t")]
-	[PrimitiveTypeName(PrimitiveType.Long, "int64_t")]
-	[PrimitiveTypeName(PrimitiveType.Guid, "PKUUID*")]
-	[PrimitiveTypeName(PrimitiveType.DateTime, "NSDate*")]
-	[PrimitiveTypeName(PrimitiveType.TimeSpan, "PKTimeSpan*")]
-	[PrimitiveTypeName(PrimitiveType.String, "NSString*")]
+	[PrimitiveTypeName(typeof(byte), "uint8_t", false)]
+	[PrimitiveTypeName(typeof(byte), "NSNumber", true)]
+	[PrimitiveTypeName(typeof(char), "unichar", false)]
+	[PrimitiveTypeName(typeof(char?), "NSNumber", true)]
+	[PrimitiveTypeName(typeof(short), "int16_t", false)]
+	[PrimitiveTypeName(typeof(short?), "NSNumber", true)]
+	[PrimitiveTypeName(typeof(int), "int32_t", false)]
+	[PrimitiveTypeName(typeof(int?), "NSNumber", true)]
+	[PrimitiveTypeName(typeof(int), "int32_t", false)]
+	[PrimitiveTypeName(typeof(int?), "NSNumber", true)]
+	[PrimitiveTypeName(typeof(long), "int64_t", false)]
+	[PrimitiveTypeName(typeof(long?), "NSNumber", true)]
+	[PrimitiveTypeName(typeof(Guid), "PKUUID", true)]
+	[PrimitiveTypeName(typeof(Guid?), "PKUUID", true)]
+	[PrimitiveTypeName(typeof(DateTime), "NSDate", true)]
+	[PrimitiveTypeName(typeof(DateTime?), "NSDate", true)]
+	[PrimitiveTypeName(typeof(TimeSpan), "PKTimeSpan", true)]
+	[PrimitiveTypeName(typeof(TimeSpan?), "PKTimeSpan", true)]
+	[PrimitiveTypeName(typeof(string), "NSString", true)]
 	public class ObjectiveCodeGenerator
 		: BraceLanguageStyleSourceCodeGenerator
 	{
@@ -29,19 +39,346 @@ namespace Sublimate.Generators.Objective
 		{
 		}
 
-		protected override void Write(ServiceType serviceType)
+		protected override void Write(Type type, bool nameOnly)
 		{
-			base.Write(serviceType);
-
-			if (!serviceType.IsPrimitive)
+			if (type == typeof(object))
 			{
-				base.Write("*");
+				this.Write("id");
+
+				return;
 			}
+			else if (type.IsInterface)
+			{
+				this.Write("id<{0}>", type.Name);
+			}
+
+			var sublimateType = type as SublimateType;
+
+			if (sublimateType != null)
+			{
+				base.Write(type, nameOnly);
+
+				if (!nameOnly)
+				{
+					base.Write("*");
+				}
+			}
+			else
+			{
+				base.Write(type, nameOnly);
+
+				if (!nameOnly && this.IsReferenceType(type))
+				{
+					base.Write("*");
+				}
+			}
+		}
+
+		protected override Expression VisitUnary(UnaryExpression node)
+		{
+			if (node.NodeType == ExpressionType.Convert)
+			{
+				if (node.Type == typeof(Guid) || node.Type == typeof(Guid?))
+				{
+					this.Write("[PKUUID uuidFromString:");
+					this.Visit(node.Operand);
+					this.Write("]");
+				}
+				else if (node.Type == typeof(byte))
+				{
+					this.Write("(uint8_t)((NSNumber*)");
+					this.Visit(node.Operand);
+					this.Write(").intValue");
+				}
+				else if (node.Type == typeof(byte?))
+				{
+					this.Write("((NSNumber*)");
+					this.Visit(node.Operand);
+					this.Write(")");
+				}
+				else if (node.Type == typeof(short))
+				{
+					this.Write("((NSNumber*)");
+					this.Visit(node.Operand);
+					this.Write(").shortValue");
+				}
+				else if (node.Type == typeof(short?))
+				{
+					this.Write("((NSNumber*)");
+					this.Visit(node.Operand);
+					this.Write(")");
+				}
+				else if (node.Type == typeof(int))
+				{
+					this.Write("((NSNumber*)");
+					this.Visit(node.Operand);
+					this.Write(").intValue");
+				}
+				else if (node.Type == typeof(int?))
+				{
+					this.Write("((NSNumber*)");
+					this.Visit(node.Operand);
+					this.Write(")");
+				}
+				else if (node.Type == typeof(long))
+				{
+					this.Write("(int64_t)((NSNumber*)");
+					this.Visit(node.Operand);
+					this.Write(").longLongValue");
+				}
+				else if (node.Type == typeof(long?))
+				{
+					this.Write("((NSNumber*)");
+					this.Visit(node.Operand);
+					this.Write(")");
+				}
+				else if (node.Type == typeof(DateTime?) || node.Type == typeof(DateTime))
+				{
+					this.Write("((NSString*)currentValueFromDictionary).length >= 16 ? [NSDate dateWithTimeIntervalSince1970:[[(NSString*)");
+					this.Visit(node.Operand);
+					this.Write("substringWithRange:NSMakeRange(6, 10)] intValue]] : nil");
+				}
+				else if (node.Type == typeof(TimeSpan?) || node.Type == typeof(TimeSpan))
+				{
+					this.Write("[TimeSpan fromIsoString:(NSString*)");
+					this.Visit(node.Operand);
+					this.Write("]");
+				}
+				else
+				{
+					this.Write('(');
+					this.Write(node.Type);
+					this.Write(')');
+					this.Visit(node.Operand);
+				}
+			}
+			else if (node.NodeType == ExpressionType.Quote)
+			{
+				this.Visit(node.Operand);
+				this.WriteLine(';');
+			}
+
+			return node;
+		}
+
+		protected override Expression VisitConstant(ConstantExpression node)
+		{
+			if (node.Type == typeof(string))
+			{
+				this.Write("\"" + Convert.ToString(node.Value) + "\"");
+			}
+			else if (node.Type == typeof(Guid))
+			{
+				this.Write("[PKUUID uuidFromString:\"" + Convert.ToString(node.Value) + "\"]");
+			}
+			else if (node.Value == null)
+			{
+				this.Write("nil");
+			}
+			else
+			{
+				this.Write(Convert.ToString(node.Value));
+			}
+
+			return node;
+		}
+
+		protected override Expression VisitParameter(ParameterExpression node)
+		{
+			this.Write(node.Name);
+
+			return node;
+		}
+
+		protected virtual void WriteVariableDeclaration(ParameterExpression node)
+		{
+			this.Write(node.Type);	
+			this.Write(' ');
+			this.Write(node.Name);
+			this.WriteLine(';');
+		}
+
+		protected override Expression VisitBlock(BlockExpression node)
+		{
+			this.WriteLine();
+
+			using (this.AcquireIndentationContext(BraceLanguageStyleIndentationOptions.IncludeBraces))
+			{
+				if (node.Variables != null)
+				{
+					foreach (var expression in node.Variables)
+					{
+						this.WriteVariableDeclaration(expression);
+					}
+				}
+
+				if (node.Variables != null && node.Variables.Count > 0)
+				{
+					this.WriteLine();
+				}
+
+				foreach (var expression in node.Expressions)
+				{
+					this.Visit(expression);
+				}
+			}
+
+			this.WriteLine();
+
+			return node;
+		}
+
+		protected override Expression VisitMember(MemberExpression node)
+		{
+			if (node.NodeType == ExpressionType.MemberAccess)
+			{
+				this.Visit(node.Expression);
+				this.Write('.');
+				this.Write(node.Member.Name);
+			}
+
+			return node;
+		}
+
+		protected override Expression VisitTypeBinary(TypeBinaryExpression node)
+		{
+			this.Write('[');
+			this.Visit(node.Expression);
+			this.Write(" isKindOfClass:");
+			this.Write(node.TypeOperand, true);
+			this.Write(".class");
+			this.Write(']');
+
+			return node;
+		}
+
+		protected override Expression VisitNew(NewExpression node)
+		{
+			this.Write('[');
+			this.Write('[');
+			this.Write(node.Type, true);
+			this.Write(" alloc]");
+			this.Write(' ');
+			this.Write(node.Constructor.Name);
+
+			if (node.Arguments.Count > 0)
+			{
+				this.Write(':');
+				this.Visit(node.Arguments[0]);
+
+				for (var i = 1; i < node.Arguments.Count; i++)
+				{
+					this.Write(' ');
+					this.Write(node.Constructor.GetParameters()[i].Name);
+					this.Write(':');
+					this.Visit(node.Arguments[1]);
+				}
+			}
+
+			this.Write(']');
+
+			return node;
+		}
+
+		protected override Expression VisitMethodCall(MethodCallExpression node)
+		{
+			this.Write('[');
+			this.Visit(node.Object);
+			this.Write(' ');
+			this.Write(node.Method.Name);
+			
+			if (node.Arguments.Count > 0)
+			{
+				this.Write(':');
+				this.Visit(node.Arguments[0]);
+
+				for (var i = 1; i < node.Arguments.Count; i++)
+				{
+					this.Write(' ');
+					this.Write(node.Method.GetParameters()[i].Name);
+					this.Write(':');
+					this.Visit(node.Arguments[1]);
+				}
+			}
+
+			this.Write(']');
+
+			return node;
+		}
+
+		protected override Expression VisitBinary(BinaryExpression node)
+		{
+			switch (node.NodeType)
+			{
+				case ExpressionType.Assign:
+					this.Visit(node.Left);
+					this.Write(" = ");
+					this.Visit(node.Right);
+					break;
+				case ExpressionType.Equal:
+					this.Write('(');
+					this.Visit(node.Left);
+					this.Write(" == ");
+					this.Visit(node.Right);
+					this.Write(')');
+					break;
+			}
+
+			return node;
+		}
+
+		protected override Expression VisitConditional(ConditionalExpression node)
+		{
+			if (node.Type == typeof(void))
+			{
+				this.Write("if (");
+				this.Visit(node.Test);
+				this.Write(") ");
+
+				this.Visit(node.IfTrue);
+
+				if (node.IfFalse.NodeType != ExpressionType.Default)
+				{
+					this.WriteLine("else ");
+					
+					this.Visit(node.IfFalse);
+				}
+			}
+			else
+			{
+				this.Write('(');
+				this.Visit(node.Test);
+				this.Write(") ? (");
+				this.Visit(node.IfTrue);
+				this.Write(") : (");
+				this.Visit(node.IfFalse);
+				this.Write(")");
+			}
+
+			return node;
+		}
+
+		protected override Expression VisitGoto(GotoExpression node)
+		{
+			if (node.Kind == GotoExpressionKind.Return)
+			{
+				if (node.Value == null)
+				{
+					this.WriteLine("return");
+				}
+				else
+				{
+					this.Write("return ");
+					this.Visit(node.Value);
+				}
+			}
+
+			return node;
 		}
 
 		protected override Expression VisitIncludeStatementExpresson(IncludeStatementExpression expression)
 		{
-			this.Write("#include \"");
+			this.Write("#import \"");
 			this.Write(expression.FileName);
 			this.WriteLine("\"");
 
@@ -54,7 +391,18 @@ namespace Sublimate.Generators.Objective
 			this.Write(expression.ReferencedType.Name);
 			this.WriteLine(';');
 
-			return base.VisitReferencedTypeExpresson(expression);
+			return expression;
+		}
+
+		protected override Expression VisitStatementExpression(StatementsExpression expression)
+		{
+			foreach (var exp in expression.Expressions)
+			{
+				this.Visit(exp);
+				this.WriteLine(';');
+			}
+
+			return expression;
 		}
 
 		protected override Expression VisitTypeDefinitionExpression(TypeDefinitionExpression expression)
@@ -88,7 +436,7 @@ namespace Sublimate.Generators.Objective
 
 			this.Visit(expression.Body);
 
-			this.WriteLine();
+			this.WriteLine(); 
 			this.WriteLine("@end");
 
 			return expression;
@@ -96,7 +444,7 @@ namespace Sublimate.Generators.Objective
 
 		protected override Expression VisitParameterDefinitionExpression(ParameterDefinitionExpression parameter)
 		{
-			if (parameter.Index == 0)
+			if (parameter.Index != 0)
 			{
 				this.Write(parameter.ParameterName);
 			}
@@ -105,6 +453,7 @@ namespace Sublimate.Generators.Objective
 			this.Write(parameter.ParameterType);
 			this.Write(')');
 			this.Write(':');
+			this.Write(parameter.ParameterName);
 
 			return parameter;
 		}
@@ -144,6 +493,10 @@ namespace Sublimate.Generators.Objective
 			if (method.IsPredeclatation)
 			{
 				this.WriteLine(';');
+			}
+			else
+			{
+				this.Visit(method.Body);
 			}
 
 			return method;

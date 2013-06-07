@@ -55,7 +55,7 @@
   <ItemGroup>
     <Compile Include="BraceLanguageStyleIndentationOptions.cs" />
     <Compile Include="BraceLanguageStyleSourceCodeGenerator.cs" />
-    <Compile Include="Expressions\CodeBlockExpression.cs" />
+    <Compile Include="Expressions\StatementsExpression.cs" />
     <Compile Include="Expressions\CommentExpression.cs" />
     <Compile Include="Expressions\GroupedExpressionsExpression.cs" />
     <Compile Include="Expressions\IncludeStatementExpression.cs" />
@@ -65,9 +65,11 @@
     <Compile Include="Expressions\ReferencedTypeExpression.cs" />
     <Compile Include="Expressions\ServiceExpressionType.cs" />
     <Compile Include="Expressions\TypeDefinitionExpression.cs" />
+    <Compile Include="Generators\Objective\ObjectiveClassExpressionBuilder.cs" />
     <Compile Include="Generators\Objective\ObjectiveCodeGenerator.cs" />
     <Compile Include="Generators\Objective\ObjectiveHeaderExpressionBinder.cs" />
     <Compile Include="Generators\Objective\ObjectiveLanguage.cs" />
+    <Compile Include="Generators\Objective\PropertySetterExpressionsBuilder.cs" />
     <Compile Include="ReferencedTypesCollector.cs" />
     <Compile Include="ServiceExpressionBuilder.cs" />
     <Compile Include="Model\PrimitiveType.cs" />
@@ -81,6 +83,12 @@
     <Compile Include="ServiceExpressionVisitor.cs" />
     <Compile Include="SourceCodeGenerator.cs" />
     <Compile Include="PrimitiveTypeNameAttribute.cs" />
+    <Compile Include="SublimateConstructorInfo.cs" />
+    <Compile Include="SublimateMethodInfo.cs" />
+    <Compile Include="SublimateParameterInfo.cs" />
+    <Compile Include="SublimatePropertyInfo.cs" />
+    <Compile Include="SublimateType.cs" />
+    <Compile Include="TypeSystem.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

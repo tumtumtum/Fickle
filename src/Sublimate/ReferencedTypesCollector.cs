@@ -3,6 +3,7 @@
 //
 
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -13,13 +14,13 @@ namespace Sublimate
 	public class ReferencedTypesCollector
 		: ServiceExpressionVisitor
 	{
-		private readonly HashSet<ServiceType> referencedTypes = new HashSet<ServiceType>();
+		private readonly HashSet<Type> referencedTypes = new HashSet<Type>();
 
 		private ReferencedTypesCollector()
 		{	
 		}
 
-		public static List<ServiceType> CollectReferencedTypes(Expression expression)
+		public static List<Type> CollectReferencedTypes(Expression expression)
 		{
 			var collector = new ReferencedTypesCollector();
 
