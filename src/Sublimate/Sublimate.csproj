@@ -65,11 +65,12 @@
     <Compile Include="Expressions\ReferencedTypeExpression.cs" />
     <Compile Include="Expressions\ServiceExpressionType.cs" />
     <Compile Include="Expressions\TypeDefinitionExpression.cs" />
+    <Compile Include="Generators\Objective\SetPropertiesFromDictionaryExpressonsBuilder.cs" />
     <Compile Include="Generators\Objective\ObjectiveClassExpressionBuilder.cs" />
     <Compile Include="Generators\Objective\ObjectiveCodeGenerator.cs" />
     <Compile Include="Generators\Objective\ObjectiveHeaderExpressionBinder.cs" />
     <Compile Include="Generators\Objective\ObjectiveLanguage.cs" />
-    <Compile Include="Generators\Objective\PropertySetterExpressionsBuilder.cs" />
+    <Compile Include="Generators\Objective\MakeDictionaryFromPropertiesExpressonsBuilder.cs" />
     <Compile Include="ReferencedTypesCollector.cs" />
     <Compile Include="ServiceExpressionBuilder.cs" />
     <Compile Include="Model\PrimitiveType.cs" />

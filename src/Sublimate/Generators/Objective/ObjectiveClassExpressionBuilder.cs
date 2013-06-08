@@ -22,6 +22,27 @@ namespace Sublimate.Generators.Objective
 			return binder.Visit(expression);
 		}
 
+		private Expression CreateAllPropertiesAsDictionaryMethod(TypeDefinitionExpression expression)
+		{
+			var dictionaryType = new SublimateType("NSDictionary");
+			var methodBodyExpressions = new List<Expression>();
+			var retvalExpression = Expression.Parameter(dictionaryType, "retval");
+			var newDictionaryExpression = Expression.New(dictionaryType.GetConstructor("dictionaryWithCapacity", typeof(int)), Expression.Constant(16));
+
+			IEnumerable<ParameterExpression> variables = new ParameterExpression[]
+			{
+				retvalExpression
+			};
+
+			methodBodyExpressions.Add(new StatementsExpression(Expression.Assign(retvalExpression, newDictionaryExpression)));
+			methodBodyExpressions.Add(MakeDictionaryFromPropertiesExpressonsBuilder.Build(expression));
+			methodBodyExpressions.Add(new StatementsExpression(Expression.Return(Expression.Label(), Expression.Parameter(dictionaryType, "retval"))));
+
+			var methodBody = Expression.Block(variables, (Expression)new GroupedExpressionsExpression(methodBodyExpressions));
+
+			return new MethodDefinitionExpression("allPropertiesAsDictionary", new ReadOnlyCollection<Expression>(new List<Expression>()), dictionaryType, methodBody, false, null);
+		}
+
 		private MethodDefinitionExpression CreateInitMethod(TypeDefinitionExpression expression)
 		{
 			var type = expression.Type;
@@ -38,7 +59,7 @@ namespace Sublimate.Generators.Objective
 			var compareToNullExpression = Expression.ReferenceEqual(assignExpression, Expression.Constant(null, type));
 
 			methodBodyExpressions.Add(Expression.IfThen(compareToNullExpression, Expression.Block(new StatementsExpression(Expression.Return(Expression.Label(), Expression.Constant(null))))));
-			methodBodyExpressions.Add(PropertySetterExpressionsBuilder.Build(expression));
+			methodBodyExpressions.Add(SetPropertiesFromDictionaryExpressonsBuilder.Build(expression));
 			methodBodyExpressions.Add(new StatementsExpression(Expression.Return(Expression.Label(), Expression.Parameter(type, "self"))));
 
 			IEnumerable<ParameterExpression> variables = new ParameterExpression[]
@@ -67,7 +88,8 @@ namespace Sublimate.Generators.Objective
 
 			var methods = new List<Expression>
 			{
-				this.CreateInitMethod(expression)
+				this.CreateInitMethod(expression),
+				this.CreateAllPropertiesAsDictionaryMethod(expression)
 			};
 
 			var body = new GroupedExpressionsExpression(new ReadOnlyCollection<Expression>(methods));

@@ -1,4 +1,8 @@
-﻿using System;
+﻿//
+// Copyright (c) 2013 Thong Nguyen (tumtumtum@gmail.com)
+//
+
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -10,24 +14,24 @@ using Sublimate.Expressions;
 
 namespace Sublimate.Generators.Objective
 {
-	public class PropertySetterExpressionsBuilder
+	public class SetPropertiesFromDictionaryExpressonsBuilder
 		: ServiceExpressionVisitor
 	{
 		private readonly Type type;
-		private readonly List<Expression> propertySetterExpressions = new List<Expression>();
- 
-		protected PropertySetterExpressionsBuilder(Type type)
+		private readonly List<Expression> propertyGetterExpressions = new List<Expression>();
+
+		protected SetPropertiesFromDictionaryExpressonsBuilder(Type type)
 		{
 			this.type = type;
 		}
 
 		public static Expression Build(TypeDefinitionExpression expression)
 		{
-			var builder = new PropertySetterExpressionsBuilder(expression.Type);
+			var builder = new SetPropertiesFromDictionaryExpressonsBuilder(expression.Type);
 
 			builder.Visit(expression);
 
-			return new GroupedExpressionsExpression(new ReadOnlyCollection<Expression>(builder.propertySetterExpressions.ToArray()));
+			return new GroupedExpressionsExpression(new ReadOnlyCollection<Expression>(builder.propertyGetterExpressions.ToArray()));
 		}
 
 		protected override Expression VisitPropertyDefinitionExpression(PropertyDefinitionExpression property)
@@ -63,11 +67,12 @@ namespace Sublimate.Generators.Objective
 			else if (property.PropertyType is SublimateType && ((SublimateType)property.PropertyType).ServiceType != null)
 			{
 				typeToCompare = dictionaryType;
+
 				assignmentValue = Expression.New(((SublimateType)property.PropertyType).GetConstructor("initWithPropertyDictionary", dictionaryType), Expression.Convert(currentValueFromDictionary, dictionaryType));
 			}
 			else
 			{
-				throw new InvalidOperationException();
+				throw new InvalidOperationException("Unsupported property type: " + property.PropertyType);
 			}
 
 			var assignmentExpression = Expression.Assign(propertyExpression, assignmentValue);
@@ -76,7 +81,7 @@ namespace Sublimate.Generators.Objective
 			expressions.Add(new StatementsExpression(Expression.Assign(currentValueFromDictionary, objectForKeyCall)));
 			expressions.Add(Expression.IfThen(Expression.TypeIs(currentValueFromDictionary, typeToCompare), Expression.Block(new StatementsExpression(assignmentExpression))));
 
-			propertySetterExpressions.Add(new GroupedExpressionsExpression(expressions));
+			this.propertyGetterExpressions.Add(new GroupedExpressionsExpression(expressions));
 
 			return property;
 		}

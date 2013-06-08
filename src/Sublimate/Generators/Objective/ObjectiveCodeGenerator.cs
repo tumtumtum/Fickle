@@ -13,23 +13,16 @@ using Sublimate.Model;
 namespace Sublimate.Generators.Objective
 {
 	[PrimitiveTypeName(typeof(byte), "uint8_t", false)]
-	[PrimitiveTypeName(typeof(byte), "NSNumber", true)]
 	[PrimitiveTypeName(typeof(char), "unichar", false)]
-	[PrimitiveTypeName(typeof(char?), "NSNumber", true)]
 	[PrimitiveTypeName(typeof(short), "int16_t", false)]
-	[PrimitiveTypeName(typeof(short?), "NSNumber", true)]
 	[PrimitiveTypeName(typeof(int), "int32_t", false)]
-	[PrimitiveTypeName(typeof(int?), "NSNumber", true)]
 	[PrimitiveTypeName(typeof(int), "int32_t", false)]
-	[PrimitiveTypeName(typeof(int?), "NSNumber", true)]
 	[PrimitiveTypeName(typeof(long), "int64_t", false)]
-	[PrimitiveTypeName(typeof(long?), "NSNumber", true)]
+	[PrimitiveTypeName(typeof(float), "float", false)]
+	[PrimitiveTypeName(typeof(double), "double", false)]
 	[PrimitiveTypeName(typeof(Guid), "PKUUID", true)]
-	[PrimitiveTypeName(typeof(Guid?), "PKUUID", true)]
 	[PrimitiveTypeName(typeof(DateTime), "NSDate", true)]
-	[PrimitiveTypeName(typeof(DateTime?), "NSDate", true)]
 	[PrimitiveTypeName(typeof(TimeSpan), "PKTimeSpan", true)]
-	[PrimitiveTypeName(typeof(TimeSpan?), "PKTimeSpan", true)]
 	[PrimitiveTypeName(typeof(string), "NSString", true)]
 	public class ObjectiveCodeGenerator
 		: BraceLanguageStyleSourceCodeGenerator
@@ -41,15 +34,28 @@ namespace Sublimate.Generators.Objective
 
 		protected override void Write(Type type, bool nameOnly)
 		{
+			var underlyingType = Nullable.GetUnderlyingType(type);
+
 			if (type == typeof(object))
 			{
 				this.Write("id");
 
 				return;
 			}
+			else if (underlyingType != null && underlyingType.IsPrimitive)
+			{
+				this.Write("NSNumber");
+
+				if (!nameOnly)
+				{
+					base.Write("*");
+				}
+			}
 			else if (type.IsInterface)
 			{
 				this.Write("id<{0}>", type.Name);
+
+				return;
 			}
 
 			var sublimateType = type as SublimateType;
@@ -132,6 +138,30 @@ namespace Sublimate.Generators.Objective
 					this.Visit(node.Operand);
 					this.Write(")");
 				}
+				else if (node.Type == typeof(float))
+				{
+					this.Write("(float)((NSNumber*)");
+					this.Visit(node.Operand);
+					this.Write(").floatValue");
+				}
+				else if (node.Type == typeof(float?))
+				{
+					this.Write("((NSNumber*)");
+					this.Visit(node.Operand);
+					this.Write(")");
+				}
+				else if (node.Type == typeof(double))
+				{
+					this.Write("(double)((NSNumber*)");
+					this.Visit(node.Operand);
+					this.Write(").doubleValue");
+				}
+				else if (node.Type == typeof(double?))
+				{
+					this.Write("((NSNumber*)");
+					this.Visit(node.Operand);
+					this.Write(")");
+				}
 				else if (node.Type == typeof(DateTime?) || node.Type == typeof(DateTime))
 				{
 					this.Write("((NSString*)currentValueFromDictionary).length >= 16 ? [NSDate dateWithTimeIntervalSince1970:[[(NSString*)");
@@ -144,12 +174,47 @@ namespace Sublimate.Generators.Objective
 					this.Visit(node.Operand);
 					this.Write("]");
 				}
+				else if (node.Type == typeof(object))
+				{
+					if (node.Operand.Type.IsPrimitive)
+					{
+						if (node.Operand.Type == typeof(long))
+						{
+							this.Write("[NSNumber numberWithLongLong:");
+							this.Visit(node.Operand);
+							this.Write("]");
+						}
+						else if (node.Operand.Type == typeof(float))
+						{
+							this.Write("[NSNumber numberWithFloat:");
+							this.Visit(node.Operand);
+							this.Write("]");
+						}
+						else if (node.Operand.Type == typeof(double))
+						{
+							this.Write("[NSNumber numberWithDouble:");
+							this.Visit(node.Operand);
+							this.Write("]");
+						}
+						else
+						{
+							this.Write("[NSNumber numberWithInt:");
+							this.Visit(node.Operand);
+							this.Write("]");
+						}
+					}
+					else
+					{
+						this.Visit(node.Operand);
+					}
+				}
 				else
 				{
-					this.Write('(');
+					this.Write("((");
 					this.Write(node.Type);
 					this.Write(')');
 					this.Visit(node.Operand);
+					this.Write(')');
 				}
 			}
 			else if (node.NodeType == ExpressionType.Quote)

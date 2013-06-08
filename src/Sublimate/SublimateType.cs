@@ -42,6 +42,11 @@ namespace Sublimate
 			return new SublimateMethodInfo(this, returnType, name, parameters.ToArray());
 		}
 
+		public MethodInfo GetMethod(string name, Type returnType, params ParameterInfo[] parameters)
+		{
+			return new SublimateMethodInfo(this, returnType, name, parameters.ToArray());
+		}
+
 		protected internal void SetBaseType(Type type)
 		{
 			baseType = type;
