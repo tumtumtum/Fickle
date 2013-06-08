@@ -24,7 +24,7 @@ namespace Sublimate.Generators.Objective
 
 		private Expression CreateAllPropertiesAsDictionaryMethod(TypeDefinitionExpression expression)
 		{
-			var dictionaryType = new SublimateType("NSDictionary");
+			var dictionaryType = new SublimateType("NSMutableDictionary");
 			var methodBodyExpressions = new List<Expression>();
 			var retvalExpression = Expression.Parameter(dictionaryType, "retval");
 			var newDictionaryExpression = Expression.New(dictionaryType.GetConstructor("dictionaryWithCapacity", typeof(int)), Expression.Constant(16));
@@ -34,7 +34,7 @@ namespace Sublimate.Generators.Objective
 				retvalExpression
 			};
 
-			methodBodyExpressions.Add(new StatementsExpression(Expression.Assign(retvalExpression, newDictionaryExpression)));
+			methodBodyExpressions.Add(new GroupedExpressionsExpression(new StatementsExpression(Expression.Assign(retvalExpression, newDictionaryExpression)), true));
 			methodBodyExpressions.Add(MakeDictionaryFromPropertiesExpressonsBuilder.Build(expression));
 			methodBodyExpressions.Add(new StatementsExpression(Expression.Return(Expression.Label(), Expression.Parameter(dictionaryType, "retval"))));
 
@@ -49,7 +49,7 @@ namespace Sublimate.Generators.Objective
 
 			var parameters = new List<Expression>
 			{	
-				new ParameterDefinitionExpression("properties", new SublimateType("NSDictionary"), 0)
+				new ParameterDefinitionExpression("properties", new SublimateType("NSMutableDictionary"), 0)
 			};
 
 			var methodBodyExpressions = new List<Expression>();

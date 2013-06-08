@@ -49,7 +49,7 @@ namespace Sublimate.Generators.Objective
 
 			if (!propertyType.IsPrimitive)
 			{
-				setExpression = Expression.IfThen(Expression.ReferenceEqual(Expression.Convert(propertyExpression, typeof(object)), Expression.Constant(null)), Expression.Block(setExpression));
+				setExpression = Expression.IfThen(Expression.ReferenceNotEqual(Expression.Convert(propertyExpression, typeof(object)), Expression.Constant(null)), Expression.Block(setExpression));
 			}
 			
 			expressions.Add(new GroupedExpressionsExpression(comment, true));

@@ -387,6 +387,13 @@ namespace Sublimate.Generators.Objective
 					this.Visit(node.Right);
 					this.Write(')');
 					break;
+				case ExpressionType.NotEqual:
+					this.Write('(');
+					this.Visit(node.Left);
+					this.Write(" != ");
+					this.Visit(node.Right);
+					this.Write(')');
+					break;
 			}
 
 			return node;
