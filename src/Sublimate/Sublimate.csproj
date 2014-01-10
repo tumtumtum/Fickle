@@ -71,15 +71,17 @@
     <Compile Include="Generators\Objective\ObjectiveHeaderExpressionBinder.cs" />
     <Compile Include="Generators\Objective\ObjectiveLanguage.cs" />
     <Compile Include="Generators\Objective\MakeDictionaryFromPropertiesExpressonsBuilder.cs" />
+    <Compile Include="Model\ServiceEnum.cs" />
+    <Compile Include="Model\ServiceEnumValue.cs" />
     <Compile Include="ReferencedTypesCollector.cs" />
     <Compile Include="ServiceExpressionBuilder.cs" />
-    <Compile Include="Model\PrimitiveType.cs" />
+    <Compile Include="Model\ServiceInbuiltType.cs" />
     <Compile Include="Model\ServiceMethod.cs" />
     <Compile Include="Model\ServiceGateway.cs" />
     <Compile Include="Model\ServiceModel.cs" />
-    <Compile Include="Model\ServiceType.cs" />
+    <Compile Include="Model\ServiceClass.cs" />
     <Compile Include="Model\ServiceParameter.cs" />
-    <Compile Include="Model\ServiceTypeProperty.cs" />
+    <Compile Include="Model\ServiceProperty.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ServiceExpressionVisitor.cs" />
     <Compile Include="SourceCodeGenerator.cs" />
@@ -90,6 +92,12 @@
     <Compile Include="SublimatePropertyInfo.cs" />
     <Compile Include="SublimateType.cs" />
     <Compile Include="TypeSystem.cs" />
+    <Compile Include="Webs\UnexpectedWebsTokenException.cs" />
+    <Compile Include="Webs\WebsKeyword.cs" />
+    <Compile Include="Webs\WebsParser.cs" />
+    <Compile Include="Webs\WebsParserException.cs" />
+    <Compile Include="Webs\WebsToken.cs" />
+    <Compile Include="Webs\WebsTokenizer.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

@@ -14,22 +14,22 @@ namespace Sublimate.Tests
 		{	
 			var serviceModel = new ServiceModel();
 
-			var personType = new ServiceType()
+			var personType = new ServiceClass()
 			{
 				Name = "Person",
-				Properties = new List<ServiceTypeProperty>()
+				Properties = new List<ServiceProperty>()
 				{
-					new ServiceTypeProperty()
+					new ServiceProperty()
 					{
 						Name = "Name",
 						TypeName = "String"
 					},
-					new ServiceTypeProperty()
+					new ServiceProperty()
 					{
 						Name = "Age",
 						TypeName = "Int"
 					},
-					new ServiceTypeProperty()
+					new ServiceProperty()
 					{
 						Name = "Friend",
 						TypeName = "Person"
@@ -62,7 +62,7 @@ namespace Sublimate.Tests
 				}
 			};
 
-			serviceModel.Types = new List<ServiceType>() { personType };
+			serviceModel.Classes = new List<ServiceClass>() { personType };
 			serviceModel.Gateways = new List<ServiceGateway>() { userGateway };
 
 			var serializer = XmlSerializer<ServiceModel>.New();

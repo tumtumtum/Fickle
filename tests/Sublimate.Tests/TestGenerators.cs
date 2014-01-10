@@ -11,64 +11,64 @@ namespace Sublimate.Tests
 	[TestFixture]
 	public class TestGenerators
 	{
-		private ServiceType CreatePersonType()
+		private ServiceClass CreatePersonType()
 		{
-			return new ServiceType()
+			return new ServiceClass()
 			{
 				Name = "Person",
-				Properties = new List<ServiceTypeProperty>()
+				Properties = new List<ServiceProperty>()
 				{
-					new ServiceTypeProperty()
+					new ServiceProperty()
 					{
 						Name = "Id",
 						TypeName = "Guid"
 					},
-					new ServiceTypeProperty()
+					new ServiceProperty()
 					{
 						Name = "Name",
 						TypeName = "String"
 					},
-					new ServiceTypeProperty()
+					new ServiceProperty()
 					{
 						Name = "BirthDate",
 						TypeName = "DateTime"
 					},
-					new ServiceTypeProperty()
+					new ServiceProperty()
 					{
 						Name = "TimeAwake",
 						TypeName = "TimeSpan"
 					},
-					new ServiceTypeProperty()
+					new ServiceProperty()
 					{
 						Name = "NullableLengthInMicrons",
 						TypeName = "Long?"
 					},
-					new ServiceTypeProperty()
+					new ServiceProperty()
 					{
 						Name = "LengthInMicrons",
 						TypeName = "Long"
 					},
-					new ServiceTypeProperty()
+					new ServiceProperty()
 					{
 						Name = "NullableLengthInMicrons",
 						TypeName = "Long?"
 					},
-					new ServiceTypeProperty()
+					new ServiceProperty()
 					{
 						Name = "Age",
 						TypeName = "Int"
 					},
-					new ServiceTypeProperty()
+					new ServiceProperty()
 					{
 						Name = "NullableAge",
 						TypeName = "Int?"
 					},
-					new ServiceTypeProperty()
+					new ServiceProperty()
 					{
 						Name = "NewPassword",
 						TypeName = "String"
 					},
-					new ServiceTypeProperty()
+					new ServiceProperty()
 					{
 						Name = "Friend",
 						TypeName = "Person"
@@ -83,9 +83,9 @@ namespace Sublimate.Tests
 			var serviceModel = new ServiceModel();
 			var personType = this.CreatePersonType();
 			
-			serviceModel.Types = new List<ServiceType>
+			serviceModel.Classes = new List<ServiceClass>
 			{
-				new ServiceType { Name = "ServiceObject" },
+				new ServiceClass { Name = "ServiceObject" },
 				this.CreatePersonType()
 			};
 

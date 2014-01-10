@@ -34,16 +34,16 @@ namespace Sublimate
 			return this.ServiceModel.GetServiceType(name);
 		}
 
-		public virtual Expression Build(ServiceTypeProperty property)
+		public virtual Expression Build(ServiceProperty property)
 		{
 			return new PropertyDefinitionExpression(property.Name, this.GetTypeFromName(property.TypeName));
 		}
 
-		public virtual Expression Build(ServiceType serviceType)
+		public virtual Expression Build(ServiceClass serviceClass)
 		{
-			var propertyDefinitions = serviceType.Properties.Select(Build).ToList();
+			var propertyDefinitions = serviceClass.Properties.Select(Build).ToList();
 
-			return new TypeDefinitionExpression(this.GetTypeFromName(serviceType.Name), new SublimateType("ServiceObject"), null, new GroupedExpressionsExpression(new ReadOnlyCollection<Expression>(propertyDefinitions)));
+			return new TypeDefinitionExpression(this.GetTypeFromName(serviceClass.Name), new SublimateType("ServiceObject"), null, new GroupedExpressionsExpression(new ReadOnlyCollection<Expression>(propertyDefinitions)));
 		}
 
 		public virtual Expression Build(ServiceParameter parameter, int index)

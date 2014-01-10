@@ -50,6 +50,8 @@ namespace Sublimate.Generators.Objective
 				{
 					base.Write("*");
 				}
+
+				return;
 			}
 			else if (type.IsInterface)
 			{

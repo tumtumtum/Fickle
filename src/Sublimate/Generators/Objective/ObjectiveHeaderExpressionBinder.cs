@@ -61,7 +61,7 @@ namespace Sublimate.Generators.Objective
 				includeExpressions.Add(new IncludeStatementExpression("PKTimeSpan.h"));
 			}
 
-			var referencedTypeExpressions = referencedTypes.Where(c => c is SublimateType && ((SublimateType)c).ServiceType != null).Select(c => (Expression)new ReferencedTypeExpression(c)).ToList();
+			var referencedTypeExpressions = referencedTypes.Where(c => c is SublimateType && ((SublimateType)c).ServiceClass != null).Select(c => (Expression)new ReferencedTypeExpression(c)).ToList();
 
 			var comment = new CommentExpression("This file is AUTO GENERATED");
 
@@ -75,9 +75,9 @@ namespace Sublimate.Generators.Objective
 
 			var body = new GroupedExpressionsExpression(new ReadOnlyCollection<Expression>(new List<Expression> { propertyBody }));
 
-			var interfaceTypes = new ReadOnlyCollection<ServiceType>(new List<ServiceType>
+			var interfaceTypes = new ReadOnlyCollection<ServiceClass>(new List<ServiceClass>
 			{
-				new ServiceType()
+				new ServiceClass()
 				{
 					Name = "NSCopying"
 				}

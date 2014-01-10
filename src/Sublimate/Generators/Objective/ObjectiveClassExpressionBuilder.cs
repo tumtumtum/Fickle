@@ -2,13 +2,11 @@
 // Copyright (c) 2013 Thong Nguyen (tumtumtum@gmail.com)
 //
 
-using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq.Expressions;
 using System.Reflection;
 using Sublimate.Expressions;
-using Sublimate.Model;
 
 namespace Sublimate.Generators.Objective
 {

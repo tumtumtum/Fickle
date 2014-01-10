@@ -1,6 +1,6 @@
 ﻿namespace Sublimate.Model
 {
-	public enum PrimitiveType
+	public enum ServiceInbuiltType
 	{
 		Byte,
 		Char,

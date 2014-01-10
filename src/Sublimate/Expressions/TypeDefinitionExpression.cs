@@ -36,7 +36,7 @@ namespace Sublimate.Expressions
 		}
 
 		public bool IsPredeclaration { get; private set; }
-		public ReadOnlyCollection<ServiceType> InterfaceTypes { get; private set; }
+		public ReadOnlyCollection<ServiceClass> InterfaceTypes { get; private set; }
 		public Expression Header { get; private set; }
 		public Expression Body { get; private set; }
 
@@ -45,7 +45,7 @@ namespace Sublimate.Expressions
 		{
 		}
 
-		public TypeDefinitionExpression(Type type, Type baseType, Expression header, Expression body, bool isPredeclaration, ReadOnlyCollection<ServiceType> interfaceTypes)
+		public TypeDefinitionExpression(Type type, Type baseType, Expression header, Expression body, bool isPredeclaration, ReadOnlyCollection<ServiceClass> interfaceTypes)
 		{
 			this.type = type;
 			this.Body = body;

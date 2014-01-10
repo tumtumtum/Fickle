@@ -9,6 +9,9 @@ namespace Sublimate.Model
 		[XmlAttribute]
 		public string Name { get; set; }
 
+		[XmlAttribute]
+		public string Url { get; set; }
+
 		[XmlElement]
 		public List<ServiceMethod> Methods { get; set; }
 	}

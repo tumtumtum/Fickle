@@ -64,7 +64,7 @@ namespace Sublimate.Generators.Objective
 
 				assignmentValue = Expression.Convert(currentValueFromDictionary, propertyExpression.Type);
 			}
-			else if (property.PropertyType is SublimateType && ((SublimateType)property.PropertyType).ServiceType != null)
+			else if (property.PropertyType is SublimateType && ((SublimateType)property.PropertyType).ServiceClass != null)
 			{
 				typeToCompare = dictionaryType;
 

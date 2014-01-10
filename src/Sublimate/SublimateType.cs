@@ -14,7 +14,7 @@ namespace Sublimate
 		private Type baseType;
 		private readonly string name;
 		
-		public ServiceType ServiceType { get; private set; }
+		public ServiceClass ServiceClass { get; private set; }
 
 		public SublimateType(string name)
 			: this(name, typeof(object))
@@ -24,14 +24,14 @@ namespace Sublimate
 		public SublimateType(string name, Type baseType)
 		{
 			this.name = name;
-			this.ServiceType = null;
+			this.ServiceClass = null;
 			this.baseType = baseType;
 		}
 
-		public SublimateType(ServiceType serviceType)
+		public SublimateType(ServiceClass serviceClass)
 		{
-			this.name = serviceType.Name;
-			this.ServiceType = serviceType;
+			this.name = serviceClass.Name;
+			this.ServiceClass = serviceClass;
 		}
 
 		public MethodInfo GetMethod(string name, Type returnType, params Type[] types)

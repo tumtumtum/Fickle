@@ -10,7 +10,10 @@ namespace Sublimate.Model
 	public class ServiceModel
 	{
 		[XmlElement]
-		public List<ServiceType> Types { get; set; }
+		public List<ServiceClass> Classes { get; set; }
+
+		[XmlElement]
+		public List<ServiceEnum> Enums { get; set; }
 
 		[XmlElement]
 		public List<ServiceGateway> Gateways { get; set; }
@@ -21,21 +24,21 @@ namespace Sublimate.Model
 		{
 			if (this.serviceTypesByName == null)
 			{
-				this.serviceTypesByName = this.Types.Select(c => (Type)new SublimateType(c)).ToDictionary(c => c.Name, c => c, StringComparer.InvariantCultureIgnoreCase);
+				this.serviceTypesByName = this.Classes.Select(c => (Type)new SublimateType(c)).ToDictionary(c => c.Name, c => c, StringComparer.InvariantCultureIgnoreCase);
 
 				foreach (SublimateType type in this.serviceTypesByName.Values)
 				{
-					if (!string.IsNullOrEmpty(type.ServiceType.BaseTypeName))
+					if (!string.IsNullOrEmpty(type.ServiceClass.BaseTypeName))
 					{
 						Type baseType;
 
-						if (this.serviceTypesByName.TryGetValue(type.ServiceType.BaseTypeName, out baseType))
+						if (this.serviceTypesByName.TryGetValue(type.ServiceClass.BaseTypeName, out baseType))
 						{
 							type.SetBaseType(baseType);
 						}
 						else
 						{
-							type.SetBaseType(new SublimateType(type.ServiceType.BaseTypeName));
+							type.SetBaseType(new SublimateType(type.ServiceClass.BaseTypeName));
 						}
 					}
 					else

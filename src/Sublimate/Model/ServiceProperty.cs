@@ -3,7 +3,7 @@
 namespace Sublimate.Model
 {
 	[XmlElement("Property")]
-	public class ServiceTypeProperty
+	public class ServiceProperty
 	{
 		[XmlAttribute]
 		public string Name { get; set; }
