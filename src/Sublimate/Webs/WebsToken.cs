@@ -9,6 +9,7 @@ namespace Sublimate.Webs
 	{
 		None,
 		Keyword,
+		Annotation,
 		Integer,
 		Float,
 		Identifier,
@@ -17,8 +18,8 @@ namespace Sublimate.Webs
 		OpenBracket,
 		CloseBracket,
 		StringLiteral,
-		BeginBlock,
-		EndBlock,
+		Indent,
+		Dedent,
 		EndOfFile
 	}
 }

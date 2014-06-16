@@ -1,0 +1,24 @@
+﻿enum Sex
+	Male : 1
+	Female : 2
+
+class ResponseStatus
+	Message : string
+
+class Response
+	ResponseStatus : ResponseStatus
+
+class UserResponse
+	@extends Response
+	User : User
+
+class User
+	Id : uuid
+	Birthdate : datetime
+	Name : string
+	Password : string
+	Age : int?
+	Sex : Sex
+	TimeSinceLastLogin : timespan
+	Friends : User[]
+	FollowerUserIds : uuid[]

@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using NUnit.Framework;
 using Platform.Xml.Serialization;
@@ -15,26 +17,17 @@ namespace Sublimate.Tests
 		[Test]
 		public void TestParse()
 		{
-			var webs = @"
-				enum Sex
-					Male : 1
-					Female : 2
-					Both
+			string webs;
+			var assembly = Assembly.GetExecutingAssembly();
+			var resourceName = this.GetType().Namespace + ".TestFiles.Test.webs";
 
-				class ResponseStatus
-					Message : string
-
-				class User
-					Id : uuid
-					Birthdate : datetime
-					Name : string
-					Password : string
-					Age : int?
-					Sex : Sex
-					TimeSinceLastLogin : timespan
-					Friends : [User]
-					FollowerUserIds : [uuid]
-			";
+			using (var stream = assembly.GetManifestResourceStream(resourceName))
+			{
+				using (var reader = new StreamReader(stream))
+				{
+					webs = reader.ReadToEnd();
+				}
+			}
 
 			var serviceModel =  WebsParser.Parse(webs);
 

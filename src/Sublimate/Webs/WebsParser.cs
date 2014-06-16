@@ -107,6 +107,8 @@ namespace Sublimate.Webs
 			};
 
 			this.tokenizer.ReadNextToken();
+			this.Expect(WebsToken.Indent);
+			this.tokenizer.ReadNextToken();
 
 			while (true)
 			{
@@ -119,6 +121,9 @@ namespace Sublimate.Webs
 
 				retval.Values.Add(enumValue);
 			}
+
+			this.Expect(WebsToken.Dedent, WebsToken.EndOfFile);
+			this.tokenizer.ReadNextToken();
 
 			return retval;
 		}
@@ -156,6 +161,14 @@ namespace Sublimate.Webs
 					builder.Append('?');
 					this.tokenizer.ReadNextToken();
 				}
+
+				if (this.tokenizer.CurrentToken == WebsToken.OpenBracket)
+				{	
+					this.tokenizer.ReadNextToken();
+					this.Expect(WebsToken.CloseBracket);
+					this.tokenizer.ReadNextToken();
+					builder.Append("[]");
+				}
 			}
 
 			return builder.ToString();
@@ -192,18 +205,40 @@ namespace Sublimate.Webs
 			};
 
 			this.tokenizer.ReadNextToken();
+			this.Expect(WebsToken.Indent);
+			this.tokenizer.ReadNextToken();
 
 			while (true)
 			{
-				if (this.tokenizer.CurrentToken != WebsToken.Identifier)
+				if (this.tokenizer.CurrentToken == WebsToken.Identifier)
+				{
+					var property = this.ProcessProperty();
+
+					retval.Properties.Add(property);
+				}
+				else if (this.tokenizer.CurrentToken == WebsToken.Annotation)
+				{
+					var annotationName = this.tokenizer.CurrentString;
+
+					this.tokenizer.ReadStringToEnd();
+
+					var annotationValue = this.tokenizer.CurrentString.Trim();
+
+					if (annotationName == "extends")
+					{
+						retval.BaseTypeName = annotationValue;
+					}
+
+					this.tokenizer.ReadNextToken();
+				}
+				else
 				{
 					break;
 				}
-
-				var property = this.ProcessProperty();
-
-				retval.Properties.Add(property);
 			}
+
+			this.Expect(WebsToken.Dedent, WebsToken.EndOfFile);
+			this.tokenizer.ReadNextToken();
 
 			return retval;
 		}
