@@ -6,6 +6,7 @@ using System.Reflection;
 using System.Text;
 using NUnit.Framework;
 using Platform.Xml.Serialization;
+using Sublimate.Generators.Objective;
 using Sublimate.Model;
 using Sublimate.Webs;
 
@@ -14,8 +15,7 @@ namespace Sublimate.Tests
 	[TestFixture]
 	public class TestWebsParser
 	{
-		[Test]
-		public void TestParse()
+		private ServiceModel GetTestServiceModel()
 		{
 			string webs;
 			var assembly = Assembly.GetExecutingAssembly();
@@ -25,13 +25,25 @@ namespace Sublimate.Tests
 			{
 				using (var reader = new StreamReader(stream))
 				{
-					webs = reader.ReadToEnd();
+					return WebsParser.Parse(reader);
 				}
 			}
-
-			var serviceModel =  WebsParser.Parse(webs);
+		}
+		
+		public void Test_Parse()
+		{
+			var serviceModel = this.GetTestServiceModel();
 
 			Console.WriteLine(XmlSerializer<ServiceModel>.New().SerializeToString(serviceModel));
+		}
+
+		[Test]
+		public void Test_Parse_And_Generator_ObjectiveC()
+		{
+			var serviceModel = this.GetTestServiceModel();
+			var codeGenerator = ServiceModelCodeGenerator.GetCodeGenerator("objc", Console.Out);
+
+			codeGenerator.Generate(serviceModel);
 		}
 	}
 }

@@ -1,5 +1,5 @@
 ﻿//
-// Copyright (c) 2013 Thong Nguyen (tumtumtum@gmail.com)
+// Copyright (c) 2013-2014 Thong Nguyen (tumtumtum@gmail.com)
 //
 
 using System;
@@ -69,6 +69,12 @@ namespace Sublimate.Generators.Objective
 				typeToCompare = dictionaryType;
 
 				assignmentValue = Expression.New(((SublimateType)property.PropertyType).GetConstructor("initWithPropertyDictionary", dictionaryType), Expression.Convert(currentValueFromDictionary, dictionaryType));
+			}
+			else if (property.PropertyType is SublimateType && ((SublimateType)property.PropertyType).ServiceEnum != null)
+			{
+				typeToCompare = new SublimateType("NSNumber");
+
+				assignmentValue = Expression.Convert(currentValueFromDictionary, propertyExpression.Type);
 			}
 			else
 			{

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using Sublimate.Model;
 
@@ -78,17 +79,17 @@ namespace Sublimate.Webs
 				Name = this.tokenizer.CurrentIdentifier
 			};
 
-			this.tokenizer.ReadNextToken();
+			this.ReadNextToken();
 
 			if (this.tokenizer.CurrentToken == WebsToken.Colon)
 			{
-				this.tokenizer.ReadNextToken();
+				this.ReadNextToken();
 
 				this.Expect(WebsToken.Integer);
 
 				retval.Value = (int)this.tokenizer.CurrentInteger;
 
-				this.tokenizer.ReadNextToken();
+				this.ReadNextToken();
 			}
 
 			return retval;
@@ -96,7 +97,7 @@ namespace Sublimate.Webs
 			
 		protected virtual ServiceEnum ProcessEnum()
 		{
-			this.tokenizer.ReadNextToken();
+			this.ReadNextToken();
 
 			this.Expect(WebsToken.Identifier);
 
@@ -106,9 +107,9 @@ namespace Sublimate.Webs
 				Values = new List<ServiceEnumValue>()
 			};
 
-			this.tokenizer.ReadNextToken();
+			this.ReadNextToken();
 			this.Expect(WebsToken.Indent);
-			this.tokenizer.ReadNextToken();
+			this.ReadNextToken();
 
 			while (true)
 			{
@@ -122,8 +123,8 @@ namespace Sublimate.Webs
 				retval.Values.Add(enumValue);
 			}
 
-			this.Expect(WebsToken.Dedent, WebsToken.EndOfFile);
-			this.tokenizer.ReadNextToken();
+			this.Expect(WebsToken.Dedent);
+			this.ReadNextToken();
 
 			return retval;
 		}
@@ -136,17 +137,17 @@ namespace Sublimate.Webs
 			{
 				builder.Append('[');
 
-				this.tokenizer.ReadNextToken();
+				this.ReadNextToken();
 				builder.Append(this.ParseTypeName());
 
 				this.Expect(WebsToken.CloseBracket);
 				builder.Append(']');
-				this.tokenizer.ReadNextToken();
+				this.ReadNextToken();
 
 				if (this.tokenizer.CurrentToken == WebsToken.QuestionMark)
 				{
 					builder.Append('?');
-					this.tokenizer.ReadNextToken();
+					this.ReadNextToken();
 				}
 			}
 			else
@@ -154,19 +155,19 @@ namespace Sublimate.Webs
 				this.Expect(WebsToken.Identifier);
 
 				builder.Append(this.tokenizer.CurrentIdentifier);
-				this.tokenizer.ReadNextToken();
+				this.ReadNextToken();
 
 				if (this.tokenizer.CurrentToken == WebsToken.QuestionMark)
 				{
 					builder.Append('?');
-					this.tokenizer.ReadNextToken();
+					this.ReadNextToken();
 				}
 
 				if (this.tokenizer.CurrentToken == WebsToken.OpenBracket)
 				{	
-					this.tokenizer.ReadNextToken();
+					this.ReadNextToken();
 					this.Expect(WebsToken.CloseBracket);
-					this.tokenizer.ReadNextToken();
+					this.ReadNextToken();
 					builder.Append("[]");
 				}
 			}
@@ -181,11 +182,11 @@ namespace Sublimate.Webs
 				Name = this.tokenizer.CurrentIdentifier
 			};
 
-			this.tokenizer.ReadNextToken();
+			this.ReadNextToken();
 
 			this.Expect(WebsToken.Colon);
 
-			this.tokenizer.ReadNextToken();
+			this.ReadNextToken();
 
 			retval.TypeName = this.ParseTypeName();
 			
@@ -194,7 +195,7 @@ namespace Sublimate.Webs
 
 		protected virtual ServiceClass ProcessClass()
 		{
-			this.tokenizer.ReadNextToken();
+			this.ReadNextToken();
 
 			this.Expect(WebsToken.Identifier);
 
@@ -204,9 +205,9 @@ namespace Sublimate.Webs
 				Properties = new List<ServiceProperty>()
 			};
 
-			this.tokenizer.ReadNextToken();
+			this.ReadNextToken();
 			this.Expect(WebsToken.Indent);
-			this.tokenizer.ReadNextToken();
+			this.ReadNextToken();
 
 			while (true)
 			{
@@ -218,18 +219,17 @@ namespace Sublimate.Webs
 				}
 				else if (this.tokenizer.CurrentToken == WebsToken.Annotation)
 				{
-					var annotationName = this.tokenizer.CurrentString;
+					var annotation = this.ProcessAnnotation();
 
-					this.tokenizer.ReadStringToEnd();
-
-					var annotationValue = this.tokenizer.CurrentString.Trim();
-
-					if (annotationName == "extends")
+					switch(annotation.Key)
 					{
-						retval.BaseTypeName = annotationValue;
+					case "extends":
+						retval.BaseTypeName = annotation.Value;
+						break;
+					default:
+						this.SetAnnotation(retval, annotation);
+						break;
 					}
-
-					this.tokenizer.ReadNextToken();
 				}
 				else
 				{
@@ -237,8 +237,33 @@ namespace Sublimate.Webs
 				}
 			}
 
-			this.Expect(WebsToken.Dedent, WebsToken.EndOfFile);
+			this.Expect(WebsToken.Dedent);
+			this.ReadNextToken();
+
+			return retval;
+		}
+		
+		private void ReadNextToken()
+		{
 			this.tokenizer.ReadNextToken();
+		}
+
+		protected virtual ServiceParameter ProcessParameter()
+		{
+			var retval = new ServiceParameter()
+			{
+				Name = this.tokenizer.CurrentIdentifier
+			};
+
+			this.ReadNextToken();
+			this.Expect(WebsToken.Colon);
+
+			this.ReadNextToken();
+			this.Expect(WebsToken.Identifier);
+
+			retval.TypeName = this.tokenizer.CurrentIdentifier;
+
+			this.ReadNextToken();
 
 			return retval;
 		}
@@ -250,32 +275,87 @@ namespace Sublimate.Webs
 				Name = this.tokenizer.CurrentIdentifier
 			};
 
-			this.tokenizer.ReadNextToken();
+			this.ReadNextToken();
 
-			this.Expect(WebsToken.StringLiteral);
+			this.Expect(WebsToken.OpenParen);
 
-			this.tokenizer.ReadNextToken();
+			this.ReadNextToken();
 
-			if (this.tokenizer.CurrentToken == WebsToken.StringLiteral)
+			var parameters = new List<ServiceParameter>();
+
+			while (this.tokenizer.CurrentToken != WebsToken.CloseParen && this.tokenizer.CurrentToken != WebsToken.EndOfFile)
 			{
-				retval.ContentTypeName = this.tokenizer.CurrentString;
-
-				this.tokenizer.ReadNextToken();
+				parameters.Add(ProcessParameter());
 			}
 
-			if (this.tokenizer.CurrentToken == WebsToken.Colon)
-			{
-				this.tokenizer.ReadNextToken();
+			retval.Parameters = parameters;
 
-				retval.ReturnTypeName = this.ParseTypeName();
+			this.ReadNextToken();
+
+			if (this.tokenizer.CurrentToken == WebsToken.Indent)
+			{
+				this.ReadNextToken();
+
+				while (this.tokenizer.CurrentToken != WebsToken.Dedent
+					&& this.tokenizer.CurrentToken != WebsToken.EndOfFile)
+				{
+					if (this.tokenizer.CurrentToken == WebsToken.Annotation)
+					{
+						var annotation = ProcessAnnotation();
+
+						if (annotation.Key == "content")
+						{
+							var contentTypeName = annotation.Value.Trim();
+
+							var serviceParameter = retval.Parameters.FirstOrDefault(c => c.Name == contentTypeName);
+
+							retval.Content = serviceParameter;
+						}
+						else
+						{
+							this.SetAnnotation(retval, annotation);
+						}
+					}
+				}
+
+				this.Expect(WebsToken.Dedent);
+
+				this.ReadNextToken();
 			}
 
 			return retval;
 		}
 
+		private KeyValuePair<string, string> ProcessAnnotation()
+		{
+			var annotationName = this.tokenizer.CurrentString;
+
+			this.tokenizer.ReadStringToEnd();
+
+			var annotationValue = this.tokenizer.CurrentString.Trim();
+
+			this.ReadNextToken();
+
+			return new KeyValuePair<string, string>(annotationName, annotationValue);
+		}
+
+		private bool SetAnnotation(object target, KeyValuePair<string, string> annotation)
+		{
+			var property = target.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance).FirstOrDefault(c => c.Name.Equals(annotation.Key, StringComparison.InvariantCultureIgnoreCase));
+
+			if (property != null)
+			{
+				property.SetValue(target, Convert.ChangeType(annotation.Value.Trim(), property.PropertyType), null);
+
+				return true;
+			}
+
+			return false;
+		}
+
 		protected virtual ServiceGateway ProcessGateway()
 		{
-			this.tokenizer.ReadNextToken();
+			this.ReadNextToken();
 
 			this.Expect(WebsToken.Identifier);
 
@@ -285,26 +365,32 @@ namespace Sublimate.Webs
 				Methods = new List<ServiceMethod>()
 			};
 
-			this.tokenizer.ReadNextToken();
-
-			if (this.tokenizer.CurrentToken == WebsToken.StringLiteral)
-			{
-				retval.Url = this.tokenizer.CurrentString;
-
-				this.tokenizer.ReadNextToken();
-			}
+			this.ReadNextToken();
+			this.Expect(WebsToken.Indent);
+			this.ReadNextToken();
 
 			while (true)
 			{
-				if (this.tokenizer.CurrentToken != WebsToken.Identifier)
+				if (this.tokenizer.CurrentToken == WebsToken.Identifier)
+				{
+					var method = this.ProcessMethod();
+
+					retval.Methods.Add(method);
+				}
+				else if (this.tokenizer.CurrentToken == WebsToken.Annotation)
+				{
+					var annotation = ProcessAnnotation();
+
+					this.SetAnnotation(retval, annotation);
+				}
+				else
 				{
 					break;
 				}
-
-				var method = this.ProcessMethod();
-
-				retval.Methods.Add(method);
 			}
+
+			this.Expect(WebsToken.Dedent);
+			this.ReadNextToken();
 
 			return retval;
 		}

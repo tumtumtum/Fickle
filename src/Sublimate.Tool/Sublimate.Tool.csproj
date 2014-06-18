@@ -49,10 +49,6 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Sublimate.Attributes\Sublimate.Attributes.csproj">
-      <Project>{7d6d20c8-7cc5-4256-b234-aa144f6d37c6}</Project>
-      <Name>Sublimate.Attributes</Name>
-    </ProjectReference>
     <ProjectReference Include="..\Sublimate\Sublimate.csproj">
       <Project>{aa0ed558-3bf6-4ced-8897-415b4d0c858d}</Project>
       <Name>Sublimate</Name>

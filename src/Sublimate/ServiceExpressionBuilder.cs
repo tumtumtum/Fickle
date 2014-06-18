@@ -1,5 +1,5 @@
 ﻿//
-// Copyright (c) 2013 Thong Nguyen (tumtumtum@gmail.com)
+// Copyright (c) 2013-2014 Thong Nguyen (tumtumtum@gmail.com)
 //
 
 
@@ -43,7 +43,7 @@ namespace Sublimate
 		{
 			var propertyDefinitions = serviceClass.Properties.Select(Build).ToList();
 
-			return new TypeDefinitionExpression(this.GetTypeFromName(serviceClass.Name), new SublimateType("ServiceObject"), null, new GroupedExpressionsExpression(new ReadOnlyCollection<Expression>(propertyDefinitions)));
+			return new TypeDefinitionExpression(this.GetTypeFromName(serviceClass.Name), new SublimateType(serviceClass.BaseTypeName ?? "ServiceObject"), null, new GroupedExpressionsExpression(new ReadOnlyCollection<Expression>(propertyDefinitions)));
 		}
 
 		public virtual Expression Build(ServiceParameter parameter, int index)

@@ -33,8 +33,8 @@ namespace Sublimate
 			AddPrimitiveType(typeof(DateTime?), "DateTime?");
 			AddPrimitiveType(typeof(TimeSpan), "TimeSpan");
 			AddPrimitiveType(typeof(TimeSpan?), "TimeSpan?");
-			AddPrimitiveType(typeof(Guid), "Guid");
-			AddPrimitiveType(typeof(Guid?), "Guid?");
+			AddPrimitiveType(typeof(Guid), "uuid");
+			AddPrimitiveType(typeof(Guid?), "uuid?");
 		}
 
 		public static bool IsPrimitiveType(Type type)

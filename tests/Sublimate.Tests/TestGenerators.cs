@@ -90,7 +90,7 @@ namespace Sublimate.Tests
 			};
 
 			var headerExpression = new ServiceExpressionBuilder(serviceModel).Build(personType);
-			headerExpression = ObjectiveHeaderExpressionBinder.Bind(headerExpression);
+			headerExpression = ObjectiveClassHeaderExpressionBinder.Bind(headerExpression);
 
 			var classExpression = new ServiceExpressionBuilder(serviceModel).Build(personType);
 			classExpression = ObjectiveClassExpressionBinder.Bind(classExpression);

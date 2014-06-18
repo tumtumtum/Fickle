@@ -17,6 +17,8 @@ namespace Sublimate.Webs
 		QuestionMark,
 		OpenBracket,
 		CloseBracket,
+		OpenParen,
+		CloseParen,
 		StringLiteral,
 		Indent,
 		Dedent,

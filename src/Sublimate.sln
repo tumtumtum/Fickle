@@ -5,8 +5,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sublimate", "Sublimate\Subl
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sublimate.Tool", "Sublimate.Tool\Sublimate.Tool.csproj", "{61762536-41A4-449D-A9D7-6890E951FFC3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sublimate.Attributes", "Sublimate.Attributes\Sublimate.Attributes.csproj", "{7D6D20C8-7CC5-4256-B234-AA144F6D37C6}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sublimate.Tests", "..\tests\Sublimate.Tests\Sublimate.Tests.csproj", "{B1CCA1D4-80A1-4374-A32D-C3A24FC16C80}"
 EndProject
 Global
@@ -23,10 +21,6 @@ Global
 		{61762536-41A4-449D-A9D7-6890E951FFC3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{61762536-41A4-449D-A9D7-6890E951FFC3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{61762536-41A4-449D-A9D7-6890E951FFC3}.Release|Any CPU.Build.0 = Release|Any CPU
-		{7D6D20C8-7CC5-4256-B234-AA144F6D37C6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{7D6D20C8-7CC5-4256-B234-AA144F6D37C6}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{7D6D20C8-7CC5-4256-B234-AA144F6D37C6}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{7D6D20C8-7CC5-4256-B234-AA144F6D37C6}.Release|Any CPU.Build.0 = Release|Any CPU
 		{B1CCA1D4-80A1-4374-A32D-C3A24FC16C80}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{B1CCA1D4-80A1-4374-A32D-C3A24FC16C80}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B1CCA1D4-80A1-4374-A32D-C3A24FC16C80}.Release|Any CPU.ActiveCfg = Release|Any CPU

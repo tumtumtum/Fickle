@@ -44,8 +44,7 @@ namespace Sublimate.Tests
 				{
 					new ServiceMethod()
 					{
-						Name = "AddUser",
-						ContentTypeName = "User"
+						Name = "AddUser"
 					},
 					new ServiceMethod()
 					{

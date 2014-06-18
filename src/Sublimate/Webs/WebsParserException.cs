@@ -8,5 +8,13 @@ namespace Sublimate.Webs
 	public class WebsParserException
 		: Exception
 	{
+		public WebsParserException()
+		{
+		}
+
+		public WebsParserException(string message)
+			: base(message)
+		{	
+		}
 	}
 }

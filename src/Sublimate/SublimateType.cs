@@ -11,6 +11,7 @@ namespace Sublimate
 	public class SublimateType
 		: Type
 	{
+		public ServiceEnum ServiceEnum { get; set; }
 		private Type baseType;
 		private readonly string name;
 		
@@ -34,10 +35,29 @@ namespace Sublimate
 			this.ServiceClass = serviceClass;
 		}
 
+		public SublimateType(ServiceEnum serviceEnum)
+		{
+			this.ServiceEnum = serviceEnum;
+			this.name = serviceEnum.Name;
+		}
+
+		protected override bool IsValueTypeImpl()
+		{
+			return this.IsEnum;
+		}
+
+		public override bool IsEnum
+		{
+			get
+			{
+				return this.ServiceEnum != null;
+			}
+		}
+
 		public MethodInfo GetMethod(string name, Type returnType, params Type[] types)
 		{
 			var i = 0;
-			var parameters = types.Select(c => (ParameterInfo)new SublimateParameterInfo(c, "param" + (i++).ToString()));
+			var parameters = types.Select(c => (ParameterInfo)new SublimateParameterInfo(c, "param" + (i++).ToString(CultureInfo.InvariantCulture)));
 
 			return new SublimateMethodInfo(this, returnType, name, parameters.ToArray());
 		}

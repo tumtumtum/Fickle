@@ -4,6 +4,8 @@
 
 class ResponseStatus
 	Message : string
+	ErrorCode : string
+	StackTrace : string
 
 class Response
 	ResponseStatus : ResponseStatus
@@ -20,5 +22,14 @@ class User
 	Age : int?
 	Sex : Sex
 	TimeSinceLastLogin : timespan
-	Friends : User[]
-	FollowerUserIds : uuid[]
+	Friends : User
+	FollowerUserIds : uuid
+
+gateway UserService
+	@url http://www.sublimate-project.org/petstore/api/UserService
+
+	GetUser(Id:uuid)
+		@format json
+		@url User/{id}
+		@method post
+		@return Response

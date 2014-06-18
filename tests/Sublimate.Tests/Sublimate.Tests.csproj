@@ -33,12 +33,22 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="ICSharpCode.SharpZipLib">
+      <HintPath>..\..\src\packages\SharpZipLib.0.86.0\lib\20\ICSharpCode.SharpZipLib.dll</HintPath>
+    </Reference>
     <Reference Include="nunit.framework">
       <HintPath>..\..\src\packages\NUnit.2.6.2\lib\nunit.framework.dll</HintPath>
     </Reference>
     <Reference Include="Platform, Version=1.0.0.78, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\src\packages\Platform.NET.1.0.0.78\lib\35\Platform.dll</HintPath>
+    </Reference>
+    <Reference Include="Platform.VirtualFileSystem, Version=1.0.0.59, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\src\packages\Platform.VirtualFileSystem.1.0.0.59\lib\35\Platform.VirtualFileSystem.dll</HintPath>
+    </Reference>
+    <Reference Include="Platform.VirtualFileSystem.Providers.Zip">
+      <HintPath>..\..\src\packages\Platform.VirtualFileSystem.Providers.Zip.1.0.0.54\lib\35\Platform.VirtualFileSystem.Providers.Zip.dll</HintPath>
     </Reference>
     <Reference Include="Platform.Xml.Serialization, Version=1.0.0.78, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -59,6 +69,7 @@
     <Compile Include="TestWebsParser.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="App.config" />
     <None Include="packages.config" />
     <EmbeddedResource Include="TestFiles\Test.webs" />
   </ItemGroup>

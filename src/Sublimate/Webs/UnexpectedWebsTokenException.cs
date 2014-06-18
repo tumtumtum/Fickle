@@ -13,6 +13,7 @@ namespace Sublimate.Webs
 		public WebsToken[] ExpectedTokens { get; set; }
 
 		public UnexpectedWebsTokenException(WebsToken token, object relatedValue, params WebsToken[] expectedTokens)
+			: base(string.Format("Expected ({0}) but was {1}", string.Join(",", expectedTokens.Select(c => c.ToString())), token))
 		{
 			this.Token = token;
 			this.RelatedValue = relatedValue;

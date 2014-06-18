@@ -159,6 +159,7 @@ namespace Sublimate.Webs
 					workingIndent = 0;
 				}
 			}
+			
 
 			while (char.IsWhiteSpace((char)currentChar))
 			{
@@ -180,9 +181,21 @@ namespace Sublimate.Webs
 
 			if (currentChar == -1)
 			{
-				this.CurrentToken = WebsToken.EndOfFile;
+				if (this.indentStack.Count > 1)
+				{
+					this.indentStack.Pop();
+					workingIndent = this.indentStack.Peek();
 
-				return this.CurrentToken;
+					this.CurrentToken = WebsToken.Dedent;
+
+					return this.CurrentToken;
+				}
+				else
+				{
+					this.CurrentToken = WebsToken.EndOfFile;
+
+					return this.CurrentToken;
+				}
 			}
 
 			if (!encounteredSymbolOnCurrentLine)
@@ -230,6 +243,16 @@ namespace Sublimate.Webs
 				this.ConsumeChar(); 
 				this.CurrentToken = WebsToken.CloseBracket;
 			}
+			else if (currentChar == '(')
+			{
+				this.ConsumeChar();
+				this.CurrentToken = WebsToken.OpenParen;
+			}
+			else if (currentChar == ')')
+			{
+				this.ConsumeChar();
+				this.CurrentToken = WebsToken.CloseParen;
+			}
 			else if (char.IsDigit((char)currentChar))
 			{
 				var foundPoint = false;
@@ -269,7 +292,7 @@ namespace Sublimate.Webs
 
 				stringBuilder.Clear();
 
-				while (currentChar != -1 && char.IsLetterOrDigit((char)currentChar))
+				while (currentChar != -1 && (char.IsLetterOrDigit((char)currentChar) || (char)currentChar == '-'))
 				{
 					stringBuilder.Append((char)currentChar);
 

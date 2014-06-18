@@ -1,5 +1,5 @@
 ﻿//
-// Copyright (c) 2013 Thong Nguyen (tumtumtum@gmail.com)
+// Copyright (c) 2013-2014 Thong Nguyen (tumtumtum@gmail.com)
 //
 
 using System;
@@ -8,18 +8,17 @@ using Platform;
 using System.Linq;
 using System.Linq.Expressions;
 using Sublimate.Expressions;
-using Sublimate.Model;
 
 namespace Sublimate.Generators.Objective
 {
-	[PrimitiveTypeName(typeof(byte), "uint8_t", false)]
+	[PrimitiveTypeName(typeof(byte), "UInt8", false)]
 	[PrimitiveTypeName(typeof(char), "unichar", false)]
-	[PrimitiveTypeName(typeof(short), "int16_t", false)]
-	[PrimitiveTypeName(typeof(int), "int32_t", false)]
-	[PrimitiveTypeName(typeof(int), "int32_t", false)]
-	[PrimitiveTypeName(typeof(long), "int64_t", false)]
-	[PrimitiveTypeName(typeof(float), "float", false)]
-	[PrimitiveTypeName(typeof(double), "double", false)]
+	[PrimitiveTypeName(typeof(short), "Int16", false)]
+	[PrimitiveTypeName(typeof(int), "Int", false)]
+	[PrimitiveTypeName(typeof(int), "Int", false)]
+	[PrimitiveTypeName(typeof(long), "Int64", false)]
+	[PrimitiveTypeName(typeof(float), "Float32", false)]
+	[PrimitiveTypeName(typeof(double), "Float64", false)]
 	[PrimitiveTypeName(typeof(Guid), "PKUUID", true)]
 	[PrimitiveTypeName(typeof(DateTime), "NSDate", true)]
 	[PrimitiveTypeName(typeof(TimeSpan), "PKTimeSpan", true)]
@@ -66,7 +65,7 @@ namespace Sublimate.Generators.Objective
 			{
 				base.Write(type, nameOnly);
 
-				if (!nameOnly)
+				if (!nameOnly && sublimateType.IsClass)
 				{
 					base.Write("*");
 				}
