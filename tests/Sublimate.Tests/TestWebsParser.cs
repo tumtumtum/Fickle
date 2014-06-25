@@ -17,7 +17,6 @@ namespace Sublimate.Tests
 	{
 		private ServiceModel GetTestServiceModel()
 		{
-			string webs;
 			var assembly = Assembly.GetExecutingAssembly();
 			var resourceName = this.GetType().Namespace + ".TestFiles.Test.webs";
 

@@ -7,6 +7,8 @@ namespace Sublimate
 {
 	public class CodeGenerationOptions
 	{
+		public static readonly CodeGenerationOptions Default = new CodeGenerationOptions();
+
 		public string BaseTypeName { get; set; }
 	}
 }

@@ -48,20 +48,20 @@ namespace Sublimate
 
 		public static ServiceModelCodeGenerator GetCodeGenerator(string language, IDirectory directory)
 		{
-			return ServiceModelCodeGenerator.GetCodeGenerator(language, (object)directory);
+			return ServiceModelCodeGenerator.GetCodeGenerator(language, (object)directory, CodeGenerationOptions.Default);
 		}
 
 		public static ServiceModelCodeGenerator GetCodeGenerator(string language, IFile file)
 		{
-			return ServiceModelCodeGenerator.GetCodeGenerator(language, (object)file);
+			return ServiceModelCodeGenerator.GetCodeGenerator(language, (object)file, CodeGenerationOptions.Default);
 		}
 
 		public static ServiceModelCodeGenerator GetCodeGenerator(string language, TextWriter writer)
 		{
-			return ServiceModelCodeGenerator.GetCodeGenerator(language, (object)writer);
+			return ServiceModelCodeGenerator.GetCodeGenerator(language, (object)writer, CodeGenerationOptions.Default);
 		}
 
-		public static ServiceModelCodeGenerator GetCodeGenerator(string language, object param)
+		public static ServiceModelCodeGenerator GetCodeGenerator(string language, object param, CodeGenerationOptions options)
 		{
 			var types = typeof(ServiceModelCodeGenerator).Assembly.GetTypes();
 			var serviceModelCodeGeneratorTypes = types.Where(c => typeof(ServiceModelCodeGenerator).IsAssignableFrom(c));
@@ -84,7 +84,7 @@ namespace Sublimate
 
 			if (generatorType != null)
 			{
-				return (ServiceModelCodeGenerator)Activator.CreateInstance(generatorType, new [] { param });
+				return (ServiceModelCodeGenerator)Activator.CreateInstance(generatorType, new [] { param, options });
 			}
 
 			return null;

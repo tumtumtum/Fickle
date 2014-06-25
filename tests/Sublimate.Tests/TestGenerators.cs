@@ -21,7 +21,7 @@ namespace Sublimate.Tests
 					new ServiceProperty()
 					{
 						Name = "Id",
-						TypeName = "Guid"
+						TypeName = "UUID"
 					},
 					new ServiceProperty()
 					{
