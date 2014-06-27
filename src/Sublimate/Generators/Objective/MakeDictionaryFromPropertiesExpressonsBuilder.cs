@@ -29,7 +29,7 @@ namespace Sublimate.Generators.Objective
 
 			builder.Visit(expression);
 
-			return new GroupedExpressionsExpression(new ReadOnlyCollection<Expression>(builder.propertySetterExpressions.ToArray()));
+			return builder.propertySetterExpressions.ToGroupedExpression();
 		}
 
 		protected override Expression VisitPropertyDefinitionExpression(PropertyDefinitionExpression property)
@@ -41,7 +41,7 @@ namespace Sublimate.Generators.Objective
 			var dictionaryType = new SublimateType("NSDictionary"); 
 			var retval = Expression.Parameter(dictionaryType, "retval");
 			var setObjectForKeyMethod = dictionaryType.GetMethod("setObject", typeof(void), new ParameterInfo[] { new SublimateParameterInfo(typeof(object), "obj"),new SublimateParameterInfo(typeof(string), "forKey") });
-			var propertyExpression = Expression.Property(Expression.Parameter(type, "self"), new SublimatePropertyInfo(type, property.PropertyType, property.PropertyName.Uncapitalize()));
+			var propertyExpression = Expression.Property(Expression.Parameter(type, "self"), new SublimatePropertyInfo(type, property.PropertyType, property.PropertyName));
 
 			var setObjectForKeyMethodCall = Expression.Call(retval, setObjectForKeyMethod, Expression.Convert(propertyExpression, typeof(object)), Expression.Constant(property.PropertyName));
 
@@ -55,7 +55,7 @@ namespace Sublimate.Generators.Objective
 			expressions.Add(comment);
 			expressions.Add(setExpression);
 
-			propertySetterExpressions.Add(new GroupedExpressionsExpression(expressions, GroupedExpressionsExpressionStyle.Wide));
+			propertySetterExpressions.Add(expressions.ToGroupedExpression(GroupedExpressionsExpressionStyle.Wide));
 
 			return property;
 		}

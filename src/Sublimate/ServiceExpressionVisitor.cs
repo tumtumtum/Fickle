@@ -49,7 +49,7 @@ namespace Sublimate
 
 			if (expressions != expression.Expressions)
 			{
-				return new GroupedExpressionsExpression(expressions);
+				return expressions.ToGroupedExpression();
 			}
 
 			return expression;

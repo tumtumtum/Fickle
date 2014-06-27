@@ -10,6 +10,6 @@
 		TypeDefinition = GroupedExpressions + 5,
 		IncludeStatement = GroupedExpressions + 6,
 		ReferencedType = GroupedExpressions + 7,
-		Comment = GroupedExpressions + 8,
+		Comment = GroupedExpressions + 8
 	}
 }

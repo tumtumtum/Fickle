@@ -31,7 +31,7 @@ namespace Sublimate.Generators.Objective
 
 			builder.Visit(expression);
 
-			return new GroupedExpressionsExpression(new ReadOnlyCollection<Expression>(builder.propertyGetterExpressions.ToArray()), GroupedExpressionsExpressionStyle.Wide);
+			return builder.propertyGetterExpressions.ToGroupedExpression(GroupedExpressionsExpressionStyle.Wide);
 		}
 
 		protected override Expression VisitPropertyDefinitionExpression(PropertyDefinitionExpression property)
@@ -76,6 +76,12 @@ namespace Sublimate.Generators.Objective
 
 				assignmentValue = Expression.Convert(currentValueFromDictionary, propertyExpression.Type);
 			}
+			else if (property.PropertyType is SublimateListType)
+			{
+				typeToCompare = new SublimateType("NSArray");
+
+				assignmentValue = Expression.Convert(currentValueFromDictionary, propertyExpression.Type);
+			}
 			else
 			{
 				throw new InvalidOperationException("Unsupported property type: " + property.PropertyType);
@@ -87,7 +93,7 @@ namespace Sublimate.Generators.Objective
 			expressions.Add(new StatementsExpression(Expression.Assign(currentValueFromDictionary, objectForKeyCall)));
 			expressions.Add(Expression.IfThen(Expression.TypeIs(currentValueFromDictionary, typeToCompare), Expression.Block(new StatementsExpression(assignmentExpression))));
 
-			this.propertyGetterExpressions.Add(new GroupedExpressionsExpression(expressions, GroupedExpressionsExpressionStyle.Wide));
+			this.propertyGetterExpressions.Add(expressions.ToGroupedExpression(GroupedExpressionsExpressionStyle.Wide));
 
 			return property;
 		}

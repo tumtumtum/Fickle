@@ -9,7 +9,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Sublimate</RootNamespace>
     <AssemblyName>Sublimate</AssemblyName>
-    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
@@ -24,6 +24,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -33,6 +34,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup>
     <StartupObject />
@@ -75,12 +77,15 @@
     <Compile Include="Expressions\ReferencedTypeExpression.cs" />
     <Compile Include="Expressions\ServiceExpressionType.cs" />
     <Compile Include="Expressions\TypeDefinitionExpression.cs" />
+    <Compile Include="EnumerableExtensions.cs" />
+    <Compile Include="Generators\Objective\CopyPropertiesExpressionBuilder.cs" />
+    <Compile Include="Generators\Objective\ObjectiveNewExpression.cs" />
     <Compile Include="Generators\Objective\ObjectiveServiceModelCodeGenerator.cs" />
+    <Compile Include="Generators\Objective\ObjectiveLanguage.cs" />
     <Compile Include="Generators\Objective\SetPropertiesFromDictionaryExpressonsBuilder.cs" />
     <Compile Include="Generators\Objective\ObjectiveClassExpressionBuilder.cs" />
     <Compile Include="Generators\Objective\ObjectiveCodeGenerator.cs" />
     <Compile Include="Generators\Objective\ObjectiveClassHeaderExpressionBinder.cs" />
-    <Compile Include="Generators\Objective\ObjectiveLanguage.cs" />
     <Compile Include="Generators\Objective\MakeDictionaryFromPropertiesExpressonsBuilder.cs" />
     <Compile Include="Model\ServiceEnum.cs" />
     <Compile Include="Model\ServiceEnumValue.cs" />
@@ -99,11 +104,14 @@
     <Compile Include="ServiceModelCodeGeneratorAttribute.cs" />
     <Compile Include="SourceCodeGenerator.cs" />
     <Compile Include="PrimitiveTypeNameAttribute.cs" />
+    <Compile Include="SublimateBasicType.cs" />
     <Compile Include="SublimateConstructorInfo.cs" />
+    <Compile Include="SublimateListType.cs" />
     <Compile Include="SublimateMethodInfo.cs" />
     <Compile Include="SublimateParameterInfo.cs" />
     <Compile Include="SublimatePropertyInfo.cs" />
     <Compile Include="SublimateType.cs" />
+    <Compile Include="TypeExtensions.cs" />
     <Compile Include="TypeSystem.cs" />
     <Compile Include="Webs\UnexpectedWebsTokenException.cs" />
     <Compile Include="Webs\WebsKeyword.cs" />

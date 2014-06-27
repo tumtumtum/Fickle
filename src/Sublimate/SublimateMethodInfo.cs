@@ -113,5 +113,10 @@ namespace Sublimate
 		{
 			throw new NotImplementedException();
 		}
+
+		public override string ToString()
+		{
+			return this.Name;
+		}
 	}
 }

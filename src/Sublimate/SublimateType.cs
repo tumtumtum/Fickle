@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
+using System.Reflection.Emit;
 using System.Text;
 using Sublimate.Model;
 
@@ -11,12 +13,13 @@ namespace Sublimate
 	public class SublimateType
 		: Type
 	{
+		private readonly ServiceModel serviceModel;
 		public ServiceEnum ServiceEnum { get; set; }
 		private Type baseType;
 		private readonly string name;
 		
 		public ServiceClass ServiceClass { get; private set; }
-
+		
 		public SublimateType(string name)
 			: this(name, typeof(object))
 		{
@@ -29,14 +32,16 @@ namespace Sublimate
 			this.baseType = baseType;
 		}
 
-		public SublimateType(ServiceClass serviceClass)
+		public SublimateType(ServiceClass serviceClass, ServiceModel serviceModel)
 		{
+			this.serviceModel = serviceModel;
 			this.name = serviceClass.Name;
 			this.ServiceClass = serviceClass;
 		}
 
-		public SublimateType(ServiceEnum serviceEnum)
+		public SublimateType(ServiceEnum serviceEnum, ServiceModel serviceModel)
 		{
+			this.serviceModel = serviceModel;
 			this.ServiceEnum = serviceEnum;
 			this.name = serviceEnum.Name;
 		}
@@ -127,8 +132,99 @@ namespace Sublimate
 			return false;
 		}
 
+		public override bool ContainsGenericParameters
+		{
+			get
+			{
+				return false;
+			}
+		}
+
+		public override MethodBase DeclaringMethod
+		{
+			get
+			{
+				return base.DeclaringMethod;
+			}
+		}
+
+		public override Type DeclaringType
+		{
+			get
+			{
+				return base.DeclaringType;
+			}
+		}
+
+		public override bool IsSubclassOf(Type c)
+		{
+			return base.IsSubclassOf(c);
+		}
+
+		public override Type ReflectedType
+		{
+			get
+			{
+				return base.ReflectedType;
+			}
+		}
+
+		public override MemberTypes MemberType
+		{
+			get
+			{
+				return base.MemberType;
+			}
+		}
+
+		public override MemberInfo[] GetDefaultMembers()
+		{
+			return base.GetDefaultMembers();
+		}
+
+		public override MemberInfo[] GetMember(string name, MemberTypes type, BindingFlags bindingAttr)
+		{
+			return base.GetMember(name, type, bindingAttr);
+		}
+
+		public override MemberInfo[] GetMember(string name, BindingFlags bindingAttr)
+		{
+			return base.GetMember(name, bindingAttr);
+		}
+
+		public override bool IsGenericType
+		{
+			get
+			{
+				return base.IsGenericType;
+			}
+		}
+
+		public override bool IsGenericTypeDefinition
+		{
+			get
+			{
+				return base.IsGenericTypeDefinition;
+			}
+		}
+
+		public override System.Type GetGenericTypeDefinition()
+		{
+			return base.GetGenericTypeDefinition();
+		}
+
 		protected override PropertyInfo GetPropertyImpl(string name, BindingFlags bindingAttr, Binder binder, Type returnType, Type[] types, ParameterModifier[] modifiers)
 		{
+			if (returnType == null)
+			{
+				if (this.ServiceClass != null)
+				{
+					var returnTypeName = this.ServiceClass.Properties.FirstOrDefault(c => c.Name.Equals(name, StringComparison.InvariantCultureIgnoreCase)).TypeName;
+
+					returnType = this.serviceModel.GetTypeFromName(returnTypeName);
+				}
+			}
+
 			return new SublimatePropertyInfo(this, returnType, name);
 		}
 
@@ -205,6 +301,11 @@ namespace Sublimate
 			}
 		}
 
+		public virtual ConstructorInfo GetConstructor(string name)
+		{
+			return new SublimateConstructorInfo(this, name, new ParameterInfo[0]);
+		}
+
 		public virtual ConstructorInfo GetConstructor(string name, Type parameterType)
 		{
 			return new SublimateConstructorInfo(this, name, new ParameterInfo[] { new SublimateParameterInfo(parameterType, name) });
@@ -251,41 +352,22 @@ namespace Sublimate
 			}
 		}
 
-		public override string FullName
-		{
-			get
-			{
-				throw new NotImplementedException();
-			}
-		}
-
 		public override string Namespace
 		{
 			get
 			{
-				throw new NotImplementedException();
+				return null;
 			}
 		}
 
-		public override string AssemblyQualifiedName
+		public override bool IsInstanceOfType(object o)
 		{
-			get
-			{
-				throw new NotImplementedException();
-			}
+			return true;
 		}
 
-		public override Type BaseType
+		public override bool IsAssignableFrom(Type c)
 		{
-			get
-			{
-				return baseType;
-			}
-		}
-
-		public override object[] GetCustomAttributes(Type attributeType, bool inherit)
-		{
-			throw new NotImplementedException();
+			return true;
 		}
 
 		public override int GetHashCode()
@@ -299,6 +381,7 @@ namespace Sublimate
 			{
 				return true;
 			}
+
 			var typedObject = o as SublimateType;
 
 			if (typedObject == null)
@@ -307,6 +390,29 @@ namespace Sublimate
 			}
 
 			return this.Name.Equals(typedObject.name, StringComparison.InvariantCultureIgnoreCase);
+		}
+
+		public override string AssemblyQualifiedName
+		{
+			get { throw new NotImplementedException(); }
+		}
+
+		public override Type BaseType
+		{
+			get
+			{
+				return this.baseType;
+			}
+		}
+
+		public override string FullName
+		{
+			get { throw new NotImplementedException(); }
+		}
+
+		public override object[] GetCustomAttributes(Type attributeType, bool inherit)
+		{
+			throw new NotImplementedException();
 		}
 	}
 }

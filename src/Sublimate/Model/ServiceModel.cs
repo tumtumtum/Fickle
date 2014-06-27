@@ -20,11 +20,52 @@ namespace Sublimate.Model
 
 		private Dictionary<string, Type> serviceTypesByName;
 
+		public virtual Type GetTypeFromName(string name)
+		{
+			var list = false;
+
+			if (name.EndsWith("[]"))
+			{
+				list = true;
+				name = name.Substring(0, name.Length - 2);
+			}
+
+			var type = TypeSystem.GetPrimitiveType(name);
+
+			if (type == null)
+			{
+				type = this.GetServiceType(name);
+			}
+
+			if (list)
+			{
+				return MakeListType(type);
+			}
+			else
+			{
+				return type;
+			}
+		}
+
+		private readonly Dictionary<Type, Type> listTypesByElementType = new Dictionary<Type, Type>();
+
+		private Type MakeListType(Type elementType)
+		{
+			Type value;
+			
+			if (!listTypesByElementType.TryGetValue(elementType, out value))
+			{
+				value = new SublimateListType(elementType);
+			}
+
+			return value;
+		}
+
 		public virtual Type GetServiceType(string name)
 		{
 			if (this.serviceTypesByName == null)
 			{
-				this.serviceTypesByName = this.Classes.Select(c => (object)c).Concat(this.Enums ?? Enumerable.Empty<object>()).Select(c => c is ServiceEnum ? (Type)new SublimateType((ServiceEnum)c) : (Type)new SublimateType((ServiceClass)c)).ToDictionary(c => c.Name, c => c, StringComparer.InvariantCultureIgnoreCase);
+				this.serviceTypesByName = this.Classes.Select(c => (object)c).Concat(this.Enums ?? Enumerable.Empty<object>()).Select(c => c is ServiceEnum ? (Type)new SublimateType((ServiceEnum)c, this) : (Type)new SublimateType((ServiceClass)c, this)).ToDictionary(c => c.Name, c => c, StringComparer.InvariantCultureIgnoreCase);
 
 				foreach (SublimateType type in this.serviceTypesByName.Values)
 				{

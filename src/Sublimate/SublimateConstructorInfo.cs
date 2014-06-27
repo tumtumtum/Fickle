@@ -10,7 +10,7 @@ namespace Sublimate
 	public  class SublimateConstructorInfo
 		: ConstructorInfo
 	{
-		private string name;
+		private readonly string name;
 		private readonly Type declaringType;
 		private readonly ParameterInfo[] parameters;
 

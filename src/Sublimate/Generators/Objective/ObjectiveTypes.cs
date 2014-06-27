@@ -1,10 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
+using System.Text;
 
 namespace Sublimate.Generators.Objective
 {
-	public class ObjectiveLanguage
+	public class ObjectiveTypes
 	{
 		public static readonly SublimateType NSZoneType = new SublimateType("NSZone");
 		public static readonly SublimateType NSMutableArray = new SublimateType("NSMutableArray");

@@ -22,9 +22,9 @@ class User
 	Password : string
 	Age : int32?
 	Sex : Sex
-	TimeSinceLastLogin : timespan
-	Friends : User
-	FollowerUserIds : uuid
+	TimeSinceLastLogin : timespan[]
+	Friends : User[]
+	FollowerUserIds : uuid[]
 
 gateway UserService
 	@url http://www.sublimate-project.org/petstore/api/UserService

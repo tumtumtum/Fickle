@@ -33,7 +33,7 @@ namespace Sublimate.Generators.Objective
 			{
 				var attributedPropertyGetter = new MethodDefinitionExpression(name, null, property.PropertyType, null, true, "(objc_method_family(none))");
 
-				return new GroupedExpressionsExpression(new ReadOnlyCollection<Expression>(new List<Expression> { propertyDefinition, attributedPropertyGetter }));
+				return new Expression[] { propertyDefinition, attributedPropertyGetter }.ToGroupedExpression();
 			}
 			else
 			{
@@ -64,15 +64,13 @@ namespace Sublimate.Generators.Objective
 
 			var comment = new CommentExpression("This file is AUTO GENERATED");
 
-			var commentGroup = new GroupedExpressionsExpression(new [] { comment }, GroupedExpressionsExpressionStyle.Narrow);
-			var headerGroup = new GroupedExpressionsExpression(includeExpressions, GroupedExpressionsExpressionStyle.Narrow);
-			var referencedGroup = new GroupedExpressionsExpression(referencedTypeExpressions, GroupedExpressionsExpressionStyle.Narrow);
+			var commentGroup = new [] { comment }.ToGroupedExpression();
+			var headerGroup = includeExpressions.ToGroupedExpression();
+			var referencedGroup =referencedTypeExpressions.ToGroupedExpression();
 
 			var header = GroupedExpressionsExpression.FlatConcat(GroupedExpressionsExpressionStyle.Wide, commentGroup, headerGroup, referencedGroup);
 
 			var propertyBody = this.Visit(expression.Body);
-
-			var body = new GroupedExpressionsExpression(new ReadOnlyCollection<Expression>(new List<Expression> { propertyBody }));
 
 			var interfaceTypes = new ReadOnlyCollection<ServiceClass>(new List<ServiceClass>
 			{
@@ -82,7 +80,7 @@ namespace Sublimate.Generators.Objective
 				}
 			});
 
-			return new TypeDefinitionExpression(expression.Type, expression.BaseType, header, body, true, interfaceTypes);
+			return new TypeDefinitionExpression(expression.Type, expression.BaseType, header, propertyBody, true, interfaceTypes);
 		}
 	}
 }

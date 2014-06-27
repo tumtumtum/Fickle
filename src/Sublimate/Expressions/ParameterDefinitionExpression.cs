@@ -17,7 +17,13 @@ namespace Sublimate.Expressions
 		public int Index { get; private set; }
 		public string ParameterName { get; private set; }
 		public Type ParameterType { get; private set; }
-		
+
+
+		public ParameterDefinitionExpression(ParameterExpression parameterExpression, int index)
+			: this(parameterExpression.Name, parameterExpression.Type, index)
+		{
+		}
+
 		public ParameterDefinitionExpression(string parameterName, Type parameterType, int index)
 		{
 			this.Index = index;

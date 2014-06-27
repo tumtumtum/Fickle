@@ -2,20 +2,29 @@
 // Copyright (c) 2013-2014 Thong Nguyen (tumtumtum@gmail.com)
 //
 
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq.Expressions;
 using System.Reflection;
 using Sublimate.Expressions;
+using Sublimate.Model;
 
 namespace Sublimate.Generators.Objective
 {
 	public class ObjectiveClassExpressionBinder
 		: ServiceExpressionVisitor
 	{
-		public static Expression Bind(Expression expression)
+		private readonly ServiceModel serviceModel;
+
+		private ObjectiveClassExpressionBinder(ServiceModel serviceModel)
 		{
-			var binder = new ObjectiveClassExpressionBinder();
+			this.serviceModel = serviceModel;
+		}
+
+		public static Expression Bind(ServiceModel serviceModel, Expression expression)
+		{
+			var binder = new ObjectiveClassExpressionBinder(serviceModel);
 
 			return binder.Visit(expression);
 		}
@@ -63,9 +72,31 @@ namespace Sublimate.Generators.Objective
 				Expression.Parameter(typeof(object), "currentValueFromDictionary")
 			};
 			
-			var methodBody = Expression.Block(variables, (Expression)new GroupedExpressionsExpression(methodBodyExpressions, GroupedExpressionsExpressionStyle.Wide));
+			var methodBody = Expression.Block(variables, (Expression)methodBodyExpressions.ToGroupedExpression(GroupedExpressionsExpressionStyle.Wide));
 
 			return new MethodDefinitionExpression("initWithPropertyDictionary", new ReadOnlyCollection<Expression>(parameters), typeof(object), methodBody, false, null);
+		}
+
+		private Expression CreateCopyWithZoneMethod(TypeDefinitionExpression expression)
+		{
+			var zone = Expression.Parameter(ObjectiveLanguage.NSZoneType, "zone");
+			var theCopy = Expression.Variable(expression.Type, "theCopy");
+			var objectiveClassType = new SublimateType("Class");
+			var currentType = new SublimateType(expression.Type.Name);
+			var allocWithZone = objectiveClassType.GetMethod("allocWithZone", currentType, new Type[] { ObjectiveLanguage.NSZoneType });
+			var classMethod = currentType.GetMethod("class", objectiveClassType, new Type[0]);
+			var self = Expression.Parameter(currentType, "self");
+			var selfInitMethod = currentType.GetMethod("init", currentType, new ParameterInfo[0]);
+
+			var newExpression = Expression.Call(Expression.Call(Expression.Call(self, classMethod), allocWithZone, zone), selfInitMethod);
+
+			var initTheCopy = new StatementsExpression(Expression.Assign(theCopy, newExpression));
+			var returnStatement = new StatementsExpression(Expression.Return(Expression.Label(), theCopy));
+			var copyStatements = CopyPropertiesExpressionBuilder.Build(this.serviceModel, expression, zone, theCopy);
+
+			Expression methodBody = Expression.Block(new ParameterExpression[] { theCopy }, new[] { initTheCopy, copyStatements, returnStatement }.ToGroupedExpression(GroupedExpressionsExpressionStyle.Wide));
+
+			return new MethodDefinitionExpression("copyWithZone", new ReadOnlyCollection<Expression>(new List<Expression>(new [] { new ParameterDefinitionExpression(zone, 0) })), typeof(object), methodBody, false, null);
 		}
 
 		protected override Expression VisitTypeDefinitionExpression(TypeDefinitionExpression expression)
@@ -77,18 +108,18 @@ namespace Sublimate.Generators.Objective
 
 			var comment = new CommentExpression("This file is AUTO GENERATED");
 
-			var commentGroup = new GroupedExpressionsExpression(new ReadOnlyCollection<Expression>(new List<Expression> { comment }), GroupedExpressionsExpressionStyle.Narrow);
-			var headerGroup = new GroupedExpressionsExpression(new ReadOnlyCollection<Expression>(includeExpressions), GroupedExpressionsExpressionStyle.Narrow);
-			
-			var header = new GroupedExpressionsExpression(new Expression[] { commentGroup, headerGroup }, GroupedExpressionsExpressionStyle.Wide);
+			var headerGroup = includeExpressions.ToGroupedExpression();
+
+			var header = new Expression[] { comment, headerGroup }.ToGroupedExpression(GroupedExpressionsExpressionStyle.Wide);
 
 			var methods = new List<Expression>
 			{
 				this.CreateInitMethod(expression),
-				this.CreateAllPropertiesAsDictionaryMethod(expression)
+				this.CreateAllPropertiesAsDictionaryMethod(expression),
+				this.CreateCopyWithZoneMethod(expression),
 			};
 
-			var body = new GroupedExpressionsExpression(new ReadOnlyCollection<Expression>(methods), GroupedExpressionsExpressionStyle.Wide);
+			var body = methods.ToGroupedExpression(GroupedExpressionsExpressionStyle.Wide);
 
 			return new TypeDefinitionExpression(expression.Type, expression.BaseType, header, body, false, null);
 		}

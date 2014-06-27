@@ -46,7 +46,7 @@ namespace Sublimate.Generators.Objective
 
 				using (var writer = this.GetTextWriterForFile(serviceClass.Name + ".m"))
 				{
-					var classFileExpression = ObjectiveClassExpressionBinder.Bind(classExpression);
+					var classFileExpression = ObjectiveClassExpressionBinder.Bind(serviceModel, classExpression);
 
 					var codeGenerator = new ObjectiveCodeGenerator(writer);
 

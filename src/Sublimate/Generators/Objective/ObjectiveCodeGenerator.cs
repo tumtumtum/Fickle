@@ -4,6 +4,7 @@
 
 using System;
 using System.IO;
+using System.Reflection;
 using Platform;
 using System.Linq;
 using System.Linq.Expressions;
@@ -55,6 +56,19 @@ namespace Sublimate.Generators.Objective
 			else if (type.IsInterface)
 			{
 				this.Write("id<{0}>", type.Name);
+
+				return;
+			}
+			else if (type.GetSublimateListElementType() != null)
+			{
+				if (nameOnly)
+				{
+					this.Write("NSArray");
+				}
+				else
+				{
+					this.Write("NSArray*");
+				}
 
 				return;
 			}
@@ -241,6 +255,10 @@ namespace Sublimate.Generators.Objective
 			{
 				this.Write("nil");
 			}
+			else if (node.Type == typeof(bool))
+			{
+				this.Write((bool)node.Value ? "YES" : "NO");
+			}
 			else
 			{
 				this.Write(Convert.ToString(node.Value));
@@ -295,7 +313,15 @@ namespace Sublimate.Generators.Objective
 			{
 				this.Visit(node.Expression);
 				this.Write('.');
-				this.Write(node.Member.Name);
+
+				if (node.Member is PropertyInfo)
+				{
+					this.Write(node.Member.Name.Uncapitalize());
+				}
+				else
+				{
+					this.Write(node.Member.Name);
+				}
 			}
 
 			return node;
@@ -548,6 +574,7 @@ namespace Sublimate.Generators.Objective
 
 			if (method.Parameters != null)
 			{
+				this.Write(':');
 				this.VisitExpressionList(method.Parameters);
 			}
 

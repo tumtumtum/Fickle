@@ -24,14 +24,7 @@ namespace Sublimate
 
 		public virtual Type GetTypeFromName(string name)
 		{
-			var type = TypeSystem.GetPrimitiveType(name);
-
-			if (type != null)
-			{
-				return type;
-			}
-
-			return this.ServiceModel.GetServiceType(name);
+			return this.ServiceModel.GetTypeFromName(name);
 		}
 
 		public virtual Expression Build(ServiceProperty property)
@@ -43,7 +36,7 @@ namespace Sublimate
 		{
 			var propertyDefinitions = serviceClass.Properties.Select(Build).ToList();
 
-			return new TypeDefinitionExpression(this.GetTypeFromName(serviceClass.Name), new SublimateType(serviceClass.BaseTypeName ?? "ServiceObject"), null, new GroupedExpressionsExpression(new ReadOnlyCollection<Expression>(propertyDefinitions)));
+			return new TypeDefinitionExpression(this.GetTypeFromName(serviceClass.Name), new SublimateType(serviceClass.BaseTypeName ?? "ServiceObject"), null, propertyDefinitions.ToGroupedExpression());
 		}
 
 		public virtual Expression Build(ServiceParameter parameter, int index)
@@ -63,7 +56,7 @@ namespace Sublimate
 		{
 			var methodDefinitions = serviceGateway.Methods.Select(Build).ToList();
 
-			return new TypeDefinitionExpression(new SublimateType(serviceGateway.Name), new SublimateType("ServiceGateway"), null, new GroupedExpressionsExpression(methodDefinitions), false, null);
+			return new TypeDefinitionExpression(new SublimateType(serviceGateway.Name), new SublimateType("ServiceGateway"), null, methodDefinitions.ToGroupedExpression(GroupedExpressionsExpressionStyle.Wide), false, null);
 		}
 	}
 }
