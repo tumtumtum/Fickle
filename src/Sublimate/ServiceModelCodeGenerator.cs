@@ -21,6 +21,7 @@ namespace Sublimate
 			public TextWriterWrapper(TextWriter inner)
 			{
 				this.inner = inner;
+				this.NewLine = inner.NewLine;
 			}
 
 			public override void Write(char value)
@@ -46,19 +47,19 @@ namespace Sublimate
 		private TextWriterWrapper writer;
 		private readonly IDirectory directory;
 
-		public static ServiceModelCodeGenerator GetCodeGenerator(string language, IDirectory directory)
+		public static ServiceModelCodeGenerator GetCodeGenerator(string language, IDirectory directory, CodeGenerationOptions options)
 		{
-			return ServiceModelCodeGenerator.GetCodeGenerator(language, (object)directory, CodeGenerationOptions.Default);
+			return ServiceModelCodeGenerator.GetCodeGenerator(language, (object)directory, options);
 		}
 
-		public static ServiceModelCodeGenerator GetCodeGenerator(string language, IFile file)
+		public static ServiceModelCodeGenerator GetCodeGenerator(string language, IFile file, CodeGenerationOptions options)
 		{
-			return ServiceModelCodeGenerator.GetCodeGenerator(language, (object)file, CodeGenerationOptions.Default);
+			return ServiceModelCodeGenerator.GetCodeGenerator(language, (object)file, options);
 		}
 
-		public static ServiceModelCodeGenerator GetCodeGenerator(string language, TextWriter writer)
+		public static ServiceModelCodeGenerator GetCodeGenerator(string language, TextWriter writer, CodeGenerationOptions options)
 		{
-			return ServiceModelCodeGenerator.GetCodeGenerator(language, (object)writer, CodeGenerationOptions.Default);
+			return ServiceModelCodeGenerator.GetCodeGenerator(language, (object)writer, options);
 		}
 
 		public static ServiceModelCodeGenerator GetCodeGenerator(string language, object param, CodeGenerationOptions options)
@@ -98,6 +99,11 @@ namespace Sublimate
 		protected ServiceModelCodeGenerator(TextWriter writer)
 		{
 			this.writer = new TextWriterWrapper(writer);
+
+			if (writer == Console.Out)
+			{
+				this.writer.NewLine = "\n";
+			}
 		}
 
 		protected ServiceModelCodeGenerator(IDirectory directory)
@@ -107,10 +113,19 @@ namespace Sublimate
 			directory.Create(true);
 		}
 
+		private int getWriterCount;
+
 		protected TextWriter GetTextWriterForFile(string fileName)
 		{
+			getWriterCount++;
+
 			if (this.writer != null)
 			{
+				if (getWriterCount > 1)
+				{
+					this.writer.WriteLine();
+				}
+
 				return this.writer;
 			}
 

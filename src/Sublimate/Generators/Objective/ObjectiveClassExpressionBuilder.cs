@@ -23,20 +23,18 @@ namespace Sublimate.Generators.Objective
 		private Expression CreateAllPropertiesAsDictionaryMethod(TypeDefinitionExpression expression)
 		{
 			var dictionaryType = new SublimateType("NSMutableDictionary");
-			var methodBodyExpressions = new List<Expression>();
 			var retvalExpression = Expression.Parameter(dictionaryType, "retval");
-			var newDictionaryExpression = Expression.New(dictionaryType.GetConstructor("dictionaryWithCapacity", typeof(int)), Expression.Constant(16));
-
+			
 			IEnumerable<ParameterExpression> variables = new ParameterExpression[]
 			{
 				retvalExpression
 			};
 
-			methodBodyExpressions.Add(new GroupedExpressionsExpression(new StatementsExpression(Expression.Assign(retvalExpression, newDictionaryExpression)), true));
-			methodBodyExpressions.Add(MakeDictionaryFromPropertiesExpressonsBuilder.Build(expression));
-			methodBodyExpressions.Add(new StatementsExpression(Expression.Return(Expression.Label(), Expression.Parameter(dictionaryType, "retval"))));
+			var newDictionaryExpression = new StatementsExpression(Expression.Assign(retvalExpression, Expression.New(dictionaryType.GetConstructor("dictionaryWithCapacity", typeof(int)), Expression.Constant(16))));
+			var makeDictionaryExpression = MakeDictionaryFromPropertiesExpressonsBuilder.Build(expression);
+			var returnDictionaryExpression = new StatementsExpression(Expression.Return(Expression.Label(), Expression.Parameter(dictionaryType, "retval")));
 
-			var methodBody = Expression.Block(variables, (Expression)new GroupedExpressionsExpression(methodBodyExpressions));
+			var methodBody = Expression.Block(variables, (Expression)GroupedExpressionsExpression.FlatConcat(GroupedExpressionsExpressionStyle.Wide, newDictionaryExpression, makeDictionaryExpression, returnDictionaryExpression));
 
 			return new MethodDefinitionExpression("allPropertiesAsDictionary", new ReadOnlyCollection<Expression>(new List<Expression>()), dictionaryType, methodBody, false, null);
 		}
@@ -65,7 +63,7 @@ namespace Sublimate.Generators.Objective
 				Expression.Parameter(typeof(object), "currentValueFromDictionary")
 			};
 			
-			var methodBody = Expression.Block(variables, (Expression)new GroupedExpressionsExpression(methodBodyExpressions));
+			var methodBody = Expression.Block(variables, (Expression)new GroupedExpressionsExpression(methodBodyExpressions, GroupedExpressionsExpressionStyle.Wide));
 
 			return new MethodDefinitionExpression("initWithPropertyDictionary", new ReadOnlyCollection<Expression>(parameters), typeof(object), methodBody, false, null);
 		}
@@ -79,10 +77,10 @@ namespace Sublimate.Generators.Objective
 
 			var comment = new CommentExpression("This file is AUTO GENERATED");
 
-			var commentGroup = new GroupedExpressionsExpression(new ReadOnlyCollection<Expression>(new List<Expression> { comment }), true);
-			var headerGroup = new GroupedExpressionsExpression(new ReadOnlyCollection<Expression>(includeExpressions), true);
+			var commentGroup = new GroupedExpressionsExpression(new ReadOnlyCollection<Expression>(new List<Expression> { comment }), GroupedExpressionsExpressionStyle.Narrow);
+			var headerGroup = new GroupedExpressionsExpression(new ReadOnlyCollection<Expression>(includeExpressions), GroupedExpressionsExpressionStyle.Narrow);
 			
-			var header = new GroupedExpressionsExpression(new ReadOnlyCollection<Expression>(new[] { commentGroup, headerGroup }));
+			var header = new GroupedExpressionsExpression(new Expression[] { commentGroup, headerGroup }, GroupedExpressionsExpressionStyle.Wide);
 
 			var methods = new List<Expression>
 			{
@@ -90,7 +88,7 @@ namespace Sublimate.Generators.Objective
 				this.CreateAllPropertiesAsDictionaryMethod(expression)
 			};
 
-			var body = new GroupedExpressionsExpression(new ReadOnlyCollection<Expression>(methods));
+			var body = new GroupedExpressionsExpression(new ReadOnlyCollection<Expression>(methods), GroupedExpressionsExpressionStyle.Wide);
 
 			return new TypeDefinitionExpression(expression.Type, expression.BaseType, header, body, false, null);
 		}

@@ -64,11 +64,11 @@ namespace Sublimate.Generators.Objective
 
 			var comment = new CommentExpression("This file is AUTO GENERATED");
 
-			var commentGroup = new GroupedExpressionsExpression(new ReadOnlyCollection<Expression>(new List<Expression> { comment }), true);
-			var headerGroup = new GroupedExpressionsExpression(new ReadOnlyCollection<Expression>(includeExpressions), true);
-			var referencedGroup = new GroupedExpressionsExpression(new ReadOnlyCollection<Expression>(referencedTypeExpressions), true);
+			var commentGroup = new GroupedExpressionsExpression(new [] { comment }, GroupedExpressionsExpressionStyle.Narrow);
+			var headerGroup = new GroupedExpressionsExpression(includeExpressions, GroupedExpressionsExpressionStyle.Narrow);
+			var referencedGroup = new GroupedExpressionsExpression(referencedTypeExpressions, GroupedExpressionsExpressionStyle.Narrow);
 
-			var header = new GroupedExpressionsExpression(new ReadOnlyCollection<Expression>(new [] { commentGroup, headerGroup, referencedGroup }));
+			var header = GroupedExpressionsExpression.FlatConcat(GroupedExpressionsExpressionStyle.Wide, commentGroup, headerGroup, referencedGroup);
 
 			var propertyBody = this.Visit(expression.Body);
 

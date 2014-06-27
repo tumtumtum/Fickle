@@ -159,7 +159,8 @@ namespace Sublimate
 		{
 			this.CheckAndWriteIndent();
 
-			this.writer.WriteLine(c);
+			this.writer.Write(c);
+			this.WriteLine();
 
 			indentRequired = true;
 		}
@@ -182,27 +183,26 @@ namespace Sublimate
 			indentRequired = true;
 		}
 
-		protected override ReadOnlyCollection<Expression> VisitExpressionList(ReadOnlyCollection<Expression> original)
+		protected override Expression VisitGroupedExpressionsExpression(GroupedExpressionsExpression groupedExpression)
 		{
-			int x = 0;
-
+			var x = 0;
+			var original = groupedExpression.Expressions;
+			
 			foreach (var expression in original)
 			{
 				var isLast = x == original.Count - 1;
 
 				this.Visit(expression);
 
-				if (expression.NodeType == (ExpressionType)ServiceExpressionType.GroupedExpressions
-					&& ((GroupedExpressionsExpression)expression).Isolated
-					&& !isLast)
+				if (groupedExpression.Style == GroupedExpressionsExpressionStyle.Wide && !isLast)
 				{
-					this.writer.WriteLine();
+					this.WriteLine();
 				}
 
 				x++;
 			}
 
-			return original;
+			return groupedExpression;
 		}
 
 		public virtual IDisposable AcquireIndentationContext()

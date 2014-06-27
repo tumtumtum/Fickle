@@ -31,7 +31,7 @@ namespace Sublimate.Generators.Objective
 
 			builder.Visit(expression);
 
-			return new GroupedExpressionsExpression(new ReadOnlyCollection<Expression>(builder.propertyGetterExpressions.ToArray()));
+			return new GroupedExpressionsExpression(new ReadOnlyCollection<Expression>(builder.propertyGetterExpressions.ToArray()), GroupedExpressionsExpressionStyle.Wide);
 		}
 
 		protected override Expression VisitPropertyDefinitionExpression(PropertyDefinitionExpression property)
@@ -83,11 +83,11 @@ namespace Sublimate.Generators.Objective
 
 			var assignmentExpression = Expression.Assign(propertyExpression, assignmentValue);
 
-			expressions.Add(new GroupedExpressionsExpression(comment, true));
+			expressions.Add(comment);
 			expressions.Add(new StatementsExpression(Expression.Assign(currentValueFromDictionary, objectForKeyCall)));
 			expressions.Add(Expression.IfThen(Expression.TypeIs(currentValueFromDictionary, typeToCompare), Expression.Block(new StatementsExpression(assignmentExpression))));
 
-			this.propertyGetterExpressions.Add(new GroupedExpressionsExpression(expressions));
+			this.propertyGetterExpressions.Add(new GroupedExpressionsExpression(expressions, GroupedExpressionsExpressionStyle.Wide));
 
 			return property;
 		}

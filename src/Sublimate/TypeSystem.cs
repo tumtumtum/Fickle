@@ -10,29 +10,50 @@ namespace Sublimate
 		private static readonly HashSet<Type> primitiveTypes = new HashSet<Type>();
 		private static readonly Dictionary<string, Type> primitiveTypeByName = new Dictionary<string, Type>(StringComparer.InvariantCultureIgnoreCase);
 
-		static void AddPrimitiveType(Type type, string name)
+		static void AddPrimitiveType(Type type, string name = null)
 		{
-			primitiveTypes.Add(type); 
+			primitiveTypes.Add(type);
+
+			if (name == null)
+			{
+				Type underlyingType;
+
+				if ((underlyingType = Nullable.GetUnderlyingType(type)) == null)
+				{
+					name = type.Name;
+				}
+				else
+				{
+					name = underlyingType.Name + "?";
+				}
+			}
+
 			primitiveTypeByName[name] = type;
 		}
 
 		static TypeSystem()
 		{
-			AddPrimitiveType(typeof(byte), "byte");
-			AddPrimitiveType(typeof(byte?), "byte?");
-			AddPrimitiveType(typeof(char), "char");
-			AddPrimitiveType(typeof(char?), "char?");
-			AddPrimitiveType(typeof(short), "short");
-			AddPrimitiveType(typeof(short?), "short?");
+			AddPrimitiveType(typeof(byte));
+			AddPrimitiveType(typeof(byte?));
+			AddPrimitiveType(typeof(char));
+			AddPrimitiveType(typeof(char?));
+			AddPrimitiveType(typeof(short));
+			AddPrimitiveType(typeof(short?));
+			AddPrimitiveType(typeof(int));
+			AddPrimitiveType(typeof(int?));
 			AddPrimitiveType(typeof(int), "int");
-			AddPrimitiveType(typeof(int?), "int?");
+			AddPrimitiveType(typeof(int?), "int?"); 
+			AddPrimitiveType(typeof(long));
+			AddPrimitiveType(typeof(long?));
 			AddPrimitiveType(typeof(long), "long");
 			AddPrimitiveType(typeof(long?), "long?");
-			AddPrimitiveType(typeof(string), "String");
-			AddPrimitiveType(typeof(DateTime), "DateTime");
-			AddPrimitiveType(typeof(DateTime?), "DateTime?");
-			AddPrimitiveType(typeof(TimeSpan), "TimeSpan");
-			AddPrimitiveType(typeof(TimeSpan?), "TimeSpan?");
+			AddPrimitiveType(typeof(double));
+			AddPrimitiveType(typeof(double?));
+			AddPrimitiveType(typeof(string));
+			AddPrimitiveType(typeof(DateTime));
+			AddPrimitiveType(typeof(DateTime?));
+			AddPrimitiveType(typeof(TimeSpan));
+			AddPrimitiveType(typeof(TimeSpan?));
 			AddPrimitiveType(typeof(Guid), "uuid");
 			AddPrimitiveType(typeof(Guid?), "uuid?");
 		}

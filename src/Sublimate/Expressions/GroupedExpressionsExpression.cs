@@ -5,6 +5,12 @@ using System.Linq.Expressions;
 
 namespace Sublimate.Expressions
 {
+	public enum GroupedExpressionsExpressionStyle
+	{
+		Narrow,
+		Wide
+	}
+
 	public class GroupedExpressionsExpression
 		: Expression
 	{
@@ -24,37 +30,57 @@ namespace Sublimate.Expressions
 			}
 		}
 
-		public bool Isolated { get; private set; }
+		public virtual GroupedExpressionsExpressionStyle Style { get; set; }
+
 		public ReadOnlyCollection<Expression> Expressions { get; private set; }
 
+		public static GroupedExpressionsExpression FlatConcat(GroupedExpressionsExpressionStyle style, params Expression[] expressions)
+		{
+			var retval = new List<Expression>();
+
+			foreach (var expression in expressions)
+			{
+				if (expression.NodeType == (ExpressionType)ServiceExpressionType.GroupedExpressions)
+				{
+					retval.AddRange(((GroupedExpressionsExpression)expression).Expressions);
+				}
+				else
+				{
+					retval.Add(expression);
+				}
+			}
+
+			return new GroupedExpressionsExpression(retval, style);
+		}
+
 		public GroupedExpressionsExpression(Expression expression)
-			: this(expression, false)
+			: this(expression, GroupedExpressionsExpressionStyle.Narrow)
 		{	
 		}
 
-		public GroupedExpressionsExpression(Expression expression, bool isolated)
-			: this(new ReadOnlyCollection<Expression>(new List<Expression> { expression }), isolated)
+		public GroupedExpressionsExpression(Expression expression, GroupedExpressionsExpressionStyle style)
+			: this(new ReadOnlyCollection<Expression>(new List<Expression> { expression }), style)
 		{
 		}
 
 		public GroupedExpressionsExpression(IEnumerable<Expression> expressions)
-			: this(expressions, false)
+			: this(expressions, GroupedExpressionsExpressionStyle.Narrow)
 		{
 		}
 
-		public GroupedExpressionsExpression(IEnumerable<Expression> expressions, bool isolated)
-			: this(new ReadOnlyCollection<Expression>(expressions.ToList()), isolated)
+		public GroupedExpressionsExpression(IEnumerable<Expression> expressions, GroupedExpressionsExpressionStyle style)
+			: this(new ReadOnlyCollection<Expression>(expressions.ToList()), style)
 		{
 		}
 
 		public GroupedExpressionsExpression(ReadOnlyCollection<Expression> expressions)
-			: this(expressions, false)
+			: this(expressions, GroupedExpressionsExpressionStyle.Narrow)
 		{	
 		}
 
-		public GroupedExpressionsExpression(ReadOnlyCollection<Expression> expressions, bool isolated)
+		public GroupedExpressionsExpression(ReadOnlyCollection<Expression> expressions, GroupedExpressionsExpressionStyle style)
 		{
-			this.Isolated = isolated; 
+			this.Style = style; 
 			this.Expressions = expressions;
 		}
 	}

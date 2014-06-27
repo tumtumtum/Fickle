@@ -51,11 +51,11 @@ namespace Sublimate.Generators.Objective
 			{
 				setExpression = Expression.IfThen(Expression.ReferenceNotEqual(Expression.Convert(propertyExpression, typeof(object)), Expression.Constant(null)), Expression.Block(setExpression));
 			}
-			
-			expressions.Add(new GroupedExpressionsExpression(comment, true));
+
+			expressions.Add(comment);
 			expressions.Add(setExpression);
-			
-			propertySetterExpressions.Add(new GroupedExpressionsExpression(expressions, false));
+
+			propertySetterExpressions.Add(new GroupedExpressionsExpression(expressions, GroupedExpressionsExpressionStyle.Wide));
 
 			return property;
 		}

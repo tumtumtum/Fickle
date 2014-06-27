@@ -283,13 +283,8 @@ namespace Sublimate.Generators.Objective
 					this.WriteLine();
 				}
 
-				foreach (var expression in node.Expressions)
-				{
-					this.Visit(expression);
-				}
+				this.VisitExpressionList(node.Expressions);
 			}
-
-			this.WriteLine();
 
 			return node;
 		}
@@ -505,11 +500,9 @@ namespace Sublimate.Generators.Objective
 			}
 
 			this.WriteLine();
-			this.WriteLine();
 
 			this.Visit(expression.Body);
 
-			this.WriteLine(); 
 			this.WriteLine("@end");
 
 			return expression;
