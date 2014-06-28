@@ -47,7 +47,7 @@ namespace Sublimate.Generators.Objective
 				
 				p2 = Expression.New(constructorInfo, p2, Expression.Constant(true));
 			}
-			else if (propertyType is SublimateType)
+			else if (propertyType is SublimateType && !propertyType.IsValueType)
 			{
 				p2 = Expression.Call(p2, ((SublimateType)propertyType).GetMethod("copyWithZone", typeof(object), ObjectiveLanguage.NSZoneType), zone);
 				p2 = Expression.Convert(p2, propertyType);
