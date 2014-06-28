@@ -2,7 +2,7 @@
 
 namespace Sublimate.Model
 {
-	[XmlElement("Parameter")]
+	[XmlElement("VariableExpression")]
 	public class ServiceParameter
 	{
 		[XmlAttribute]

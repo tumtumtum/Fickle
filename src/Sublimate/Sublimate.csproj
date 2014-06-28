@@ -67,7 +67,8 @@
     <Compile Include="BraceLanguageStyleIndentationOptions.cs" />
     <Compile Include="BraceLanguageStyleSourceCodeGenerator.cs" />
     <Compile Include="CodeGenerationOptions.cs" />
-    <Compile Include="Expressions\StatementsExpression.cs" />
+    <Compile Include="Expressions\ForEachExpression.cs" />
+    <Compile Include="Expressions\StatementExpression.cs" />
     <Compile Include="Expressions\CommentExpression.cs" />
     <Compile Include="Expressions\GroupedExpressionsExpression.cs" />
     <Compile Include="Expressions\IncludeStatementExpression.cs" />

@@ -39,9 +39,9 @@ namespace Sublimate.Generators.Objective
 				retvalExpression
 			};
 
-			var newDictionaryExpression = new StatementsExpression(Expression.Assign(retvalExpression, Expression.New(dictionaryType.GetConstructor("dictionaryWithCapacity", typeof(int)), Expression.Constant(16))));
+			var newDictionaryExpression = new StatementExpression(Expression.Assign(retvalExpression, Expression.New(dictionaryType.GetConstructor("dictionaryWithCapacity", typeof(int)), Expression.Constant(16))));
 			var makeDictionaryExpression = MakeDictionaryFromPropertiesExpressonsBuilder.Build(expression);
-			var returnDictionaryExpression = new StatementsExpression(Expression.Return(Expression.Label(), Expression.Parameter(dictionaryType, "retval")));
+			var returnDictionaryExpression = new StatementExpression(Expression.Return(Expression.Label(), Expression.Parameter(dictionaryType, "retval")));
 
 			var methodBody = Expression.Block(variables, (Expression)GroupedExpressionsExpression.FlatConcat(GroupedExpressionsExpressionStyle.Wide, newDictionaryExpression, makeDictionaryExpression, returnDictionaryExpression));
 
@@ -63,9 +63,9 @@ namespace Sublimate.Generators.Objective
 			var assignExpression = Expression.Assign(Expression.Parameter(type, "self"), superInitExpression);
 			var compareToNullExpression = Expression.ReferenceEqual(assignExpression, Expression.Constant(null, type));
 
-			methodBodyExpressions.Add(Expression.IfThen(compareToNullExpression, Expression.Block(new StatementsExpression(Expression.Return(Expression.Label(), Expression.Constant(null))))));
+			methodBodyExpressions.Add(Expression.IfThen(compareToNullExpression, Expression.Block(new StatementExpression(Expression.Return(Expression.Label(), Expression.Constant(null))))));
 			methodBodyExpressions.Add(SetPropertiesFromDictionaryExpressonsBuilder.Build(expression));
-			methodBodyExpressions.Add(new StatementsExpression(Expression.Return(Expression.Label(), Expression.Parameter(type, "self"))));
+			methodBodyExpressions.Add(new StatementExpression(Expression.Return(Expression.Label(), Expression.Parameter(type, "self"))));
 
 			IEnumerable<ParameterExpression> variables = new ParameterExpression[]
 			{
@@ -90,8 +90,8 @@ namespace Sublimate.Generators.Objective
 
 			var newExpression = Expression.Call(Expression.Call(Expression.Call(self, classMethod), allocWithZone, zone), selfInitMethod);
 
-			var initTheCopy = new StatementsExpression(Expression.Assign(theCopy, newExpression));
-			var returnStatement = new StatementsExpression(Expression.Return(Expression.Label(), theCopy));
+			var initTheCopy = new StatementExpression(Expression.Assign(theCopy, newExpression));
+			var returnStatement = new StatementExpression(Expression.Return(Expression.Label(), theCopy));
 			var copyStatements = CopyPropertiesExpressionBuilder.Build(this.serviceModel, expression, zone, theCopy);
 
 			Expression methodBody = Expression.Block(new ParameterExpression[] { theCopy }, new[] { initTheCopy, copyStatements, returnStatement }.ToGroupedExpression(GroupedExpressionsExpressionStyle.Wide));

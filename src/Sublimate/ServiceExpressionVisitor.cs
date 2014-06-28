@@ -15,8 +15,10 @@ namespace Sublimate
 		{
 			switch ((int)expression.NodeType)
 			{
+				case (int)ServiceExpressionType.ForEach:
+					return this.VisitForEachExpression((ForEachExpression)expression);
 				case (int)ServiceExpressionType.Statement:
-					return this.VisitStatementExpression((StatementsExpression)expression);
+					return this.VisitStatementExpression((StatementExpression)expression);
 				case (int)ServiceExpressionType.GroupedExpressions:
 					return this.VisitGroupedExpressionsExpression((GroupedExpressionsExpression)expression);
 				case (int)ServiceExpressionType.MethodDefinition:
@@ -55,13 +57,13 @@ namespace Sublimate
 			return expression;
 		}
 
-		protected virtual Expression VisitStatementExpression(StatementsExpression expression)
+		protected virtual Expression VisitStatementExpression(StatementExpression expression)
 		{
-			var expressions = this.VisitExpressionList(expression.Expressions);
-			
-			if (expressions != expression.Expressions)
+			var ex = this.Visit(expression.Expression);
+
+			if (ex != expression.Expression)
 			{
-				return new StatementsExpression(expressions);
+				return new StatementExpression(ex);
 			}
 
 			return expression;
@@ -118,6 +120,20 @@ namespace Sublimate
 
 		protected virtual Expression VisitReferencedTypeExpresson(ReferencedTypeExpression expression)
 		{
+			return expression;
+		}
+
+		protected virtual Expression VisitForEachExpression(ForEachExpression expression)
+		{
+			var parameter = (ParameterExpression)this.Visit(expression.VariableExpression);
+			var target = this.Visit(expression.Target);
+			var body = this.Visit(expression.Body);
+			
+			if (parameter != expression.VariableExpression || target != expression.Target || body != expression.Body)
+			{
+				return new ForEachExpression(parameter, target, body);
+			}
+
 			return expression;
 		}
 

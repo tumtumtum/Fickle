@@ -55,7 +55,7 @@ namespace Sublimate.Generators.Objective
 
 			var assignExpression = Expression.Assign(propertyOnTheCopy, p2);
 
-			statements.Add(new StatementsExpression(assignExpression));
+			statements.Add(new StatementExpression(assignExpression));
 
 			return property;
 		}

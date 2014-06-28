@@ -13,14 +13,21 @@ namespace Sublimate
 		private readonly string name;
 		private readonly Type returnType;
 		private readonly Type declaringType;
+		private readonly MethodAttributes methodAttributes;
 		private readonly ParameterInfo[] parameters;
 
-		public SublimateMethodInfo(Type declaringType, Type returnType, string name, ParameterInfo[] parameters)
+		public SublimateMethodInfo(Type declaringType, Type returnType, string name, ParameterInfo[] parameters, bool isStatic = false)
 		{
 			this.name = name;
 			this.returnType = returnType;
 			this.declaringType = declaringType;
 			this.parameters = parameters;
+			this.methodAttributes = MethodAttributes.Public;
+
+			if (isStatic)
+			{
+				this.methodAttributes |= MethodAttributes.Static;
+			}
 		}
 
 		public override Type ReturnType
@@ -105,7 +112,7 @@ namespace Sublimate
 		{
 			get
 			{
-				return MethodAttributes.Public;
+				return methodAttributes;
 			}
 		}
 

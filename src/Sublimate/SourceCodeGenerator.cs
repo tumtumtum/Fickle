@@ -72,7 +72,7 @@ namespace Sublimate
 
 			return true;
 		}
-
+		
 		protected virtual void Write(Type type)
 		{
 			this.Write(type, false);

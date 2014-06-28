@@ -45,7 +45,7 @@ namespace Sublimate.Generators.Objective
 
 			var setObjectForKeyMethodCall = Expression.Call(retval, setObjectForKeyMethod, Expression.Convert(propertyExpression, typeof(object)), Expression.Constant(property.PropertyName));
 
-			Expression setExpression = new StatementsExpression(setObjectForKeyMethodCall);
+			Expression setExpression = new StatementExpression(setObjectForKeyMethodCall);
 
 			if (!propertyType.IsPrimitive)
 			{

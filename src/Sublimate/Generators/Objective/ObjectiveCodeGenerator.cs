@@ -267,6 +267,20 @@ namespace Sublimate.Generators.Objective
 			return node;
 		}
 
+		protected override Expression VisitForEachExpression(ForEachExpression expression)
+		{
+			this.Write("for (");
+			this.Write(expression.VariableExpression.Type);
+			this.Write(" ");
+			this.Visit(expression.VariableExpression);
+			this.Write(" in ");
+			this.Visit(expression.Target);
+			this.Write(")");
+			this.Visit(expression.Body);
+
+			return expression;
+		}
+
 		protected override Expression VisitParameter(ParameterExpression node)
 		{
 			this.Write(node.Name);
@@ -370,7 +384,15 @@ namespace Sublimate.Generators.Objective
 		protected override Expression VisitMethodCall(MethodCallExpression node)
 		{
 			this.Write('[');
-			this.Visit(node.Object);
+			if (node.Object == null)
+			{
+				this.Write(node.Method.DeclaringType, true);
+			}
+			else
+			{
+				this.Visit(node.Object);
+			}
+
 			this.Write(' ');
 			this.Write(node.Method.Name);
 			
@@ -488,14 +510,11 @@ namespace Sublimate.Generators.Objective
 			return expression;
 		}
 
-		protected override Expression VisitStatementExpression(StatementsExpression expression)
+		protected override Expression VisitStatementExpression(StatementExpression expression)
 		{
-			foreach (var exp in expression.Expressions)
-			{
-				this.Visit(exp);
-				this.WriteLine(';');
-			}
-
+			this.Visit(expression.Expression);
+			this.WriteLine(';');
+			
 			return expression;
 		}
 
