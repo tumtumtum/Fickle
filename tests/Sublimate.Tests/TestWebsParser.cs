@@ -1,16 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Reflection;
-using System.Text;
 using NUnit.Framework;
 using Platform.Xml.Serialization;
-using Sublimate.Generators.Objective;
-using Sublimate.Model;
-using Sublimate.Webs;
+using Dryice.Model;
+using Dryice.Webs;
 
-namespace Sublimate.Tests
+namespace Dryice.Tests
 {
 	[TestFixture]
 	public class TestWebsParser
@@ -18,7 +14,7 @@ namespace Sublimate.Tests
 		public static ServiceModel GetTestServiceModel()
 		{
 			var assembly = Assembly.GetExecutingAssembly();
-			var resourceName = typeof(TestWebsParser).Namespace + ".TestFiles.Test.webs";
+			var resourceName = typeof(TestWebsParser).Namespace + ".TestFiles.Test.dry";
 
 			using (var stream = assembly.GetManifestResourceStream(resourceName))
 			{
@@ -28,7 +24,7 @@ namespace Sublimate.Tests
 				}
 			}
 		}
-		
+
 		public void Test_Parse()
 		{
 			var serviceModel = TestWebsParser.GetTestServiceModel();

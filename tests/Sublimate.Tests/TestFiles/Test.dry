@@ -1,0 +1,36 @@
+﻿enum Sex
+	Male : 1
+	Female : 2
+
+class ResponseStatus
+	Message : string
+	ErrorCode : string
+	StackTrace : string
+
+class Response
+	ResponseStatus : ResponseStatus
+
+class UserResponse
+	@extends Response
+	User : User
+
+class User
+	Id : uuid
+	CashBalance : double
+	Birthdate : datetime
+	Name : string
+	Password : string
+	Age : int32?
+	Sex : Sex
+	TimeSinceLastLogin : timespan[]
+	Friends : User[]
+	FollowerUserIds : uuid[]
+
+gateway UserService
+	@url http://dryice.kingstreetapps.com/petstore/api/UserService
+
+	GetUser(Id:uuid)
+		@format json
+		@url User/{id}
+		@method post
+		@return Response

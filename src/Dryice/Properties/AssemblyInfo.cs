@@ -5,11 +5,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("Dryice.Tests")]
+[assembly: AssemblyTitle("Dryice")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("Dryice.Tests")]
+[assembly: AssemblyProduct("Dryice")]
 [assembly: AssemblyCopyright("Copyright ©  2013")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
@@ -20,7 +20,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("eece4e9e-25d1-4e7a-bc7f-e248e290ccb5")]
+[assembly: Guid("c58fbd12-9df6-4504-a82d-bb484b6070e4")]
 
 // Version information for an assembly consists of the following four values:
 //

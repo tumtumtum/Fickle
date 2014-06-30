@@ -7,8 +7,8 @@
     <ProjectGuid>{B1CCA1D4-80A1-4374-A32D-C3A24FC16C80}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Sublimate.Tests</RootNamespace>
-    <AssemblyName>Sublimate.Tests</AssemblyName>
+    <RootNamespace>Dryice.Tests</RootNamespace>
+    <AssemblyName>Dryice.Tests</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
@@ -73,15 +73,14 @@
   <ItemGroup>
     <None Include="App.config" />
     <None Include="packages.config" />
-    <EmbeddedResource Include="TestFiles\Test.webs" />
+    <EmbeddedResource Include="TestFiles\Test.dry" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\src\Sublimate\Dryice.csproj">
+    <ProjectReference Include="..\..\src\Dryice\Dryice.csproj">
       <Project>{aa0ed558-3bf6-4ced-8897-415b4d0c858d}</Project>
       <Name>Dryice</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

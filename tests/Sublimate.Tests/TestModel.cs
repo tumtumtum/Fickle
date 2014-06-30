@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using NUnit.Framework;
 using Platform.Xml.Serialization;
-using Sublimate.Model;
+using Dryice.Model;
 
-namespace Sublimate.Tests
+namespace Dryice.Tests
 {
 	[TestFixture]
 	public class TestModel
