@@ -1,0 +1,34 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2013
+VisualStudioVersion = 12.0.30501.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dryice", "Sublimate\Dryice.csproj", "{AA0ED558-3BF6-4CED-8897-415B4D0C858D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dryice.Tool", "Sublimate.Tool\Dryice.Tool.csproj", "{61762536-41A4-449D-A9D7-6890E951FFC3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dryice.Tests", "..\tests\Sublimate.Tests\Dryice.Tests.csproj", "{B1CCA1D4-80A1-4374-A32D-C3A24FC16C80}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{AA0ED558-3BF6-4CED-8897-415B4D0C858D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AA0ED558-3BF6-4CED-8897-415B4D0C858D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AA0ED558-3BF6-4CED-8897-415B4D0C858D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AA0ED558-3BF6-4CED-8897-415B4D0C858D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{61762536-41A4-449D-A9D7-6890E951FFC3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{61762536-41A4-449D-A9D7-6890E951FFC3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{61762536-41A4-449D-A9D7-6890E951FFC3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{61762536-41A4-449D-A9D7-6890E951FFC3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B1CCA1D4-80A1-4374-A32D-C3A24FC16C80}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B1CCA1D4-80A1-4374-A32D-C3A24FC16C80}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B1CCA1D4-80A1-4374-A32D-C3A24FC16C80}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B1CCA1D4-80A1-4374-A32D-C3A24FC16C80}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
