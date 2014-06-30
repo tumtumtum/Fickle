@@ -7,8 +7,8 @@
     <ProjectGuid>{61762536-41A4-449D-A9D7-6890E951FFC3}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Sublimate.Tool</RootNamespace>
-    <AssemblyName>sublimate</AssemblyName>
+    <RootNamespace>Dryice.Tool</RootNamespace>
+    <AssemblyName>dryice</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
@@ -51,7 +51,7 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Sublimate\Dryice.csproj">
+    <ProjectReference Include="..\Dryice\Dryice.csproj">
       <Project>{aa0ed558-3bf6-4ced-8897-415b4d0c858d}</Project>
       <Name>Dryice</Name>
     </ProjectReference>
