@@ -6,7 +6,7 @@ namespace Dryice
 	{
 		public static Type GetDryiceListElementType(this Type type)
 		{
-			var listType = type as DryiceListType;
+			var listType = type as DryListType;
 
 			if (listType == null)
 			{

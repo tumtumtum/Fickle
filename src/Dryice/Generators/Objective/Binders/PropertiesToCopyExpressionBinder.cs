@@ -6,16 +6,16 @@ using Dryice.Model;
 
 namespace Dryice.Generators.Objective
 {
-	public class CopyPropertiesExpressionBuilder
+	public class PropertiesToCopyExpressionBinder
 		: ServiceExpressionVisitor
 	{
+		private readonly Type type; 
 		private readonly ServiceModel serviceModel;
-		private readonly Type type;
 		private readonly Expression zone;
 		private readonly Expression theCopy;
 		private readonly List<Expression> statements = new List<Expression>();
  
-		protected CopyPropertiesExpressionBuilder(ServiceModel serviceModel, Type type, Expression zone, Expression theCopy)
+		protected PropertiesToCopyExpressionBinder(ServiceModel serviceModel, Type type, Expression zone, Expression theCopy)
 		{
 			this.serviceModel = serviceModel;
 			this.type = type;
@@ -23,9 +23,9 @@ namespace Dryice.Generators.Objective
 			this.theCopy = theCopy;
 		}
 
-		public static Expression Build(ServiceModel serviceModel, TypeDefinitionExpression expression, ParameterExpression zone, ParameterExpression theCopy)
+		public static Expression Bind(ServiceModel serviceModel, TypeDefinitionExpression expression, ParameterExpression zone, ParameterExpression theCopy)
 		{
-			var builder = new CopyPropertiesExpressionBuilder(serviceModel, expression.Type, zone, theCopy);
+			var builder = new PropertiesToCopyExpressionBinder(serviceModel, expression.Type, zone, theCopy);
 
 			builder.Visit(expression);
 

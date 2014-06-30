@@ -1,11 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace Dryice.Webs
+﻿namespace Dryice.Dryfile
 {
-	public enum WebsToken
+	public enum DryfilelToken
 	{
 		None,
 		Keyword,

@@ -55,7 +55,7 @@ namespace Dryice.Model
 			
 			if (!listTypesByElementType.TryGetValue(elementType, out value))
 			{
-				value = new DryiceListType(elementType);
+				value = new DryListType(elementType);
 			}
 
 			return value;

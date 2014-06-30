@@ -1,11 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Reflection;
-using System.Reflection.Emit;
-using System.Text;
 using Dryice.Model;
 
 namespace Dryice
@@ -62,14 +58,14 @@ namespace Dryice
 		public MethodInfo GetMethod(string name, Type returnType, params Type[] types)
 		{
 			var i = 0;
-			var parameters = types.Select(c => (ParameterInfo)new DryiceParameterInfo(c, "param" + (i++).ToString(CultureInfo.InvariantCulture)));
+			var parameters = types.Select(c => (ParameterInfo)new DryParameterInfo(c, "param" + (i++).ToString(CultureInfo.InvariantCulture)));
 
-			return new DryiceMethodInfo(this, returnType, name, parameters.ToArray());
+			return new DryMethodInfo(this, returnType, name, parameters.ToArray());
 		}
 
 		public MethodInfo GetMethod(string name, Type returnType, params ParameterInfo[] parameters)
 		{
-			return new DryiceMethodInfo(this, returnType, name, parameters.ToArray());
+			return new DryMethodInfo(this, returnType, name, parameters.ToArray());
 		}
 
 		protected internal void SetBaseType(Type type)
@@ -225,7 +221,7 @@ namespace Dryice
 				}
 			}
 
-			return new DryicePropertyInfo(this, returnType, name);
+			return new DryPropertyInfo(this, returnType, name);
 		}
 
 		public override PropertyInfo[] GetProperties(BindingFlags bindingAttr)
@@ -303,21 +299,21 @@ namespace Dryice
 
 		public virtual ConstructorInfo GetConstructor(string name)
 		{
-			return new DryiceConstructorInfo(this, name, new ParameterInfo[0]);
+			return new DryConstructorInfo(this, name, new ParameterInfo[0]);
 		}
 
 		public virtual ConstructorInfo GetConstructor(string name, Type parameterType)
 		{
-			return new DryiceConstructorInfo(this, name, new ParameterInfo[] { new DryiceParameterInfo(parameterType, name) });
+			return new DryConstructorInfo(this, name, new ParameterInfo[] { new DryParameterInfo(parameterType, name) });
 		}
 
 		protected override ConstructorInfo GetConstructorImpl(BindingFlags bindingAttr, Binder binder, CallingConventions callConvention, Type[] types, ParameterModifier[] modifiers)
 		{
 			var i = 0;
 
-			var parameters = types.Select(c => (ParameterInfo)new DryiceParameterInfo(c, "param" + (i++).ToString())).ToArray();
+			var parameters = types.Select(c => (ParameterInfo)new DryParameterInfo(c, "param" + (i++).ToString())).ToArray();
 
-			return new DryiceConstructorInfo(this, "ctor", parameters);
+			return new DryConstructorInfo(this, "ctor", parameters);
 		}
 
 		public override string Name

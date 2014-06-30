@@ -7,14 +7,14 @@ using System.Text;
 
 namespace Dryice
 {
-	public  class DryiceConstructorInfo
+	public  class DryConstructorInfo
 		: ConstructorInfo
 	{
 		private readonly string name;
 		private readonly Type declaringType;
 		private readonly ParameterInfo[] parameters;
 
-		public DryiceConstructorInfo(Type declaringType, string name, ParameterInfo[] parameters)
+		public DryConstructorInfo(Type declaringType, string name, ParameterInfo[] parameters)
 		{
 			this.name = name;
 			this.declaringType = declaringType;

@@ -2,13 +2,13 @@
 
 namespace Dryice
 {
-	public class DryiceListType
-		: DryiceBasicType
+	public class DryListType
+		: DryBasicType
 	{
 		public Type ListElementType { get; set; }
 
-		public DryiceListType(Type listElementType)
-			: base("DryiceListType")
+		public DryListType(Type listElementType)
+			: base("DryListType")
 		{
 			this.ListElementType = listElementType;
 		}

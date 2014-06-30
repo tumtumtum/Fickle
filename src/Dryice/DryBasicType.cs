@@ -3,16 +3,15 @@
 using System;
 using System.Globalization;
 using System.Reflection;
-using Dryice.Model;
 
 namespace Dryice
 {
-	public class DryiceBasicType
+	public class DryBasicType
 		: Type
 	{
 		private readonly string name;
 
-		public DryiceBasicType(string name)
+		public DryBasicType(string name)
 		{
 			this.name = name;
 		}
@@ -236,7 +235,7 @@ namespace Dryice
 				return true;
 			}
 
-			var typedObject = o as DryiceBasicType;
+			var typedObject = o as DryBasicType;
 
 			if (typedObject == null)
 			{

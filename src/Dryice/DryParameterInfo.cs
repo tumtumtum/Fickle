@@ -6,10 +6,10 @@ using System.Text;
 
 namespace Dryice
 {
-	public class DryiceParameterInfo
+	public class DryParameterInfo
 		: ParameterInfo
 	{
-		public DryiceParameterInfo(Type parameterType, string name)
+		public DryParameterInfo(Type parameterType, string name)
 		{	
 			this.name = name;
 			this.parameterType = parameterType;

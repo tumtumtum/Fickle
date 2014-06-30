@@ -17,15 +17,15 @@ namespace Dryice.Generators.Objective
 
 			for (var i = 0; i < args.Length; i += 2)
 			{
-				parameterInfos.Add(new DryiceParameterInfo((Type)args[i], (string)args[i + 1]));
+				parameterInfos.Add(new DryParameterInfo((Type)args[i], (string)args[i + 1]));
 			}
 
-			return new DryiceConstructorInfo(declaringType, initMethodName, parameterInfos.ToArray());
+			return new DryConstructorInfo(declaringType, initMethodName, parameterInfos.ToArray());
 		}
 
 		public static MethodCallExpression MakeCall(Expression target, Type returnType, string methodName, Expression arg)
 		{
-			return Expression.Call(target, new DryiceMethodInfo(target.Type, returnType, methodName, new ParameterInfo[] { new DryiceParameterInfo(arg.Type, "arg0") }), arg);
+			return Expression.Call(target, new DryMethodInfo(target.Type, returnType, methodName, new ParameterInfo[] { new DryParameterInfo(arg.Type, "arg0") }), arg);
 		}
 	}
 }

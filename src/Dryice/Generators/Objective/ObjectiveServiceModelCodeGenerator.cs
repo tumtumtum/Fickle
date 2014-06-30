@@ -1,14 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
+﻿using System.IO;
 using Platform.VirtualFileSystem;
 using Dryice.Model;
 
 namespace Dryice.Generators.Objective
 {
-	[ServiceModelCodeGenerator("objc")]
+	[ServiceModelCodeGenerator("objc", "objective", "objective-c")]
 	public class ObjectiveServiceModelCodeGenerator
 		: ServiceModelCodeGenerator
 	{

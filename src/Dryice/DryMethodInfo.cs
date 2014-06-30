@@ -1,13 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
 using System.Reflection;
-using System.Text;
 
 namespace Dryice
 {
-	public class DryiceMethodInfo
+	public class DryMethodInfo
 		: MethodInfo
 	{
 		private readonly string name;
@@ -16,7 +13,7 @@ namespace Dryice
 		private readonly MethodAttributes methodAttributes;
 		private readonly ParameterInfo[] parameters;
 
-		public DryiceMethodInfo(Type declaringType, Type returnType, string name, ParameterInfo[] parameters, bool isStatic = false)
+		public DryMethodInfo(Type declaringType, Type returnType, string name, ParameterInfo[] parameters, bool isStatic = false)
 		{
 			this.name = name;
 			this.returnType = returnType;

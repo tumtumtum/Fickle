@@ -1,20 +1,17 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
 using System.Reflection;
-using System.Text;
 
 namespace Dryice
 {
-	public class DryicePropertyInfo
+	public class DryPropertyInfo
 		: PropertyInfo
 	{
 		private string name; 
 		private Type declaringType;
 		private Type propertyType;
 		
-		public DryicePropertyInfo(Type declaringType, Type propertyType, string name)
+		public DryPropertyInfo(Type declaringType, Type propertyType, string name)
 		{
 			this.name = name;
 			this.propertyType = propertyType;
@@ -48,7 +45,7 @@ namespace Dryice
 
 		public override MethodInfo GetGetMethod(bool nonPublic)
 		{
-			return new DryiceMethodInfo(this.declaringType, this.propertyType, "get_" + this.name, new ParameterInfo[0]);
+			return new DryMethodInfo(this.declaringType, this.propertyType, "get_" + this.name, new ParameterInfo[0]);
 		}
 
 		public override MethodInfo GetSetMethod(bool nonPublic)

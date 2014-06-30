@@ -12,20 +12,20 @@ using Dryice.Expressions;
 
 namespace Dryice.Generators.Objective
 {
-	public class MakeDictionaryFromPropertiesExpressonsBuilder
+	public class PropertiesToDictionaryExpressionBinder
 		: ServiceExpressionVisitor
 	{
 		private readonly Type type;
 		private readonly List<Expression> propertySetterExpressions = new List<Expression>();
  
-		protected MakeDictionaryFromPropertiesExpressonsBuilder(Type type)
+		protected PropertiesToDictionaryExpressionBinder(Type type)
 		{
 			this.type = type;
 		}
 
 		public static Expression Build(TypeDefinitionExpression expression)
 		{
-			var builder = new MakeDictionaryFromPropertiesExpressonsBuilder(expression.Type);
+			var builder = new PropertiesToDictionaryExpressionBinder(expression.Type);
 
 			builder.Visit(expression);
 
@@ -40,8 +40,8 @@ namespace Dryice.Generators.Objective
 			var propertyType = property.PropertyType;
 			var dictionaryType = new DryiceType("NSDictionary"); 
 			var retval = Expression.Parameter(dictionaryType, "retval");
-			var setObjectForKeyMethod = dictionaryType.GetMethod("setObject", typeof(void), new ParameterInfo[] { new DryiceParameterInfo(typeof(object), "obj"),new DryiceParameterInfo(typeof(string), "forKey") });
-			var propertyExpression = Expression.Property(Expression.Parameter(type, "self"), new DryicePropertyInfo(type, property.PropertyType, property.PropertyName));
+			var setObjectForKeyMethod = dictionaryType.GetMethod("setObject", typeof(void), new ParameterInfo[] { new DryParameterInfo(typeof(object), "obj"),new DryParameterInfo(typeof(string), "forKey") });
+			var propertyExpression = Expression.Property(Expression.Parameter(type, "self"), new DryPropertyInfo(type, property.PropertyType, property.PropertyName));
 
 			var setObjectForKeyMethodCall = Expression.Call(retval, setObjectForKeyMethod, Expression.Convert(propertyExpression, typeof(object)), Expression.Constant(property.PropertyName));
 

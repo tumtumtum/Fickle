@@ -40,7 +40,7 @@ namespace Dryice.Generators.Objective
 			};
 
 			var newDictionaryExpression = new StatementExpression(Expression.Assign(retvalExpression, Expression.New(dictionaryType.GetConstructor("dictionaryWithCapacity", typeof(int)), Expression.Constant(16))));
-			var makeDictionaryExpression = MakeDictionaryFromPropertiesExpressonsBuilder.Build(expression);
+			var makeDictionaryExpression = PropertiesToDictionaryExpressionBinder.Build(expression);
 			var returnDictionaryExpression = new StatementExpression(Expression.Return(Expression.Label(), Expression.Parameter(dictionaryType, "retval")));
 
 			var methodBody = Expression.Block(variables, (Expression)GroupedExpressionsExpression.FlatConcat(GroupedExpressionsExpressionStyle.Wide, newDictionaryExpression, makeDictionaryExpression, returnDictionaryExpression));
@@ -58,13 +58,13 @@ namespace Dryice.Generators.Objective
 			};
 
 			var methodBodyExpressions = new List<Expression>();
-			var superInitExpression = Expression.Call(Expression.Parameter(type.BaseType, "super"), new DryiceMethodInfo(type.BaseType, type, "init", new ParameterInfo[0]));
+			var superInitExpression = Expression.Call(Expression.Parameter(type.BaseType, "super"), new DryMethodInfo(type.BaseType, type, "init", new ParameterInfo[0]));
 
 			var assignExpression = Expression.Assign(Expression.Parameter(type, "self"), superInitExpression);
 			var compareToNullExpression = Expression.ReferenceEqual(assignExpression, Expression.Constant(null, type));
 
 			methodBodyExpressions.Add(Expression.IfThen(compareToNullExpression, Expression.Block(new StatementExpression(Expression.Return(Expression.Label(), Expression.Constant(null))))));
-			methodBodyExpressions.Add(SetPropertiesFromDictionaryExpressonsBuilder.Build(expression));
+			methodBodyExpressions.Add(PropertiesFromDictionaryExpressonBinder.Bind(expression));
 			methodBodyExpressions.Add(new StatementExpression(Expression.Return(Expression.Label(), Expression.Parameter(type, "self"))));
 
 			IEnumerable<ParameterExpression> variables = new ParameterExpression[]
@@ -92,7 +92,7 @@ namespace Dryice.Generators.Objective
 
 			var initTheCopy = new StatementExpression(Expression.Assign(theCopy, newExpression));
 			var returnStatement = new StatementExpression(Expression.Return(Expression.Label(), theCopy));
-			var copyStatements = CopyPropertiesExpressionBuilder.Build(this.serviceModel, expression, zone, theCopy);
+			var copyStatements = PropertiesToCopyExpressionBinder.Bind(this.serviceModel, expression, zone, theCopy);
 
 			Expression methodBody = Expression.Block(new ParameterExpression[] { theCopy }, new[] { initTheCopy, copyStatements, returnStatement }.ToGroupedExpression(GroupedExpressionsExpressionStyle.Wide));
 

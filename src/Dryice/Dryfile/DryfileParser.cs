@@ -6,16 +6,16 @@ using System.Reflection;
 using System.Text;
 using Dryice.Model;
 
-namespace Dryice.Webs
+namespace Dryice.Dryfile
 {
-	public class WebsParser
+	public class DryfileParser
 	{
-		private readonly WebsTokenizer tokenizer;
+		private readonly DryfileTokenizer tokenizer;
 		private readonly ServiceModel serviceModel;
 	
-		public WebsParser(TextReader reader)
+		public DryfileParser(TextReader reader)
 		{
-			tokenizer = new WebsTokenizer(reader);
+			this.tokenizer = new DryfileTokenizer(reader);
 
 			this.serviceModel = new ServiceModel
 			{
@@ -24,7 +24,7 @@ namespace Dryice.Webs
 				Gateways = new List<ServiceGateway>()
 			};
 
-			tokenizer.ReadNextToken();
+			this.tokenizer.ReadNextToken();
 		}
 
 		public static ServiceModel Parse(string s)
@@ -34,7 +34,7 @@ namespace Dryice.Webs
 
 		public static ServiceModel Parse(TextReader reader)
 		{
-			var parser = new WebsParser(reader);
+			var parser = new DryfileParser(reader);
 
 			parser.Parse();
 
@@ -43,32 +43,32 @@ namespace Dryice.Webs
 
 		protected virtual void ProcessTopLevel()
 		{
-			if (tokenizer.CurrentToken == WebsToken.Keyword)
+			if (this.tokenizer.CurrentToken == DryfilelToken.Keyword)
 			{
-				switch (tokenizer.CurrentKeyword)
+				switch (this.tokenizer.CurrentKeyword)
 				{
-					case WebsKeyword.Class:
-						serviceModel.Classes.Add(this.ProcessClass());
+					case DryfileKeyword.Class:
+						this.serviceModel.Classes.Add(this.ProcessClass());
 						break;
-					case WebsKeyword.Enum:
-						serviceModel.Enums.Add(this.ProcessEnum());
+					case DryfileKeyword.Enum:
+						this.serviceModel.Enums.Add(this.ProcessEnum());
 						break;
-					case WebsKeyword.Gateway:
-						serviceModel.Gateways.Add(this.ProcessGateway());
+					case DryfileKeyword.Gateway:
+						this.serviceModel.Gateways.Add(this.ProcessGateway());
 						break;
 				}
 			}
 			else
 			{
-				throw new UnexpectedWebsTokenException(tokenizer.CurrentToken, tokenizer.CurrentValue, WebsToken.Keyword);
+				throw new UnexpectedDryfileTokenException(this.tokenizer.CurrentToken, this.tokenizer.CurrentValue, DryfilelToken.Keyword);
 			}
 		}
 
-		protected virtual void Expect(params WebsToken[] tokens)
+		protected virtual void Expect(params DryfilelToken[] tokens)
 		{
 			if (!tokens.Contains(this.tokenizer.CurrentToken))
 			{
-				throw new UnexpectedWebsTokenException(this.tokenizer.CurrentToken, this.tokenizer.CurrentValue, tokens);
+				throw new UnexpectedDryfileTokenException(this.tokenizer.CurrentToken, this.tokenizer.CurrentValue, tokens);
 			}
 		}
 
@@ -81,11 +81,11 @@ namespace Dryice.Webs
 
 			this.ReadNextToken();
 
-			if (this.tokenizer.CurrentToken == WebsToken.Colon)
+			if (this.tokenizer.CurrentToken == DryfilelToken.Colon)
 			{
 				this.ReadNextToken();
 
-				this.Expect(WebsToken.Integer);
+				this.Expect(DryfilelToken.Integer);
 
 				retval.Value = (int)this.tokenizer.CurrentInteger;
 
@@ -99,7 +99,7 @@ namespace Dryice.Webs
 		{
 			this.ReadNextToken();
 
-			this.Expect(WebsToken.Identifier);
+			this.Expect(DryfilelToken.Identifier);
 
 			var retval = new ServiceEnum
 			{
@@ -108,22 +108,22 @@ namespace Dryice.Webs
 			};
 
 			this.ReadNextToken();
-			this.Expect(WebsToken.Indent);
+			this.Expect(DryfilelToken.Indent);
 			this.ReadNextToken();
 
 			while (true)
 			{
-				if (this.tokenizer.CurrentToken != WebsToken.Identifier)
+				if (this.tokenizer.CurrentToken != DryfilelToken.Identifier)
 				{
 					break;
 				}
 
-				var enumValue = ProcessEnumValue();
+				var enumValue = this.ProcessEnumValue();
 
 				retval.Values.Add(enumValue);
 			}
 
-			this.Expect(WebsToken.Dedent);
+			this.Expect(DryfilelToken.Dedent);
 			this.ReadNextToken();
 
 			return retval;
@@ -133,18 +133,18 @@ namespace Dryice.Webs
 		{
 			var builder = new StringBuilder();
 
-			if (this.tokenizer.CurrentToken == WebsToken.OpenBracket)
+			if (this.tokenizer.CurrentToken == DryfilelToken.OpenBracket)
 			{
 				builder.Append('[');
 
 				this.ReadNextToken();
 				builder.Append(this.ParseTypeName());
 
-				this.Expect(WebsToken.CloseBracket);
+				this.Expect(DryfilelToken.CloseBracket);
 				builder.Append(']');
 				this.ReadNextToken();
 
-				if (this.tokenizer.CurrentToken == WebsToken.QuestionMark)
+				if (this.tokenizer.CurrentToken == DryfilelToken.QuestionMark)
 				{
 					builder.Append('?');
 					this.ReadNextToken();
@@ -152,21 +152,21 @@ namespace Dryice.Webs
 			}
 			else
 			{
-				this.Expect(WebsToken.Identifier);
+				this.Expect(DryfilelToken.Identifier);
 
 				builder.Append(this.tokenizer.CurrentIdentifier);
 				this.ReadNextToken();
 
-				if (this.tokenizer.CurrentToken == WebsToken.QuestionMark)
+				if (this.tokenizer.CurrentToken == DryfilelToken.QuestionMark)
 				{
 					builder.Append('?');
 					this.ReadNextToken();
 				}
 
-				if (this.tokenizer.CurrentToken == WebsToken.OpenBracket)
+				if (this.tokenizer.CurrentToken == DryfilelToken.OpenBracket)
 				{	
 					this.ReadNextToken();
-					this.Expect(WebsToken.CloseBracket);
+					this.Expect(DryfilelToken.CloseBracket);
 					this.ReadNextToken();
 					builder.Append("[]");
 				}
@@ -184,7 +184,7 @@ namespace Dryice.Webs
 
 			this.ReadNextToken();
 
-			this.Expect(WebsToken.Colon);
+			this.Expect(DryfilelToken.Colon);
 
 			this.ReadNextToken();
 
@@ -197,7 +197,7 @@ namespace Dryice.Webs
 		{
 			this.ReadNextToken();
 
-			this.Expect(WebsToken.Identifier);
+			this.Expect(DryfilelToken.Identifier);
 
 			var retval = new ServiceClass
 			{
@@ -206,18 +206,18 @@ namespace Dryice.Webs
 			};
 
 			this.ReadNextToken();
-			this.Expect(WebsToken.Indent);
+			this.Expect(DryfilelToken.Indent);
 			this.ReadNextToken();
 
 			while (true)
 			{
-				if (this.tokenizer.CurrentToken == WebsToken.Identifier)
+				if (this.tokenizer.CurrentToken == DryfilelToken.Identifier)
 				{
 					var property = this.ProcessProperty();
 
 					retval.Properties.Add(property);
 				}
-				else if (this.tokenizer.CurrentToken == WebsToken.Annotation)
+				else if (this.tokenizer.CurrentToken == DryfilelToken.Annotation)
 				{
 					var annotation = this.ProcessAnnotation();
 
@@ -237,7 +237,7 @@ namespace Dryice.Webs
 				}
 			}
 
-			this.Expect(WebsToken.Dedent);
+			this.Expect(DryfilelToken.Dedent);
 			this.ReadNextToken();
 
 			return retval;
@@ -256,10 +256,10 @@ namespace Dryice.Webs
 			};
 
 			this.ReadNextToken();
-			this.Expect(WebsToken.Colon);
+			this.Expect(DryfilelToken.Colon);
 
 			this.ReadNextToken();
-			this.Expect(WebsToken.Identifier);
+			this.Expect(DryfilelToken.Identifier);
 
 			retval.TypeName = this.tokenizer.CurrentIdentifier;
 
@@ -277,31 +277,31 @@ namespace Dryice.Webs
 
 			this.ReadNextToken();
 
-			this.Expect(WebsToken.OpenParen);
+			this.Expect(DryfilelToken.OpenParen);
 
 			this.ReadNextToken();
 
 			var parameters = new List<ServiceParameter>();
 
-			while (this.tokenizer.CurrentToken != WebsToken.CloseParen && this.tokenizer.CurrentToken != WebsToken.EndOfFile)
+			while (this.tokenizer.CurrentToken != DryfilelToken.CloseParen && this.tokenizer.CurrentToken != DryfilelToken.EndOfFile)
 			{
-				parameters.Add(ProcessParameter());
+				parameters.Add(this.ProcessParameter());
 			}
 
 			retval.Parameters = parameters;
 
 			this.ReadNextToken();
 
-			if (this.tokenizer.CurrentToken == WebsToken.Indent)
+			if (this.tokenizer.CurrentToken == DryfilelToken.Indent)
 			{
 				this.ReadNextToken();
 
-				while (this.tokenizer.CurrentToken != WebsToken.Dedent
-					&& this.tokenizer.CurrentToken != WebsToken.EndOfFile)
+				while (this.tokenizer.CurrentToken != DryfilelToken.Dedent
+					&& this.tokenizer.CurrentToken != DryfilelToken.EndOfFile)
 				{
-					if (this.tokenizer.CurrentToken == WebsToken.Annotation)
+					if (this.tokenizer.CurrentToken == DryfilelToken.Annotation)
 					{
-						var annotation = ProcessAnnotation();
+						var annotation = this.ProcessAnnotation();
 
 						if (annotation.Key == "content")
 						{
@@ -318,7 +318,7 @@ namespace Dryice.Webs
 					}
 				}
 
-				this.Expect(WebsToken.Dedent);
+				this.Expect(DryfilelToken.Dedent);
 
 				this.ReadNextToken();
 			}
@@ -357,7 +357,7 @@ namespace Dryice.Webs
 		{
 			this.ReadNextToken();
 
-			this.Expect(WebsToken.Identifier);
+			this.Expect(DryfilelToken.Identifier);
 
 			var retval = new ServiceGateway
 			{
@@ -366,20 +366,20 @@ namespace Dryice.Webs
 			};
 
 			this.ReadNextToken();
-			this.Expect(WebsToken.Indent);
+			this.Expect(DryfilelToken.Indent);
 			this.ReadNextToken();
 
 			while (true)
 			{
-				if (this.tokenizer.CurrentToken == WebsToken.Identifier)
+				if (this.tokenizer.CurrentToken == DryfilelToken.Identifier)
 				{
 					var method = this.ProcessMethod();
 
 					retval.Methods.Add(method);
 				}
-				else if (this.tokenizer.CurrentToken == WebsToken.Annotation)
+				else if (this.tokenizer.CurrentToken == DryfilelToken.Annotation)
 				{
-					var annotation = ProcessAnnotation();
+					var annotation = this.ProcessAnnotation();
 
 					this.SetAnnotation(retval, annotation);
 				}
@@ -389,7 +389,7 @@ namespace Dryice.Webs
 				}
 			}
 
-			this.Expect(WebsToken.Dedent);
+			this.Expect(DryfilelToken.Dedent);
 			this.ReadNextToken();
 
 			return retval;
@@ -397,12 +397,12 @@ namespace Dryice.Webs
 
 		protected virtual ServiceModel Parse()
 		{
-			while (tokenizer.CurrentToken != WebsToken.EndOfFile)
+			while (this.tokenizer.CurrentToken != DryfilelToken.EndOfFile)
 			{
 				this.ProcessTopLevel();
 			}
 
-			return serviceModel;
+			return this.serviceModel;
 		}
 	}
 }

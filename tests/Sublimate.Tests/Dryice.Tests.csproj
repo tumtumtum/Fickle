@@ -73,7 +73,7 @@
   <ItemGroup>
     <None Include="App.config" />
     <None Include="packages.config" />
-    <EmbeddedResource Include="TestFiles\Test.dry" />
+    <EmbeddedResource Include="TestFiles\Test.dryfile" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\Dryice\Dryice.csproj">

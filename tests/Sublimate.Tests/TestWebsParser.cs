@@ -1,10 +1,10 @@
 ﻿using System;
 using System.IO;
 using System.Reflection;
+using Dryice.Dryfile;
 using NUnit.Framework;
 using Platform.Xml.Serialization;
 using Dryice.Model;
-using Dryice.Webs;
 
 namespace Dryice.Tests
 {
@@ -14,13 +14,13 @@ namespace Dryice.Tests
 		public static ServiceModel GetTestServiceModel()
 		{
 			var assembly = Assembly.GetExecutingAssembly();
-			var resourceName = typeof(TestWebsParser).Namespace + ".TestFiles.Test.dry";
+			var resourceName = typeof(TestWebsParser).Namespace + ".TestFiles.Test.dryfile";
 
 			using (var stream = assembly.GetManifestResourceStream(resourceName))
 			{
 				using (var reader = new StreamReader(stream))
 				{
-					return WebsParser.Parse(reader);
+					return DryfileParser.Parse(reader);
 				}
 			}
 		}

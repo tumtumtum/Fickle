@@ -4,30 +4,27 @@
 
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using System.Text;
 using Platform;
 using Dryice.Expressions;
 
 namespace Dryice.Generators.Objective
 {
-	public class SetPropertiesFromDictionaryExpressonsBuilder
+	public class PropertiesFromDictionaryExpressonBinder
 		: ServiceExpressionVisitor
 	{
 		private readonly Type type;
 		private readonly List<Expression> propertyGetterExpressions = new List<Expression>();
 
-		protected SetPropertiesFromDictionaryExpressonsBuilder(Type type)
+		protected PropertiesFromDictionaryExpressonBinder(Type type)
 		{
 			this.type = type;
 		}
 
-		public static Expression Build(TypeDefinitionExpression expression)
+		public static Expression Bind(TypeDefinitionExpression expression)
 		{
-			var builder = new SetPropertiesFromDictionaryExpressonsBuilder(expression.Type);
+			var builder = new PropertiesFromDictionaryExpressonBinder(expression.Type);
 
 			builder.Visit(expression);
 
@@ -70,9 +67,9 @@ namespace Dryice.Generators.Objective
 				processingStatements = null;
 				outputValue = Expression.Convert(value, propertyType);
 			}
-			else if (propertyType is DryiceListType)
+			else if (propertyType is DryListType)
 			{
-				var listType = propertyType as DryiceListType;
+				var listType = propertyType as DryListType;
 
 				typeToCompare = new DryiceType("NSArray");
 
@@ -108,7 +105,7 @@ namespace Dryice.Generators.Objective
 
 				processingStatements = new Expression[]
 				{
-					new StatementExpression(Expression.Assign(arrayVar, Expression.New(constructorInfo, Expression.Property(value, new DryicePropertyInfo(typeof(object), typeof(int), "count"))))),
+					new StatementExpression(Expression.Assign(arrayVar, Expression.New(constructorInfo, Expression.Property(value, new DryPropertyInfo(typeof(object), typeof(int), "count"))))),
 					new ForEachExpression(arrayItem, value, Expression.Block(new GroupedExpressionsExpression(forEachBodyStatements)))
 				};
 
@@ -126,9 +123,9 @@ namespace Dryice.Generators.Objective
 			var expressions = new List<Expression>();
 			var dictionaryType = new DryiceType("NSDictionary"); 
 			var currentValueFromDictionary = Expression.Parameter(typeof(object), "currentValueFromDictionary");
-			var objectForKeyCall = Expression.Call(Expression.Parameter(dictionaryType, "properties"), new DryiceMethodInfo(dictionaryType, typeof(object), "objectForKey", new ParameterInfo[] { new DryiceParameterInfo(typeof(string), "key") }), Expression.Constant(property.PropertyName));
+			var objectForKeyCall = Expression.Call(Expression.Parameter(dictionaryType, "properties"), new DryMethodInfo(dictionaryType, typeof(object), "objectForKey", new ParameterInfo[] { new DryParameterInfo(typeof(string), "key") }), Expression.Constant(property.PropertyName));
 
-			var propertyExpression = Expression.Property(Expression.Parameter(type, "self"), new DryicePropertyInfo(type, property.PropertyType, property.PropertyName.Uncapitalize()));
+			var propertyExpression = Expression.Property(Expression.Parameter(type, "self"), new DryPropertyInfo(type, property.PropertyType, property.PropertyName.Uncapitalize()));
 
 			Type typeToCompare;
 			Expression outputValue = null;
