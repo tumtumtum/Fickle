@@ -6,10 +6,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
-using Platform;
 using Dryice.Expressions;
+using Platform;
 
-namespace Dryice.Generators.Objective
+namespace Dryice.Generators.Objective.Binders
 {
 	public class PropertiesFromDictionaryExpressonBinder
 		: ServiceExpressionVisitor
@@ -43,7 +43,7 @@ namespace Dryice.Generators.Objective
 					|| underlyingType == typeof(char) || underlyingType == typeof(short)
 					|| underlyingType == typeof(int) || underlyingType == typeof(long))
 				{
-					typeToCompare = new DryiceType("NSNumber");
+					typeToCompare = new DryType("NSNumber");
 				}
 				else
 				{
@@ -53,39 +53,35 @@ namespace Dryice.Generators.Objective
 				processingStatements = null;
 				outputValue = Expression.Convert(value, propertyType);
 			}
-			else if (propertyType is DryiceType && ((DryiceType)propertyType).ServiceClass != null)
+			else if (propertyType is DryType && ((DryType)propertyType).ServiceClass != null)
 			{
-				typeToCompare = ObjectiveLanguage.NSDictionary;
+				typeToCompare = new DryType("NSDictionary");
 
 				processingStatements = null;
-				outputValue = Expression.New(((DryiceType)propertyType).GetConstructor("initWithPropertyDictionary", ObjectiveLanguage.NSDictionary), Expression.Convert(value, ObjectiveLanguage.NSDictionary));
+				outputValue = DryExpression.New("NSDictionary", "initWithPropertyDictionary", DryExpression.Convert(value, "NSDictionary"));
 			}
-			else if (propertyType is DryiceType && ((DryiceType)propertyType).ServiceEnum != null)
+			else if (propertyType is DryType && ((DryType)propertyType).ServiceEnum != null)
 			{
-				typeToCompare = new DryiceType("NSNumber");
+				typeToCompare = new DryType("NSNumber");
 
 				processingStatements = null;
 				outputValue = Expression.Convert(value, propertyType);
 			}
 			else if (propertyType is DryListType)
 			{
-				var listType = propertyType as DryListType;
-
-				typeToCompare = new DryiceType("NSArray");
-
-				var arrayVar = Expression.Variable(ObjectiveLanguage.NSMutableArray, propertyName.Uncapitalize() + "Array");
-				variables = new[] { arrayVar };
-
-				var constructorInfo = ObjectiveLanguage.MakeConstructorInfo(ObjectiveLanguage.NSMutableArray, "initWithCapacity", typeof(int), "capacity");
-
-				var arrayItem = Expression.Parameter(typeof(object), "arrayItem");
-
-				var constructedArrayItem = Expression.Parameter(listType.ListElementType, "constructedArrayItem");
-
 				Type typeToCompareInner;
 				Expression outputValueInner = null;
 				Expression[] processingStatementsInner;
 				ParameterExpression[] variablesInner;
+				var listType = propertyType as DryListType;
+
+				typeToCompare = new DryType("NSArray");
+
+				var arrayVar = DryExpression.Variable("NSMutableArray", propertyName.Uncapitalize() + "Array");
+				variables = new[] { arrayVar };
+
+				var arrayItem = DryExpression.Parameter(typeof(object), "arrayItem");
+				var constructedArrayItem = DryExpression.Parameter(listType.ListElementType, "constructedArrayItem");
 
 				this.ProcessPropertyDeserializer(listType.ListElementType, listType.ListElementType.Name.Uncapitalize(), arrayItem, out typeToCompareInner, out processingStatementsInner, out outputValueInner, out variablesInner);
 
@@ -94,19 +90,20 @@ namespace Dryice.Generators.Objective
 				{
 					statements.AddRange(processingStatementsInner);
 				}
-				statements.Add(new StatementExpression(Expression.Assign(constructedArrayItem, outputValueInner)));
-				statements.Add(new StatementExpression(ObjectiveLanguage.MakeCall(arrayVar, typeof(void), "addObject", constructedArrayItem)));
+
+				statements.Add(Expression.Assign(constructedArrayItem, outputValueInner).ToStatement());
+				statements.Add(DryExpression.MakeMethodCall(arrayVar, "addObject", constructedArrayItem).ToStatement());
 
 				var forEachBodyStatements = new Expression[]
 				{
 					Expression.IfThen(Expression.TypeEqual(arrayItem, typeToCompareInner), 
-					Expression.Block(new [] { constructedArrayItem }, new GroupedExpressionsExpression(statements, GroupedExpressionsExpressionStyle.Wide)))
+					Expression.Block(new [] { constructedArrayItem }, statements.ToGroupedExpression(GroupedExpressionsExpressionStyle.Wide)))
 				};
 
 				processingStatements = new Expression[]
 				{
-					new StatementExpression(Expression.Assign(arrayVar, Expression.New(constructorInfo, Expression.Property(value, new DryPropertyInfo(typeof(object), typeof(int), "count"))))),
-					new ForEachExpression(arrayItem, value, Expression.Block(new GroupedExpressionsExpression(forEachBodyStatements)))
+					Expression.Assign(arrayVar, DryExpression.New("NSMutableArray", "initWithCapacity", DryExpression.Property(value, typeof(int), "count"))).ToStatement(),
+					DryExpression.ForEach(arrayItem, value, Expression.Block(forEachBodyStatements.ToGroupedExpression()))
 				};
 
 				outputValue = Expression.Convert(arrayVar, propertyType);
@@ -121,11 +118,11 @@ namespace Dryice.Generators.Objective
 		{
 			var comment = new CommentExpression(property.PropertyName);
 			var expressions = new List<Expression>();
-			var dictionaryType = new DryiceType("NSDictionary"); 
+			var dictionaryType = new DryType("NSDictionary"); 
 			var currentValueFromDictionary = Expression.Parameter(typeof(object), "currentValueFromDictionary");
 			var objectForKeyCall = Expression.Call(Expression.Parameter(dictionaryType, "properties"), new DryMethodInfo(dictionaryType, typeof(object), "objectForKey", new ParameterInfo[] { new DryParameterInfo(typeof(string), "key") }), Expression.Constant(property.PropertyName));
 
-			var propertyExpression = Expression.Property(Expression.Parameter(type, "self"), new DryPropertyInfo(type, property.PropertyType, property.PropertyName.Uncapitalize()));
+			var propertyExpression = Expression.Property(Expression.Parameter(this.type, "self"), new DryPropertyInfo(this.type, property.PropertyType, property.PropertyName.Uncapitalize()));
 
 			Type typeToCompare;
 			Expression outputValue = null;
@@ -135,14 +132,14 @@ namespace Dryice.Generators.Objective
 			this.ProcessPropertyDeserializer(property.PropertyType, property.PropertyName, currentValueFromDictionary, out typeToCompare, out processingStatements, out outputValue, out variables);
 
 			expressions.Add(comment);
-			expressions.Add(new StatementExpression(Expression.Assign(currentValueFromDictionary, objectForKeyCall)));
+			expressions.Add(Expression.Assign(currentValueFromDictionary, objectForKeyCall).ToStatement());
 
 			var statements = new List<Expression>();
 			if (processingStatements != null)
 			{
 				statements.AddRange(processingStatements);
 			}
-			statements.Add(new StatementExpression(Expression.Assign(propertyExpression, outputValue)));
+			statements.Add(Expression.Assign(propertyExpression, outputValue).ToStatement());
 			
 			expressions.Add(Expression.IfThen(Expression.TypeIs(currentValueFromDictionary, typeToCompare), Expression.Block(variables, new GroupedExpressionsExpression(statements, GroupedExpressionsExpressionStyle.Wide))));
 

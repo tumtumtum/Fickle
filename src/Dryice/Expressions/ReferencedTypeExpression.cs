@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Linq.Expressions;
-using Dryice.Model;
 
 namespace Dryice.Expressions
 {

@@ -73,7 +73,7 @@ namespace Dryice.Generators.Objective
 				return;
 			}
 
-			var dryiceType = type as DryiceType;
+			var dryiceType = type as DryType;
 
 			if (dryiceType != null)
 			{
@@ -243,17 +243,20 @@ namespace Dryice.Generators.Objective
 
 		protected override Expression VisitConstant(ConstantExpression node)
 		{
-			if (node.Type == typeof(string))
+			if (!node.Type.IsValueType && node.Value == null)
 			{
+				this.Write("nil");
+
+				return node;
+			}
+
+			if (node.Type == typeof(string))
+			{	
 				this.Write("\"" + Convert.ToString(node.Value) + "\"");
 			}
 			else if (node.Type == typeof(Guid))
 			{
 				this.Write("[PKUUID uuidFromString:\"" + Convert.ToString(node.Value) + "\"]");
-			}
-			else if (node.Value == null)
-			{
-				this.Write("nil");
 			}
 			else if (node.Type == typeof(bool))
 			{
@@ -355,12 +358,19 @@ namespace Dryice.Generators.Objective
 
 		protected override Expression VisitNew(NewExpression node)
 		{
+			var constructorName = node.Constructor.Name;
+			
+			if (constructorName == "ctor")
+			{
+				constructorName = "init";
+			}
+
 			this.Write('[');
 			this.Write('[');
 			this.Write(node.Type, true);
 			this.Write(" alloc]");
 			this.Write(' ');
-			this.Write(node.Constructor.Name);
+			this.Write(constructorName);
 
 			if (node.Arguments.Count > 0)
 			{
@@ -381,8 +391,50 @@ namespace Dryice.Generators.Objective
 			return node;
 		}
 
+		public override void Generate(Expression expression)
+		{
+			base.Generate(DateFormatterInserter.Insert(expression));
+		}
+
+		public override void ConvertToString(Expression expression)
+		{
+			if (expression.Type == typeof(string))
+			{
+				this.Visit(expression);
+			}
+			else if (expression.Type == typeof(Guid) || expression.Type == typeof(Guid?))
+			{
+				this.Write("[");
+				this.Visit(expression);
+				this.Write(" ");
+				this.Write(" compactStringValue");
+				this.Write("]");
+			}
+			else if (expression.Type == typeof(TimeSpan) || expression.Type == typeof(TimeSpan?))
+			{
+				this.Write("[");
+				this.Visit(expression);
+				this.Write(" ");
+				this.Write(" toIsoString");
+				this.Write("]");
+			}
+			else if (expression.Type == typeof(DateTime) || expression.Type == typeof(DateTime?))
+			{
+				this.Write("[dateFormatter stringFromDate:");
+				this.Visit(expression);
+				this.Write("]");
+			}
+		}
+
 		protected override Expression VisitMethodCall(MethodCallExpression node)
 		{
+			if (node.Method.Name == "ToString")
+			{
+				ConvertToString(node.Object);
+
+				return node;
+			}
+
 			this.Write('[');
 			if (node.Object == null)
 			{
@@ -403,10 +455,20 @@ namespace Dryice.Generators.Objective
 
 				for (var i = 1; i < node.Arguments.Count; i++)
 				{
-					this.Write(' ');
-					this.Write(node.Method.GetParameters()[i].Name);
-					this.Write(':');
-					this.Visit(node.Arguments[1]);
+					var parameter = node.Method.GetParameters()[i];
+
+					if (parameter is ObjectiveParameterInfo && ((ObjectiveParameterInfo)parameter).IsCStyleParameter)
+					{
+						this.Write(", ");
+						this.Visit(node.Arguments[i]);
+					}
+					else
+					{
+						this.Write(' ');
+						this.Write(node.Method.GetParameters()[i].Name);
+						this.Write(':');
+						this.Visit(node.Arguments[i]);
+					}
 				}
 			}
 
@@ -564,7 +626,7 @@ namespace Dryice.Generators.Objective
 			this.Write(parameter.ParameterType);
 			this.Write(')');
 			this.Write(':');
-			this.Write(parameter.ParameterName);
+			this.Write(parameter.ParameterName.Uncapitalize());
 
 			return parameter;
 		}
@@ -594,7 +656,18 @@ namespace Dryice.Generators.Objective
 			if (method.Parameters != null)
 			{
 				this.Write(':');
-				this.VisitExpressionList(method.Parameters);
+
+				for (var i = 0; i < method.Parameters.Count; i++)
+				{
+					var parameter = method.Parameters[i];
+
+					this.Visit(parameter);
+
+					if (i != method.Parameters.Count - 1)
+					{
+						this.Write(" ");
+					}
+				}
 			}
 
 			if (!string.IsNullOrEmpty(method.RawAttributes) && method.IsPredeclatation)

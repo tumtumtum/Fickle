@@ -28,7 +28,7 @@ namespace Dryice.Model
 		public ServiceParameter Content { get; set; }
 
 		[XmlAttribute]
-		public string ReturnTypeName { get; set; }
+		public string Returns { get; set; }
 
 		[XmlElement]
 		public List<ServiceParameter> Parameters { get; set; }

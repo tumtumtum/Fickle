@@ -37,12 +37,12 @@ namespace Dryice
 		private bool indentRequired;
 		private readonly TextWriter writer;
 
-		public SourceCodeGenerator(TextWriter writer)
+		protected SourceCodeGenerator(TextWriter writer)
 		{
 			this.writer = writer;
 		}
 
-		public void Generate(Expression expression)
+		public virtual void Generate(Expression expression)
 		{
 			this.Visit(expression);
 		}
@@ -208,6 +208,17 @@ namespace Dryice
 		public virtual IDisposable AcquireIndentationContext()
 		{
 			return new IndentationContext(this);
+		}
+
+		public virtual void ConvertToString(Expression expression)
+		{
+		}
+
+		protected override Expression VisitCodeLiteralExpression(CodeLiteralExpression expression)
+		{
+			expression.Action(this);
+
+			return expression;
 		}
 	}
 }

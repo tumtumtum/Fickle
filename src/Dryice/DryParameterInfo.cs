@@ -10,7 +10,7 @@ namespace Dryice
 		: ParameterInfo
 	{
 		public DryParameterInfo(Type parameterType, string name)
-		{	
+		{
 			this.name = name;
 			this.parameterType = parameterType;
 		}
@@ -22,8 +22,7 @@ namespace Dryice
 				return parameterType;
 			}
 		}
-
-		private Type parameterType;
+		private readonly Type parameterType;
 
 		public override string Name
 		{
@@ -32,7 +31,6 @@ namespace Dryice
 				return name;
 			}
 		}
-
-		private string name;
+		private readonly string name;
 	}
 }

@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using Dryice.Generators.Objective.Binders;
 using Platform.VirtualFileSystem;
 using Dryice.Model;
 
@@ -9,44 +10,73 @@ namespace Dryice.Generators.Objective
 		: ServiceModelCodeGenerator
 	{
 		public ObjectiveServiceModelCodeGenerator(IFile file, CodeGenerationOptions options)
-			: base(file)
+			: base(file, options)
 		{
 		}
 
 		public ObjectiveServiceModelCodeGenerator(TextWriter writer,  CodeGenerationOptions options)
-			: base(writer)
+			: base(writer, options)
 		{
 		}
 
 		public ObjectiveServiceModelCodeGenerator(IDirectory directory,  CodeGenerationOptions options)
-			: base(directory)
+			: base(directory, options)
 		{
 		}
 
 		public override void Generate(ServiceModel serviceModel)
 		{
-			var serviceExpressionBuilder = new ServiceExpressionBuilder(serviceModel);
-			
-			foreach (var serviceClass in serviceModel.Classes)
+			var serviceExpressionBuilder = new ServiceExpressionBuilder(serviceModel, this.Options);
+
+			if (this.Options.GenerateClasses)
 			{
-				var classExpression = serviceExpressionBuilder.Build(serviceClass);
-
-				using (var writer = this.GetTextWriterForFile(serviceClass.Name + ".h"))
+				foreach (var serviceClass in serviceModel.Classes)
 				{
-					var headerFileExpression = ObjectiveClassHeaderExpressionBinder.Bind(classExpression);
+					var classExpression = serviceExpressionBuilder.Build(serviceClass);
 
-					var codeGenerator = new ObjectiveCodeGenerator(writer);
+					using (var writer = this.GetTextWriterForFile(serviceClass.Name + ".h"))
+					{
+						var headerFileExpression = ClassHeaderExpressionBinder.Bind(classExpression);
 
-					codeGenerator.Generate(headerFileExpression);
+						var codeGenerator = new ObjectiveCodeGenerator(writer);
+
+						codeGenerator.Generate(headerFileExpression);
+					}
+
+					using (var writer = this.GetTextWriterForFile(serviceClass.Name + ".m"))
+					{
+						var classFileExpression = ClassSourceExpressionBinder.Bind(serviceModel, classExpression);
+
+						var codeGenerator = new ObjectiveCodeGenerator(writer);
+
+						codeGenerator.Generate(classFileExpression);
+					}
 				}
+			}
 
-				using (var writer = this.GetTextWriterForFile(serviceClass.Name + ".m"))
+			if (this.Options.GenerateGateways)
+			{
+				foreach (var serviceGateway in serviceModel.Gateways)
 				{
-					var classFileExpression = ObjectiveClassExpressionBinder.Bind(serviceModel, classExpression);
+					var gatewayExpression = serviceExpressionBuilder.Build(serviceGateway);
 
-					var codeGenerator = new ObjectiveCodeGenerator(writer);
+					using (var writer = this.GetTextWriterForFile(serviceGateway.Name + ".h"))
+					{
+						var headerFileExpression = GatewayHeaderExpressionBinder.Bind(serviceModel, gatewayExpression);
 
-					codeGenerator.Generate(classFileExpression);
+						var codeGenerator = new ObjectiveCodeGenerator(writer);
+
+						codeGenerator.Generate(headerFileExpression);
+					}
+
+					using (var writer = this.GetTextWriterForFile(serviceGateway.Name + ".m"))
+					{
+						var classFileExpression = GatewaySourceExpressionBinder.Bind(serviceModel, gatewayExpression, this.Options);
+
+						var codeGenerator = new ObjectiveCodeGenerator(writer);
+
+						codeGenerator.Generate(classFileExpression);
+					}
 				}
 			}
 		}

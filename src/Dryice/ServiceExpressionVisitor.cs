@@ -35,6 +35,8 @@ namespace Dryice
 					return this.VisitReferencedTypeExpresson((ReferencedTypeExpression)expression);
 				case (int)ServiceExpressionType.Comment:
 					return this.VisitCommentExpression((CommentExpression)expression);
+				case (int)ServiceExpressionType.CodeLiteral:
+					return this.VisitCodeLiteralExpression((CodeLiteralExpression)expression);
 			}
 
 			return base.Visit(expression);
@@ -63,7 +65,7 @@ namespace Dryice
 
 			if (ex != expression.Expression)
 			{
-				return new StatementExpression(ex);
+				return ex.ToStatement();
 			}
 
 			return expression;
@@ -72,10 +74,11 @@ namespace Dryice
 		protected virtual Expression VisitMethodDefinitionExpression(MethodDefinitionExpression method)
 		{
 			var expressions = this.VisitExpressionList(method.Parameters);
+			var body = this.Visit(method.Body);
 
-			if (expressions != method.Parameters)
+			if (expressions != method.Parameters || body != method.Body)
 			{
-				return new MethodDefinitionExpression(method.Name, expressions, method.ReturnType);
+				return new MethodDefinitionExpression(method.Name, expressions, method.ReturnType, body, method.IsPredeclatation, method.RawAttributes);
 			}
 
 			return method;
@@ -138,6 +141,11 @@ namespace Dryice
 		}
 
 		protected virtual Expression VisitCommentExpression(CommentExpression expression)
+		{
+			return expression;
+		}
+
+		protected virtual Expression VisitCodeLiteralExpression(CodeLiteralExpression expression)
 		{
 			return expression;
 		}

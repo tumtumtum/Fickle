@@ -11,6 +11,7 @@
 		IncludeStatement = GroupedExpressions + 6,
 		ReferencedType = GroupedExpressions + 7,
 		Comment = GroupedExpressions + 8,
-		ForEach = GroupedExpressions + 9
+		ForEach = GroupedExpressions + 9,
+		CodeLiteral = GroupedExpressions + 10
 	}
 }

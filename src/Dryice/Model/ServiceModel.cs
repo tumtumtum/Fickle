@@ -65,9 +65,9 @@ namespace Dryice.Model
 		{
 			if (this.serviceTypesByName == null)
 			{
-				this.serviceTypesByName = this.Classes.Select(c => (object)c).Concat(this.Enums ?? Enumerable.Empty<object>()).Select(c => c is ServiceEnum ? (Type)new DryiceType((ServiceEnum)c, this) : (Type)new DryiceType((ServiceClass)c, this)).ToDictionary(c => c.Name, c => c, StringComparer.InvariantCultureIgnoreCase);
+				this.serviceTypesByName = this.Classes.Select(c => (object)c).Concat(this.Enums ?? Enumerable.Empty<object>()).Select(c => c is ServiceEnum ? (Type)new DryType((ServiceEnum)c, this) : (Type)new DryType((ServiceClass)c, this)).ToDictionary(c => c.Name, c => c, StringComparer.InvariantCultureIgnoreCase);
 
-				foreach (DryiceType type in this.serviceTypesByName.Values)
+				foreach (DryType type in this.serviceTypesByName.Values)
 				{
 					if (type.ServiceClass != null && !string.IsNullOrEmpty(type.ServiceClass.BaseTypeName))
 					{
@@ -79,7 +79,7 @@ namespace Dryice.Model
 						}
 						else
 						{
-							type.SetBaseType(new DryiceType(type.ServiceClass.BaseTypeName));
+							type.SetBaseType(new DryType(type.ServiceClass.BaseTypeName));
 						}
 					}
 					else

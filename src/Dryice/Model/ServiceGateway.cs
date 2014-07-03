@@ -12,6 +12,9 @@ namespace Dryice.Model
 		[XmlAttribute]
 		public string Url { get; set; }
 
+		[XmlAttribute]
+		public string BaseTypeName { get; set; }
+
 		[XmlElement]
 		public List<ServiceMethod> Methods { get; set; }
 	}

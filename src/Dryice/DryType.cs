@@ -6,7 +6,7 @@ using Dryice.Model;
 
 namespace Dryice
 {
-	public class DryiceType
+	public class DryType
 		: Type
 	{
 		private readonly ServiceModel serviceModel;
@@ -16,26 +16,41 @@ namespace Dryice
 		
 		public ServiceClass ServiceClass { get; private set; }
 		
-		public DryiceType(string name)
+		public DryType(string name)
 			: this(name, typeof(object))
 		{
 		}
 
-		public DryiceType(string name, Type baseType)
+		public static implicit operator DryType(string name)
+		{
+			return new DryType(name);
+		}
+
+		public static DryType Make(string name)
+		{
+			return new DryType(name);
+		}
+
+		public static DryType Make(string name, Type baseType)
+		{
+			return new DryType(name, baseType);
+		}
+
+		public DryType(string name, Type baseType)
 		{
 			this.name = name;
 			this.ServiceClass = null;
 			this.baseType = baseType;
 		}
 
-		public DryiceType(ServiceClass serviceClass, ServiceModel serviceModel)
+		public DryType(ServiceClass serviceClass, ServiceModel serviceModel)
 		{
 			this.serviceModel = serviceModel;
 			this.name = serviceClass.Name;
 			this.ServiceClass = serviceClass;
 		}
 
-		public DryiceType(ServiceEnum serviceEnum, ServiceModel serviceModel)
+		public DryType(ServiceEnum serviceEnum, ServiceModel serviceModel)
 		{
 			this.serviceModel = serviceModel;
 			this.ServiceEnum = serviceEnum;
@@ -344,7 +359,7 @@ namespace Dryice
 		{
 			get
 			{
-				return typeof(DryiceType).Assembly;
+				return typeof(DryType).Assembly;
 			}
 		}
 
@@ -378,7 +393,7 @@ namespace Dryice
 				return true;
 			}
 
-			var typedObject = o as DryiceType;
+			var typedObject = o as DryType;
 
 			if (typedObject == null)
 			{

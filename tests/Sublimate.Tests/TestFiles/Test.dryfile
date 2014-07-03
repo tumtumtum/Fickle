@@ -27,10 +27,10 @@ class User
 	FollowerUserIds : uuid[]
 
 gateway UserService
-	@url http://dryice.kingstreetapps.com/petstore/api/UserService
+	@url http://dryice.kingstreetapps.com/api/UserService
 
-	GetUser(Id:uuid)
+	GetUser(id:uuid fromDate:datetime)
 		@format json
-		@url User/{id}
+		@url User/{id}/{fromDate}
 		@method post
-		@return Response
+		@returns Response

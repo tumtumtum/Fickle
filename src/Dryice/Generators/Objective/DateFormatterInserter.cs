@@ -1,0 +1,66 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Linq.Expressions;
+using System.Text;
+using System.Threading.Tasks;
+using Dryice.Expressions;
+
+namespace Dryice.Generators.Objective
+{
+	public class DateFormatterInserter
+		: ServiceExpressionVisitor
+	{
+		private bool containsDateConversion = false;
+
+		protected DateFormatterInserter()
+		{
+		}
+
+		public static Expression Insert(Expression expression)
+		{
+			return new DateFormatterInserter().Visit(expression);
+		}
+
+		protected override Expression VisitMethodCall(MethodCallExpression node)
+		{
+			if (node.Method.Name == "ToString" && node.Object != null && (node.Object.Type == typeof(DateTime) || node.Object.Type == typeof(DateTime?)))
+			{
+				this.containsDateConversion = true;
+			}
+
+			return base.VisitMethodCall(node);
+		}
+
+		protected override Expression VisitMethodDefinitionExpression(Expressions.MethodDefinitionExpression method)
+		{
+			this.containsDateConversion = false;
+
+			var retval = (MethodDefinitionExpression)base.VisitMethodDefinitionExpression(method);
+
+			if (this.containsDateConversion && retval.Body is BlockExpression)
+			{
+				var block = (BlockExpression)retval.Body;
+				var variables = new List<ParameterExpression>(block.Variables);
+				var dateFormatter = Expression.Variable(new DryType("NSDateFormatter"), "dateFormatter");
+				variables.Add(dateFormatter);
+				var expressions = new List<Expression>();
+
+				// dateFormatter = [[NSDateFormatter alloc]init]
+				expressions.Add(Expression.Assign(dateFormatter, Expression.New(new DryType("NSDateFormatter"))).ToStatement());
+				// [dateFormatter setTimeZone: [NSTimeZone timeZoneWithAbbreviation:@"UTC"]];
+				expressions.Add(DryExpression.MakeMethodCall(dateFormatter, "setTimeZone", DryExpression.MakeStaticMethodCall("NSTimeZone", "NSTimeZone", "timeZoneWithAbbreviation", "UTC")));
+				// [dateFormatter setDateFormat: @"yyyy-MM-ddTHH:mm:ss"];
+				expressions.Add(DryExpression.MakeMethodCall(dateFormatter, "setDateFormat", "yyyy-MM-ddTHH:mm:ss").ToStatement());
+				
+				expressions.AddRange(block.Expressions);
+
+				var newBody = Expression.Block(variables, expressions);
+
+				return new MethodDefinitionExpression(retval.Name, retval.Parameters, retval.ReturnType, newBody, retval.IsPredeclatation, retval.RawAttributes);
+			}
+
+			return retval;
+		}
+	}
+}

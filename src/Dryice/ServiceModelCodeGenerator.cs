@@ -12,6 +12,8 @@ namespace Dryice
 	public abstract class ServiceModelCodeGenerator
 		: IDisposable
 	{
+		public CodeGenerationOptions Options { get; set; }
+
 		#region TextWriterWrapper
 		private class TextWriterWrapper
 			: TextWriter
@@ -91,13 +93,14 @@ namespace Dryice
 			return null;
 		}
 		
-		protected ServiceModelCodeGenerator(IFile file)
-			: this(file.GetContent().GetWriter())
+		protected ServiceModelCodeGenerator(IFile file, CodeGenerationOptions options)
+			: this(file.GetContent().GetWriter(), options)
 		{
 		}
 
-		protected ServiceModelCodeGenerator(TextWriter writer)
+		protected ServiceModelCodeGenerator(TextWriter writer, CodeGenerationOptions options)
 		{
+			this.Options = options;
 			this.writer = new TextWriterWrapper(writer);
 
 			if (writer == Console.Out)
@@ -106,8 +109,9 @@ namespace Dryice
 			}
 		}
 
-		protected ServiceModelCodeGenerator(IDirectory directory)
+		protected ServiceModelCodeGenerator(IDirectory directory, CodeGenerationOptions options)
 		{
+			this.Options = options;
 			this.directory = directory;
 
 			directory.Create(true);

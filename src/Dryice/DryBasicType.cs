@@ -151,7 +151,7 @@ namespace Dryice
 
 		protected override ConstructorInfo GetConstructorImpl(BindingFlags bindingAttr, Binder binder, CallingConventions callConvention, Type[] types, ParameterModifier[] modifiers)
 		{
-			throw new NotImplementedException();
+			return null;
 		}
 
 		public override string Name

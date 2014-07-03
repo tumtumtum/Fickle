@@ -4,7 +4,7 @@ using System.Linq.Expressions;
 using Dryice.Expressions;
 using Dryice.Model;
 
-namespace Dryice.Generators.Objective
+namespace Dryice.Generators.Objective.Binders
 {
 	public class PropertiesToCopyExpressionBinder
 		: ServiceExpressionVisitor
@@ -34,28 +34,29 @@ namespace Dryice.Generators.Objective
 
 		protected override Expression VisitPropertyDefinitionExpression(PropertyDefinitionExpression property)
 		{
-			var self = Expression.Parameter(theCopy.Type, "self");
+			var self = Expression.Parameter(this.theCopy.Type, "self");
 
-			var propertyOnTheCopy = Expression.Property(theCopy, property.PropertyName);
-			Expression p2 = Expression.Property(self, property.PropertyName);
+			var propertyOnTheCopy = Expression.Property(this.theCopy, property.PropertyName);
+			var propertyOnSelf = (Expression)Expression.Property(self, property.PropertyName);
 
 			var propertyType = propertyOnTheCopy.Type;
 
 			if (propertyType.GetDryiceListElementType() != null)
 			{
-				var constructorInfo = ObjectiveLanguage.MakeConstructorInfo(propertyType, "initWithArray", theCopy.Type, "oldArray", typeof(bool), "copyItems");
-				
-				p2 = Expression.New(constructorInfo, p2, Expression.Constant(true));
+				propertyOnSelf = DryExpression.New(propertyType, "initWithArray", new
+				{
+					oldArray = propertyOnSelf,
+					copyItems = true
+				});
 			}
-			else if (propertyType is DryiceType && !propertyType.IsValueType)
+			else if (propertyType is DryType && !propertyType.IsValueType)
 			{
-				p2 = Expression.Call(p2, ((DryiceType)propertyType).GetMethod("copyWithZone", typeof(object), ObjectiveLanguage.NSZoneType), zone);
-				p2 = Expression.Convert(p2, propertyType);
+				propertyOnSelf = Expression.Convert(DryExpression.MakeMethodCall(propertyOnSelf, typeof(object), "copyWithZone", this.zone), propertyType);
 			}
 
-			var assignExpression = Expression.Assign(propertyOnTheCopy, p2);
+			var assignExpression = Expression.Assign(propertyOnTheCopy, propertyOnSelf);
 
-			statements.Add(new StatementExpression(assignExpression));
+			this.statements.Add(assignExpression.ToStatement());
 
 			return property;
 		}
