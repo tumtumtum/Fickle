@@ -35,12 +35,15 @@ namespace Dryice.Generators.Objective.Binders
 			var methodName = method.Name.Uncapitalize();
 			var serviceMethodInfo = (ServiceMethodDefinitionExpression)method;
 
-			var relativeUri = Expression.Variable(typeof(string), "relativeUri");
+			var relativeUrl = Expression.Variable(typeof(string), "relativeUrl");
+			var client = Expression.Variable(new DryType(this.options.ServiceClientTypeName ?? "PKWebServiceClient"), "client");
+			var clientOptions = DryExpression.Variable("NSDictionary", "clientOptions");
 
 			var variables = new ParameterExpression[]
 			{
-				relativeUri,
-				Expression.Variable(new DryType(this.options.ServiceClientTypeName ??"PKWebServiceClient"), "client")
+				relativeUrl,
+				client,
+				clientOptions
 			};
 
 			var url = serviceMethodInfo.ServiceMethod.Url;
@@ -61,7 +64,6 @@ namespace Dryice.Generators.Objective.Binders
 				return "%@";
 			});
 
-			// [NSString stringWithFormat:@"", ...] methodinfo
 			var parameterInfos = new List<DryParameterInfo>();
 			parameterInfos.Add(new ObjectiveParameterInfo(typeof(string), "s"));
 			parameterInfos.AddRange(parameters.Select(c => new ObjectiveParameterInfo(typeof(string), c.ParameterName, true)));
@@ -74,15 +76,26 @@ namespace Dryice.Generators.Objective.Binders
 
 			var body = new Expression[]
 			{
-				Expression.Assign(relativeUri, Expression.Call(null, methodInfo, args).ToStatement()),
-				Expression.Return(Expression.Label(), Expression.Constant(null)).ToStatement()
+				Expression.Assign(clientOptions, Expression.New(new DryType("NSDictionary"))).ToStatement(),
+				Expression.Assign(relativeUrl, Expression.Call(null, methodInfo, args).ToStatement()),
+				DryExpression.MakeMethodCall(clientOptions, "setValue", new
+				{
+					obj = relativeUrl,
+					forKey = "RelativeUrl"
+				}).ToStatement(),
+				Expression.Assign(client, DryExpression.MakeMethodCall(Expression.Variable(currentType, "self"), "PKWebServiceClient", "createClientWithOptions", clientOptions)).ToStatement(),
+				Expression.Return(Expression.Label(), DryExpression.MakeMethodCall(client, "getWithCallback", "test")).ToStatement()
 			}.ToGroupedExpression(GroupedExpressionsExpressionStyle.Wide);
 
 			return new MethodDefinitionExpression(methodName, method.Parameters, method.ReturnType, Expression.Block(variables, body), false, null);
 		}
-			
+
+		private Type currentType;
+
 		protected override Expression VisitTypeDefinitionExpression(TypeDefinitionExpression expression)
 		{
+			currentType = expression.Type;
+
 			var includeExpressions = new List<Expression>
 			{
 				new IncludeStatementExpression(expression.Name + ".h")
@@ -94,6 +107,8 @@ namespace Dryice.Generators.Objective.Binders
 			var header = new Expression[] { comment, headerGroup }.ToGroupedExpression(GroupedExpressionsExpressionStyle.Wide);
 
 			var body = GroupedExpressionsExpression.FlatConcat(GroupedExpressionsExpressionStyle.Wide, this.Visit(expression.Body));
+
+			currentType = null;
 
 			return new TypeDefinitionExpression(expression.Type, expression.BaseType, header, body, false, null);
 		}
