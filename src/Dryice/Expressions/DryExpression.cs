@@ -9,7 +9,7 @@ namespace Dryice.Expressions
 {
 	public static class DryExpression
 	{
-		public static CommentExpression Make(string comment)
+		public static CommentExpression Comment(string comment)
 		{
 			return new CommentExpression(comment);
 		}

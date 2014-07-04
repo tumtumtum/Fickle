@@ -32,26 +32,28 @@ namespace Dryice.Generators.Objective.Binders
 
 		protected override Expression VisitPropertyDefinitionExpression(PropertyDefinitionExpression property)
 		{
-			var comment = new CommentExpression(property.PropertyName);
-			var expressions = new List<Expression>();
+			var self = Expression.Variable(this.type, "self");
+			var retval = DryExpression.Variable("NSDictionary", "retval");
+			var propertyExpression = DryExpression.Property(self, this.type, property.PropertyName);
 
-			var propertyType = property.PropertyType;
-			var dictionaryType = new DryType("NSDictionary"); 
-			var retval = Expression.Parameter(dictionaryType, "retval");
-			var setObjectForKeyMethod = dictionaryType.GetMethod("setObject", typeof(void), new ParameterInfo[] { new DryParameterInfo(typeof(object), "obj"),new DryParameterInfo(typeof(string), "forKey") });
-			var propertyExpression = Expression.Property(Expression.Parameter(this.type, "self"), new DryPropertyInfo(this.type, property.PropertyType, property.PropertyName));
-
-			var setObjectForKeyMethodCall = Expression.Call(retval, setObjectForKeyMethod, Expression.Convert(propertyExpression, typeof(object)), Expression.Constant(property.PropertyName));
+			var setObjectForKeyMethodCall = DryExpression.MakeMethodCall(retval, "setObject", new
+			{
+				obj = Expression.Convert(propertyExpression, typeof(object)),
+				forKey = Expression.Constant(property.PropertyName)
+			});
 
 			Expression setExpression = setObjectForKeyMethodCall.ToStatement();
 
-			if (!propertyType.IsPrimitive)
+			if (!property.PropertyType.IsPrimitive)
 			{
 				setExpression = Expression.IfThen(Expression.ReferenceNotEqual(Expression.Convert(propertyExpression, typeof(object)), Expression.Constant(null)), Expression.Block(setExpression));
 			}
 
-			expressions.Add(comment);
-			expressions.Add(setExpression);
+			var expressions = new List<Expression>()
+			{
+				DryExpression.Comment(property.PropertyName),
+				setExpression
+			};
 
 			this.propertySetterExpressions.Add(expressions.ToGroupedExpression(GroupedExpressionsExpressionStyle.Wide));
 

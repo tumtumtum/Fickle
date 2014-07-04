@@ -686,5 +686,10 @@ namespace Dryice.Generators.Objective
 
 			return method;
 		}
+
+		protected override Expression VisitLambda<T>(Expression<T> node)
+		{
+			return base.VisitLambda<T>(node);
+		}
 	}
 }
