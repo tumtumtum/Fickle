@@ -27,10 +27,10 @@ class User
 	FollowerUserIds : uuid[]
 
 gateway UserService
-	@url http://dryice.kingstreetapps.com/api/UserService
+	@hostname dryice.kingstreetapps.com
 
 	GetUser(id:uuid fromDate:datetime)
 		@format json
-		@url User/{id}/{fromDate}
+		@path /api/UserService/User/{id}/{fromDate}
 		@method post
 		@returns Response

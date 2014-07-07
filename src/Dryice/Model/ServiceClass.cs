@@ -15,7 +15,7 @@ namespace Dryice.Model
 		[XmlElement, XmlListElement(typeof(ServiceProperty))]
 		public List<ServiceProperty> Properties { get; set; }
 
-		public static ServiceClass CreateServiceType(string name)
+		public static ServiceClass Make(string name)
 		{
 			return new ServiceClass()
 			{

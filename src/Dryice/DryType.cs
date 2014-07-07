@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
@@ -9,16 +10,31 @@ namespace Dryice
 	public class DryType
 		: Type
 	{
+		private readonly bool byRef;
 		private readonly ServiceModel serviceModel;
 		public ServiceEnum ServiceEnum { get; set; }
 		private Type baseType;
 		private readonly string name;
-		
 		public ServiceClass ServiceClass { get; private set; }
+
+		private static readonly Dictionary<string, DryType> dryTypeByName = new Dictionary<string, DryType>();
+
+		public static DryType Define(string name, bool byRef = false)
+		{
+			DryType retval;
+
+			if (!dryTypeByName.TryGetValue(name, out retval))
+			{
+				retval = new DryType(name, byRef);	
+			}
+
+			return retval;
+		}
 		
-		public DryType(string name)
+		public DryType(string name, bool byRef = false)
 			: this(name, typeof(object))
 		{
+			this.byRef = byRef;
 		}
 
 		public static implicit operator DryType(string name)
@@ -281,7 +297,7 @@ namespace Dryice
 
 		protected override bool IsByRefImpl()
 		{
-			return false;
+			return byRef;
 		}
 
 		protected override bool IsPointerImpl()

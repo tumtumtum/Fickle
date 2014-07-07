@@ -36,13 +36,6 @@ namespace Dryice
 			return base.VisitPropertyDefinitionExpression(property);
 		}
 
-		protected override Expression VisitParameterDefinitionExpression(Expressions.ParameterDefinitionExpression parameter)
-		{
-			referencedTypes.Add(parameter.ParameterType);
-
-			return base.VisitParameterDefinitionExpression(parameter);
-		}
-
 		protected override Expression VisitMethodDefinitionExpression(Expressions.MethodDefinitionExpression method)
 		{
 			referencedTypes.Add(method.ReturnType);

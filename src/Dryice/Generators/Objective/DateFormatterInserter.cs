@@ -13,10 +13,6 @@ namespace Dryice.Generators.Objective
 	{
 		private bool containsDateConversion = false;
 
-		protected DateFormatterInserter()
-		{
-		}
-
 		public static Expression Insert(Expression expression)
 		{
 			return new DateFormatterInserter().Visit(expression);

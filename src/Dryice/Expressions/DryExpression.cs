@@ -14,6 +14,25 @@ namespace Dryice.Expressions
 			return new CommentExpression(comment);
 		}
 
+		public static BlockExpression Block(params Expression[] expressions)
+		{
+			return DryExpression.Block(null, expressions);
+		}
+
+		public static BlockExpression Block(IEnumerable<ParameterExpression> variables, params Expression[] expressions)
+		{
+			var newExpressions = expressions.ToGroupedExpression(GroupedExpressionsExpressionStyle.Wide);
+
+			if (variables == null)
+			{
+				return Expression.Block(newExpressions);
+			}
+			else
+			{
+				return Expression.Block(variables, newExpressions);
+			}
+		}
+
 		public static ParameterExpression Variable(string type, string name = null)
 		{
 			return Expression.Variable(new DryType(type), name);
@@ -83,7 +102,13 @@ namespace Dryice.Expressions
 			Expression[] argumentExpressions;
 			DryParameterInfo[] parameterInfos;
 
-			if (arguments.GetType().IsAnonymousType())
+			if (arguments == null)
+			{
+				parameterInfos = new DryParameterInfo[0];
+
+				argumentExpressions = new Expression[0];
+			}
+			else if (arguments.GetType().IsAnonymousType())
 			{
 				var properties = arguments.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly);
 
@@ -146,7 +171,9 @@ namespace Dryice.Expressions
 		{
 			var result = GetParametersAndArguments(arguments);
 
-			var methodInfo = type.GetMethod(methodName, result.Item1.Select(c => c.ParameterType).ToArray());
+			var types = result.Item1.Select(c => c.ParameterType).ToArray();
+
+			var methodInfo = type.GetMethod(methodName, types);
 
 			if (methodInfo == null || methodInfo is DryMethodInfo)
 			{
@@ -202,6 +229,11 @@ namespace Dryice.Expressions
 			return new GroupedExpressionsExpression(expressions);
 		}
 
+		public static GroupedExpressionsExpression GroupedWode(params Expression[] expressions)
+		{
+			return new GroupedExpressionsExpression(expressions, GroupedExpressionsExpressionStyle.Wide);
+		}
+
 		public static GroupedExpressionsExpression Grouped(IEnumerable<Expression> expressions)
 		{
 			return new GroupedExpressionsExpression(expressions);
@@ -222,9 +254,22 @@ namespace Dryice.Expressions
 			return new StatementExpression(expression);
 		}
 
-		public static GroupedExpressionsExpression ToGroupedExpression(this IEnumerable<Expression> enumerable, GroupedExpressionsExpressionStyle style = GroupedExpressionsExpressionStyle.Narrow)
+		public static BlockExpression ToBlock(this Expression expression)
 		{
-			return new GroupedExpressionsExpression(enumerable, style);
+			return Expression.Block(expression);
+		}
+
+		private static IEnumerable<Expression> ToStatementsNormalized(this IEnumerable<Expression> expressions)
+		{
+			return expressions.Select(c => (c is  BinaryExpression 
+				|| c is MemberExpression 
+				|| c is GotoExpression 
+				|| c is MethodCallExpression) ? c.ToStatement() : c);
+		}
+
+		public static GroupedExpressionsExpression ToGroupedExpression(this IEnumerable<Expression> expressions, GroupedExpressionsExpressionStyle style = GroupedExpressionsExpressionStyle.Narrow)
+		{
+			return new GroupedExpressionsExpression(expressions.ToStatementsNormalized(), style);
 		}
 
 		public static ForEachExpression ForEach(ParameterExpression variableExpression, Expression target, Expression body)

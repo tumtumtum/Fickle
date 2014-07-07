@@ -53,8 +53,8 @@ namespace Dryice.Generators.Objective.Binders
 			var type = expression.Type;
 
 			var parameters = new List<Expression>
-			{	
-				new ParameterDefinitionExpression("properties", new DryType("NSMutableDictionary"), 0)
+			{
+				Expression.Parameter(new DryType("NSMutableDictionary"), "properties")
 			};
 
 			var methodBodyExpressions = new List<Expression>();
@@ -71,7 +71,7 @@ namespace Dryice.Generators.Objective.Binders
 			{
 				Expression.Parameter(typeof(object), "currentValueFromDictionary")
 			};
-			
+
 			var methodBody = Expression.Block(variables, (Expression)methodBodyExpressions.ToGroupedExpression(GroupedExpressionsExpressionStyle.Wide));
 
 			return new MethodDefinitionExpression("initWithPropertyDictionary", new ReadOnlyCollection<Expression>(parameters), typeof(object), methodBody, false, null);
@@ -96,7 +96,7 @@ namespace Dryice.Generators.Objective.Binders
 
 			Expression methodBody = Expression.Block(new ParameterExpression[] { theCopy }, new[] { initTheCopy, copyStatements, returnStatement }.ToGroupedExpression(GroupedExpressionsExpressionStyle.Wide));
 
-			return new MethodDefinitionExpression("copyWithZone", new ReadOnlyCollection<Expression>(new List<Expression>(new [] { new ParameterDefinitionExpression(zone, 0) })), typeof(object), methodBody, false, null);
+			return new MethodDefinitionExpression("copyWithZone", new ReadOnlyCollection<Expression>(new List<Expression>(new [] { zone })), typeof(object), methodBody, false, null);
 		}
 
 		protected override Expression VisitTypeDefinitionExpression(TypeDefinitionExpression expression)
@@ -121,7 +121,7 @@ namespace Dryice.Generators.Objective.Binders
 
 			var body = methods.ToGroupedExpression(GroupedExpressionsExpressionStyle.Wide);
 
-			return new TypeDefinitionExpression(expression.Type, expression.BaseType, header, body, false, null);
+			return new TypeDefinitionExpression(expression.Type, expression.BaseType, header, body, false, null, expression.InterfaceTypes);
 		}
 	}
 }

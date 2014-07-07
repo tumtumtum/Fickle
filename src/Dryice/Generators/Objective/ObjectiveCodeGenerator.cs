@@ -38,18 +38,33 @@ namespace Dryice.Generators.Objective
 
 			if (type == typeof(object))
 			{
-				this.Write("id");
+				if (nameOnly)
+				{
+					this.Write("NSObject");
+				}
+				else
+				{
+					this.Write("NSObject*");
+				}
 
 				return;
 			}
 			else if (underlyingType != null && underlyingType.IsPrimitive)
 			{
-				this.Write("NSNumber");
-
-				if (!nameOnly)
+				if (nameOnly)
 				{
-					base.Write("*");
+					this.Write("NSNumber");
 				}
+				else
+				{
+					this.Write("NSNumber*");
+				}
+
+				return;
+			}
+			else if (type.IsClass && type.Name == "id")
+			{
+				this.Write("id");
 
 				return;
 			}
@@ -237,6 +252,15 @@ namespace Dryice.Generators.Objective
 				this.Visit(node.Operand);
 				this.WriteLine(';');
 			}
+			else if (node.NodeType == ExpressionType.IsTrue)
+			{
+				this.Visit(node.Operand);
+			}
+			else if (node.NodeType == ExpressionType.IsFalse)
+			{
+				this.Write('!');
+				this.Visit(node.Operand);
+			}
 
 			return node;
 		}
@@ -286,6 +310,11 @@ namespace Dryice.Generators.Objective
 
 		protected override Expression VisitParameter(ParameterExpression node)
 		{
+			if (node.IsByRef)
+			{
+				this.Write('&');
+			}
+
 			this.Write(node.Name);
 
 			return node;
@@ -591,7 +620,7 @@ namespace Dryice.Generators.Objective
 				this.Write("@interface ");
 				this.Write(expression.Name);
 				this.Write(" : ");
-				this.Write(expression.BaseType.Name);
+				this.Write(expression.BaseType, true);
 
 				if (expression.InterfaceTypes != null && expression.InterfaceTypes.Count > 0)
 				{
@@ -615,22 +644,6 @@ namespace Dryice.Generators.Objective
 			return expression;
 		}
 
-		protected override Expression VisitParameterDefinitionExpression(ParameterDefinitionExpression parameter)
-		{
-			if (parameter.Index != 0)
-			{
-				this.Write(parameter.ParameterName);
-			}
-
-			this.Write('(');
-			this.Write(parameter.ParameterType);
-			this.Write(')');
-			this.Write(':');
-			this.Write(parameter.ParameterName.Uncapitalize());
-
-			return parameter;
-		}
-
 		protected override Expression VisitPropertyDefinitionExpression(PropertyDefinitionExpression property)
 		{
 			if (!property.IsPredeclatation)
@@ -649,7 +662,18 @@ namespace Dryice.Generators.Objective
 
 		protected override Expression VisitMethodDefinitionExpression(MethodDefinitionExpression method)
 		{
+			if (method.IsStatic)
+			{
+				this.Write("+");
+			}
+			else
+			{
+				this.Write("-");
+			}
+
+			this.Write('(');
 			this.Write(method.ReturnType);
+			this.Write(')');
 			this.WriteSpace();
 			this.Write(method.Name);
 
@@ -659,9 +683,19 @@ namespace Dryice.Generators.Objective
 
 				for (var i = 0; i < method.Parameters.Count; i++)
 				{
-					var parameter = method.Parameters[i];
+					var parameter = (ParameterExpression)method.Parameters[i];
 
-					this.Visit(parameter);
+					if (i != 0)
+					{
+						this.Write(parameter.Name);
+
+						this.Write('(');
+						this.Write(parameter.Type);
+						this.Write(')');
+						this.Write(':');
+					}
+
+					this.Write(parameter.Name);
 
 					if (i != method.Parameters.Count - 1)
 					{

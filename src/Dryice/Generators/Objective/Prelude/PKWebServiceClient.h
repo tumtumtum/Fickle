@@ -3,7 +3,7 @@
 //  PlatformKit
 //
 //  Created by Thong Nguyen on 04/01/2013.
-//  Copyright (c) 2013 Thong Nguyen. All rights reserved.
+//  Copyright (c) 2013-2014 Thong Nguyen. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -15,32 +15,22 @@
 @class PKWebServiceClient;
 
 @protocol PKWebServiceClientDelegate<NSObject>
--(id) webServiceClient:(PKWebServiceClient*)client createErrorResponseWithErrorCode:(NSString*)errorCode andMessage:(NSString*)message;
--(NSData*) webServiceClient:(PKWebServiceClient*)client serializeRequest:(id)requestObject;
--(id) webServiceClient:(PKWebServiceClient*)client parseResult:(NSData*)data withContentType:(NSString*)contentType andStatusCode:(int)statusCode;
+-(id)webServiceClient:(PKWebServiceClient*)client createErrorResponseWithErrorCode : (NSString*)errorCode andMessage : (NSString*)message;
+-(NSData*)webServiceClient:(PKWebServiceClient*)client serializeRequest : (id)requestObject;
+-(id)webServiceClient:(PKWebServiceClient*)client parseResult : (NSData*)data withContentType : (NSString*)contentType andStatusCode : (int)statusCode;
 @end
 
 @interface PKWebServiceClient : NSObject
-{
-	id context;
-    NSString* host;	
-	NSString* gatewayName;
-	NSString* queryString;
-	NSOperationQueue* operationQueue;
-}
 
-@property (readonly) id context;
-@property (readonly) NSString* host;
-@property (readonly) NSString* gatewayName;
-@property (readonly) NSString* queryString;
-@property (readonly) NSOperation* operationQueue;
-@property (readonly, weak) id<PKWebServiceClientDelegate> delegate;
+@property(readonly) NSDictionary* options;
+@property(readonly) NSOperation* operationQueue;
+@property(readonly, weak) id<PKWebServiceClientDelegate> delegate;
 
-+(PKWebServiceClient*) clientWithHost:(NSString*)hostIn gatewayName:(NSString*)gatewayNameIn queryString:(NSString*)queryStringIn context:(id)contextIn operationQueue:(NSOperationQueue*)operationQueue;
++(PKWebServiceClient*)clientWithURL:(NSURL*)url options : (NSDictionary*)optionsIn operationQueue : (NSOperationQueue*)operationQueueIn;
 
--(id) getSynchronously;
--(void) getWithCallback:(void(^)(id))callback;
--(id) postSynchronouslyWithRequestObject:(id)requestObject;
--(void) postWithRequestObject:(id)requestObject andCallback:(void(^)(id))callback;
+-(id)getSynchronously;
+-(void)getWithCallback:(void(^)(id))callback;
+-(id)postSynchronouslyWithRequestObject:(id)requestObject;
+-(void)postWithRequestObject:(id)requestObject andCallback : (void(^)(id))callback;
 
 @end

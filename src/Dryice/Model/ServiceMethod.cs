@@ -10,7 +10,7 @@ namespace Dryice.Model
 		public string Name { get; set; }
 		
 		[XmlAttribute]
-		public string Url { get; set; }
+		public string Path { get; set; }
 
 		[XmlAttribute]
 		public string Format { get; set; }

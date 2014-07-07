@@ -4,11 +4,13 @@
 
 
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Linq.Expressions;
 using Dryice.Expressions;
 using Dryice.Model;
+using Platform;
 using Platform.VirtualFileSystem;
 
 namespace Dryice
@@ -54,20 +56,23 @@ namespace Dryice
 				baseType = typeof(object);
 			}
 
-			return new TypeDefinitionExpression(this.GetTypeFromName(serviceClass.Name), baseType, null, propertyDefinitions.ToGroupedExpression());
+			return new TypeDefinitionExpression(this.GetTypeFromName(serviceClass.Name), baseType, null, propertyDefinitions.ToGroupedExpression(), false);
 		}
 
-		public virtual Expression Build(ServiceParameter parameter, int index)
+		public virtual Expression Build(ServiceParameter parameter)
 		{
-			return new ParameterDefinitionExpression(parameter.Name, this.GetTypeFromName(parameter.TypeName), index);
+			return Expression.Parameter(this.GetTypeFromName(parameter.TypeName), parameter.Name);
 		}
 
 		public virtual Expression Build(ServiceMethod method)
 		{
-			var i = 0;
-			var parameterExpressions = new ReadOnlyCollection<Expression>(method.Parameters.Select(c => Build(c, i++)).ToList());
+			var parameterExpressions = new ReadOnlyCollection<Expression>(method.Parameters.Select(Build).ToList());
 
-			return new ServiceMethodDefinitionExpression(method.Name, parameterExpressions, this.ServiceModel.GetServiceType(method.Returns), null, true, null, method);
+			var attributes = new Dictionary<string, string>();
+
+			method.GetType().GetProperties().ForEach(c => attributes[c.Name] = Convert.ToString(c.GetValue(method)));
+
+			return new MethodDefinitionExpression(method.Name, parameterExpressions, this.ServiceModel.GetServiceType(method.Returns), null, true, null, new ReadOnlyDictionary<string, string>(attributes));
 		}
 
 		public virtual Expression Build(ServiceGateway serviceGateway)
@@ -91,7 +96,12 @@ namespace Dryice
 
 			var methodDefinitions = serviceGateway.Methods.Select(Build).ToList();
 
-			return new TypeDefinitionExpression(new DryType(serviceGateway.Name), baseType, null, methodDefinitions.ToGroupedExpression(GroupedExpressionsExpressionStyle.Wide), false, null);
+			var attributes = new Dictionary<string, string>()
+			{
+				{ "Hostname", serviceGateway.Hostname }
+			};
+
+			return new TypeDefinitionExpression(new DryType(serviceGateway.Name), baseType, null, methodDefinitions.ToGroupedExpression(GroupedExpressionsExpressionStyle.Wide), false, new ReadOnlyDictionary<string, string>(attributes), null);
 		}
 	}
 }

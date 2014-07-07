@@ -31,7 +31,7 @@ namespace Dryice.Generators.Objective.Binders
 
 			if (name.StartsWith("new"))
 			{
-				var attributedPropertyGetter = new MethodDefinitionExpression(name, null, property.PropertyType, null, true, "(objc_method_family(none))");
+				var attributedPropertyGetter = new MethodDefinitionExpression(name, null, property.PropertyType, null, true, "(objc_method_family(none))", null);
 
 				return new Expression[] { propertyDefinition, attributedPropertyGetter }.ToGroupedExpression();
 			}
@@ -80,7 +80,7 @@ namespace Dryice.Generators.Objective.Binders
 				}
 			});
 
-			return new TypeDefinitionExpression(expression.Type, expression.BaseType, header, propertyBody, true, interfaceTypes);
+			return new TypeDefinitionExpression(expression.Type, expression.BaseType, header, propertyBody, true, null, interfaceTypes);
 		}
 	}
 }

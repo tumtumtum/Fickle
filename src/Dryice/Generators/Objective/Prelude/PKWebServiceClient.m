@@ -3,7 +3,7 @@
 //  PlatformKit
 //
 //  Created by Thong Nguyen on 04/01/2013.
-//  Copyright (c) 2014 Thong Nguyen. All rights reserved.
+//  Copyright (c) 2013-2014 Thong Nguyen. All rights reserved.
 //
 
 #import "PKWebServiceClient.h"
@@ -14,6 +14,15 @@
 
 static NSOperationQueue* defaultOperationQueue;
 
+@interface PKWebServiceClient()
+{
+@private
+    NSURL* url;
+    NSDictionary* options;
+    NSOperationQueue* operationQueue;
+}
+@end
+
 @implementation PKWebServiceClient
 
 +(void) initialize
@@ -21,21 +30,6 @@ static NSOperationQueue* defaultOperationQueue;
     defaultOperationQueue = [[NSOperationQueue alloc] init];
 	
     [defaultOperationQueue setMaxConcurrentOperationCount:32];
-}
-
--(NSString*) host
-{
-    return host;
-}
-
--(NSString*) gatewayName
-{
-    return gatewayName;
-}
-
--(NSString*) queryString
-{
-    return queryString;
 }
 
 -(id) createErrorResponseWithErrorCode:(NSString*)errorCode andMessage:(NSString*)message
@@ -48,13 +42,12 @@ static NSOperationQueue* defaultOperationQueue;
 	return operationQueue;
 }
 
--(id) initWithHost:(NSString*)hostIn gatewayName:(NSString*)gatewayNameIn queryString:(NSString*)queryStringIn context:(id)contextIn operationQueue:(NSOperationQueue*)operationQueueIn
+-(id) initWithURL:(NSURL*)urlIn options:(NSDictionary*)optionsIn operationQueue:(NSOperationQueue*)operationQueueIn
 {
 	if ((self = [self init]))
 	{
-        host = hostIn;
-		gatewayName = gatewayNameIn;
-		queryString = queryStringIn;
+        self->url = urlIn;
+        self->options = optionsIn;
 
 		if (operationQueueIn)
 		{
@@ -69,15 +62,15 @@ static NSOperationQueue* defaultOperationQueue;
     return self;
 }
 
--(id) context
+-(NSDictionary*) options
 {
-	return context;
+	return options;
 }
 
-+(PKWebServiceClient*) clientWithHost:(NSString*)hostIn gatewayName:(NSString*)gatewayNameIn queryString:(NSString*)queryStringIn context:(id)contextIn operationQueue:(NSOperationQueue*)operationQueueIn
++(PKWebServiceClient*) clientWithURL:(NSURL*)url options:(NSDictionary*)optionsIn operationQueue:(NSOperationQueue*)operationQueueIn
 {
-	PKWebServiceClient* request = [[PKWebServiceClient alloc] initWithHost:hostIn gatewayName:gatewayNameIn queryString:queryStringIn context:contextIn operationQueue:operationQueueIn];
-
+	PKWebServiceClient* request = [[PKWebServiceClient alloc] initWithURL:url options:optionsIn operationQueue:operationQueueIn];
+    
     return request;
 }
 
@@ -102,8 +95,6 @@ static NSOperationQueue* defaultOperationQueue;
 -(CFReadStreamRef) newReadStreamWithPostData:(NSData*)postData
 {
     CFReadStreamRef stream;
-    NSString* fullPath = [NSString stringWithFormat:@"%@/%@", [host appendUrlComponent:gatewayName], queryString];
-    NSURL* url = [NSURL URLWithString:fullPath];
     NSString* requestMethod = postData ? @"POST" : @"GET";
     CFHTTPMessageRef message = CFHTTPMessageCreateRequest(NULL, (__bridge CFStringRef)requestMethod, (__bridge CFURLRef)url, kCFHTTPVersion1_1);
 
@@ -112,9 +103,16 @@ static NSOperationQueue* defaultOperationQueue;
 		return 0;
 	}
 
-    CFHTTPMessageSetHeaderFieldValue(message, CFSTR("Content-Type"), CFSTR("application/json"));
-    CFHTTPMessageSetHeaderFieldValue(message, CFSTR("Accept"), CFSTR("application/json,*/*;"));
-    CFHTTPMessageSetHeaderFieldValue(message, CFSTR("Accept-Encoding"), CFSTR("gzip"));
+    NSString* value;
+    
+    value = [options objectForKey:@"Header-Content-Type"] ?: @"application/json";
+    CFHTTPMessageSetHeaderFieldValue(message, CFSTR("Content-Type"), (__bridge CFStringRef)value);
+    
+    value = [options objectForKey:@"Header-Accept"] ?: @"application/json,*/*;";
+    CFHTTPMessageSetHeaderFieldValue(message, CFSTR("Accept"), (__bridge CFStringRef)value);
+    
+    value = [options objectForKey:@"Header-Accept-Encoding"] ?: @"gzip";
+    CFHTTPMessageSetHeaderFieldValue(message, CFSTR("Accept-Encoding"), (__bridge CFStringRef)value);
 
     if (postData)
     {
@@ -170,7 +168,7 @@ static NSOperationQueue* defaultOperationQueue;
 
 -(void)makeRequestWithReadStream:(CFReadStreamRef)readStream andCallback:(void(^)(id))callbackIn andWaitForFinish:(BOOL)waitForFinish andCallbackInMainThread:(BOOL)callbackInMainThread
 {
-	NSAssert([NSThread currentThread] == [NSThread mainThread], ([NSString stringWithFormat:@"Asynchronous service calls (query: %@) currently need to be made on the UI thread (thread: %@)", queryString, [[NSThread currentThread] name]]));
+	NSAssert([NSThread currentThread] == [NSThread mainThread], ([NSString stringWithFormat:@"Asynchronous service calls (query: %@) currently need to be made on the UI thread (thread: %@)", [url description], [[NSThread currentThread] name]]));
 
 	void(^callback)(id) = NULL;
 
@@ -217,8 +215,6 @@ static NSOperationQueue* defaultOperationQueue;
 
             if (result <= 0)
             {
-                data = [NSData data];
-
                 CFErrorRef error = CFReadStreamCopyError(readStream);
 
                 NSString* errorDescription = result == 0 ? @"no data" : @"unknown socket error";

@@ -27,7 +27,7 @@ namespace Dryice.Generators.Objective.Binders
 
 			builder.Visit(expression);
 
-			return builder.propertySetterExpressions.ToGroupedExpression();
+			return builder.propertySetterExpressions.ToGroupedExpression(GroupedExpressionsExpressionStyle.Wide);
 		}
 
 		protected override Expression VisitPropertyDefinitionExpression(PropertyDefinitionExpression property)

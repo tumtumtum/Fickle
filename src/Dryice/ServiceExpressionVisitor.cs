@@ -23,8 +23,6 @@ namespace Dryice
 					return this.VisitGroupedExpressionsExpression((GroupedExpressionsExpression)expression);
 				case (int)ServiceExpressionType.MethodDefinition:
 					return this.VisitMethodDefinitionExpression((MethodDefinitionExpression)expression);
-				case (int)ServiceExpressionType.ParameterDefinition:
-					return this.VisitParameterDefinitionExpression((ParameterDefinitionExpression)expression);
 				case (int)ServiceExpressionType.PropertyDefinition:
 					return this.VisitPropertyDefinitionExpression((PropertyDefinitionExpression)expression);
 				case (int)ServiceExpressionType.TypeDefinition:
@@ -53,7 +51,7 @@ namespace Dryice
 
 			if (expressions != expression.Expressions)
 			{
-				return expressions.ToGroupedExpression();
+				return expressions.ToGroupedExpression(expression.Style);
 			}
 
 			return expression;
@@ -84,11 +82,6 @@ namespace Dryice
 			return method;
 		}
 
-		protected virtual Expression VisitParameterDefinitionExpression(ParameterDefinitionExpression parameter)
-		{
-			return parameter;
-		}
-
 		protected virtual Expression VisitPropertyDefinitionExpression(PropertyDefinitionExpression property)
 		{
 			return property;
@@ -110,7 +103,7 @@ namespace Dryice
 
 			if (header != expression.Header || body != expression.Body)
 			{
-				return new TypeDefinitionExpression(expression.Type, expression.BaseType, header, body, expression.IsPredeclaration, expression.InterfaceTypes);
+				return new TypeDefinitionExpression(expression.Type, expression.BaseType, header, body, expression.IsPredeclaration, null, expression.InterfaceTypes);
 			}
 
 			return expression;

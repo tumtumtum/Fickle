@@ -71,13 +71,11 @@
     <Compile Include="Generators\Objective\DateFormatterInserter.cs" />
     <Compile Include="Expressions\DryExpression.cs" />
     <Compile Include="Expressions\ForEachExpression.cs" />
-    <Compile Include="Expressions\ServiceMethodDefinitionExpression.cs" />
     <Compile Include="Expressions\StatementExpression.cs" />
     <Compile Include="Expressions\CommentExpression.cs" />
     <Compile Include="Expressions\GroupedExpressionsExpression.cs" />
     <Compile Include="Expressions\IncludeStatementExpression.cs" />
     <Compile Include="Expressions\MethodDefinitionExpression.cs" />
-    <Compile Include="Expressions\ParameterDefinitionExpression.cs" />
     <Compile Include="Expressions\PropertyDefinitionExpression.cs" />
     <Compile Include="Expressions\ReferencedTypeExpression.cs" />
     <Compile Include="Expressions\ServiceExpressionType.cs" />

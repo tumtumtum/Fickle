@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Linq.Expressions;
 using Dryice.Expressions;
@@ -63,7 +64,16 @@ namespace Dryice.Generators.Objective.Binders
 
 			var body = GroupedExpressionsExpression.FlatConcat(GroupedExpressionsExpressionStyle.Wide, this.Visit(expression.Body));
 
-			return new TypeDefinitionExpression(expression.Type, expression.BaseType, header, body, true, null);
+			var interfaceTypes = new List<ServiceClass>();
+
+			if (expression.InterfaceTypes != null)
+			{
+				interfaceTypes.AddRange(expression.InterfaceTypes);
+			}
+
+			interfaceTypes.Add(ServiceClass.Make("PKWebServiceClientDelegate"));
+
+			return new TypeDefinitionExpression(expression.Type, expression.BaseType, header, body, true, expression.Attributes, new ReadOnlyCollection<ServiceClass>(interfaceTypes));
 		}
 	}
 }
