@@ -55,7 +55,7 @@ namespace Dryice.Generators.Objective.Binders
 
 			var parameters = new List<Expression>
 			{
-				Expression.Parameter(new DryType("NSMutableDictionary"), "properties")
+				Expression.Parameter(new DryType("NSDictionary"), "properties")
 			};
 
 			var methodBodyExpressions = new List<Expression>();
