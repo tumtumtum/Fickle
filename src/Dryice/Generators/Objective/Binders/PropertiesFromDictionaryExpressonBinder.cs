@@ -92,7 +92,7 @@ namespace Dryice.Generators.Objective.Binders
 				}
 
 				statements.Add(Expression.Assign(constructedArrayItem, outputValueInner).ToStatement());
-				statements.Add(DryExpression.MakeMethodCall(arrayVar, "addObject", constructedArrayItem).ToStatement());
+				statements.Add(DryExpression.Call(arrayVar, "addObject", constructedArrayItem).ToStatement());
 
 				var forEachBodyStatements = new Expression[]
 				{

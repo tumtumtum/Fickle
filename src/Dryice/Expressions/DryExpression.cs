@@ -19,6 +19,11 @@ namespace Dryice.Expressions
 			return DryExpression.Block(null, expressions);
 		}
 
+		public static SimpleLambdaExpression SimpleLambda(Expression body, params Expression[] parameters)
+		{
+			return new SimpleLambdaExpression(body, parameters);
+		}
+
 		public static BlockExpression Block(IEnumerable<ParameterExpression> variables, params Expression[] expressions)
 		{
 			var newExpressions = expressions.ToGroupedExpression(GroupedExpressionsExpressionStyle.Wide);
@@ -62,39 +67,39 @@ namespace Dryice.Expressions
 				   && Attribute.IsDefined(type, typeof(CompilerGeneratedAttribute), false);
 		}
 
-		public static MethodCallExpression MakeStaticMethodCall(Type type, string methodName, object arguments)
+		public static MethodCallExpression StaticCall(Type type, string methodName, object arguments = null)
 		{
-			return MakeMethodCall(null, type, typeof(void), methodName, arguments, true);
+			return Call(null, type, typeof(void), methodName, arguments, true);
 		}
 
-		public static MethodCallExpression MakeStaticMethodCall(string type, string methodName, object arguments)
+		public static MethodCallExpression StaticCall(string type, string methodName, object arguments)
 		{
-			return MakeMethodCall(null, new DryType(type), typeof(void), methodName, arguments, true);
+			return Call(null, new DryType(type), typeof(void), methodName, arguments, true);
 		}
 
-		public static MethodCallExpression MakeStaticMethodCall(Type type, Type returnType, string methodName, object arguments)
+		public static MethodCallExpression StaticCall(Type type, Type returnType, string methodName, object arguments)
 		{
-			return MakeMethodCall(null, type, returnType, methodName, arguments, true);
+			return Call(null, type, returnType, methodName, arguments, true);
 		}
 
-		public static MethodCallExpression MakeStaticMethodCall(string type, string returnType, string methodName, object arguments)
+		public static MethodCallExpression StaticCall(string type, string returnType, string methodName, object arguments)
 		{
-			return MakeMethodCall(null, new DryType(type), new DryType(returnType), methodName, arguments, true);
+			return Call(null, new DryType(type), new DryType(returnType), methodName, arguments, true);
 		}
 
-		public static MethodCallExpression MakeMethodCall(Expression instance, string methodName, object arguments)
+		public static MethodCallExpression Call(Expression instance, string methodName, object arguments)
 		{
-			return MakeMethodCall(instance, instance.Type, typeof(void), methodName, arguments, false);
+			return Call(instance, instance.Type, typeof(void), methodName, arguments, false);
 		}
 
-		public static MethodCallExpression MakeMethodCall(Expression instance, string returnType, string methodName, object arguments)
+		public static MethodCallExpression Call(Expression instance, string returnType, string methodName, object arguments)
 		{
-			return MakeMethodCall(instance, instance.Type, new DryType(returnType), methodName, arguments, false);
+			return Call(instance, instance.Type, new DryType(returnType), methodName, arguments, false);
 		}
 
-		public static MethodCallExpression MakeMethodCall(Expression instance, Type returnType, string methodName, object arguments)
+		public static MethodCallExpression Call(Expression instance, Type returnType, string methodName, object arguments)
 		{
-			return MakeMethodCall(instance, instance.Type, returnType, methodName, arguments, false);
+			return Call(instance, instance.Type, returnType, methodName, arguments, false);
 		}
 
 		private static Tuple<ParameterInfo[], Expression[]> GetParametersAndArguments(object arguments)
@@ -167,7 +172,7 @@ namespace Dryice.Expressions
 			return new Tuple<ParameterInfo[], Expression[]>(parameterInfos, argumentExpressions);
 		}
 
-		private static MethodCallExpression MakeMethodCall(Expression instance, Type type, Type returnType, string methodName, object arguments, bool isStatic = false)
+		private static MethodCallExpression Call(Expression instance, Type type, Type returnType, string methodName, object arguments, bool isStatic = false)
 		{
 			var result = GetParametersAndArguments(arguments);
 
@@ -181,6 +186,11 @@ namespace Dryice.Expressions
 			}
 
 			return Expression.Call(instance, methodInfo, result.Item2);
+		}
+
+		public static MemberExpression Property(Expression instance, string typeName, string propertyName)
+		{
+			return DryExpression.Property(instance, DryType.Define(typeName), propertyName);
 		}
 
 		public static MemberExpression Property(Expression instance, Type propertyType, string propertyName)
@@ -213,8 +223,15 @@ namespace Dryice.Expressions
 		public static NewExpression New(Type type, string constructorName, object arguments)
 		{
 			var result = GetParametersAndArguments(arguments);
+			ConstructorInfo constructorInfo = null;
 
-			var constructorInfo = type.GetConstructor(result.Item1.Select(c => c.ParameterType).ToArray());
+			try
+			{
+				constructorInfo = type.GetConstructor(result.Item1.Select(c => c.ParameterType).ToArray());
+			}
+			catch
+			{
+			}
 
 			if (constructorInfo == null || constructorInfo is DryConstructorInfo)
 			{

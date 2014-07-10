@@ -11,7 +11,6 @@ using System.Linq.Expressions;
 using Dryice.Expressions;
 using Dryice.Model;
 using Platform;
-using Platform.VirtualFileSystem;
 
 namespace Dryice
 {
@@ -72,7 +71,7 @@ namespace Dryice
 
 			method.GetType().GetProperties().ForEach(c => attributes[c.Name] = Convert.ToString(c.GetValue(method)));
 
-			return new MethodDefinitionExpression(method.Name, parameterExpressions, this.ServiceModel.GetServiceType(method.Returns), null, true, null, new ReadOnlyDictionary<string, string>(attributes));
+			return new MethodDefinitionExpression(method.Name, parameterExpressions, this.ServiceModel.GetTypeFromName(method.Returns), null, true, null, new ReadOnlyDictionary<string, string>(attributes));
 		}
 
 		public virtual Expression Build(ServiceGateway serviceGateway)

@@ -32,5 +32,12 @@ gateway UserService
 	GetUser(id:uuid fromDate:datetime)
 		@format json
 		@path /api/UserService/User/{id}/{fromDate}
-		@method post
+		@method get
 		@returns Response
+
+	SetPassword(id:uuid password:String)
+		@secure true
+		@format json
+		@path /api/UserService/SetPassword?id={id}&password={password}
+		@method get
+		@returns int

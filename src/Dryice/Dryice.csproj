@@ -43,17 +43,21 @@
     <Reference Include="ICSharpCode.SharpZipLib">
       <HintPath>..\packages\SharpZipLib.0.86.0\lib\20\ICSharpCode.SharpZipLib.dll</HintPath>
     </Reference>
-    <Reference Include="Platform">
-      <HintPath>..\packages\Platform.NET.1.0.0.78\lib\35\Platform.dll</HintPath>
+    <Reference Include="Platform, Version=1.0.0.119, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\Platform.NET.1.0.0.119\lib\35\Platform.dll</HintPath>
     </Reference>
-    <Reference Include="Platform.VirtualFileSystem">
-      <HintPath>..\packages\Platform.VirtualFileSystem.1.0.0.59\lib\35\Platform.VirtualFileSystem.dll</HintPath>
+    <Reference Include="Platform.VirtualFileSystem, Version=1.0.0.70, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\Platform.VirtualFileSystem.1.0.0.70\lib\35\Platform.VirtualFileSystem.dll</HintPath>
     </Reference>
-    <Reference Include="Platform.VirtualFileSystem.Providers.Zip">
-      <HintPath>..\packages\Platform.VirtualFileSystem.Providers.Zip.1.0.0.54\lib\35\Platform.VirtualFileSystem.Providers.Zip.dll</HintPath>
+    <Reference Include="Platform.VirtualFileSystem.Providers.Zip, Version=1.0.0.70, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\Platform.VirtualFileSystem.Providers.Zip.1.0.0.70\lib\35\Platform.VirtualFileSystem.Providers.Zip.dll</HintPath>
     </Reference>
-    <Reference Include="Platform.Xml.Serialization">
-      <HintPath>..\packages\Platform.Xml.Serialization.1.0.0.78\lib\35\Platform.Xml.Serialization.dll</HintPath>
+    <Reference Include="Platform.Xml.Serialization, Version=1.0.0.119, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\Platform.Xml.Serialization.1.0.0.119\lib\35\Platform.Xml.Serialization.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -67,7 +71,10 @@
     <Compile Include="BraceLanguageStyleIndentationOptions.cs" />
     <Compile Include="BraceLanguageStyleSourceCodeGenerator.cs" />
     <Compile Include="CodeGenerationOptions.cs" />
+    <Compile Include="DryDelegateType.cs" />
+    <Compile Include="EnumerableExtensions.cs" />
     <Compile Include="Expressions\CodeLiteralExpression.cs" />
+    <Compile Include="Expressions\SimpleLambdaExpression.cs" />
     <Compile Include="Generators\Objective\DateFormatterInserter.cs" />
     <Compile Include="Expressions\DryExpression.cs" />
     <Compile Include="Expressions\ForEachExpression.cs" />
@@ -90,9 +97,11 @@
     <Compile Include="Generators\Objective\ObjectiveCodeGenerator.cs" />
     <Compile Include="Generators\Objective\Binders\ClassHeaderExpressionBinder.cs" />
     <Compile Include="Generators\Objective\Binders\PropertiesToDictionaryExpressionBinder.cs" />
+    <Compile Include="Generators\ReservedKeywordNormalizer.cs" />
+    <Compile Include="Generators\ReturnTypesCollector.cs" />
     <Compile Include="Model\ServiceEnum.cs" />
     <Compile Include="Model\ServiceEnumValue.cs" />
-    <Compile Include="ReferencedTypesCollector.cs" />
+    <Compile Include="Generators\ReferencedTypesCollector.cs" />
     <Compile Include="ServiceExpressionBuilder.cs" />
     <Compile Include="Model\ServiceInbuiltTypeType.cs" />
     <Compile Include="Model\ServiceMethod.cs" />

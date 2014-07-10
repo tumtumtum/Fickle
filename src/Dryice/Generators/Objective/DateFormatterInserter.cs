@@ -45,9 +45,9 @@ namespace Dryice.Generators.Objective
 				// dateFormatter = [[NSDateFormatter alloc]init]
 				expressions.Add(Expression.Assign(dateFormatter, Expression.New(new DryType("NSDateFormatter"))).ToStatement());
 				// [dateFormatter setTimeZone: [NSTimeZone timeZoneWithAbbreviation:@"UTC"]];
-				expressions.Add(DryExpression.MakeMethodCall(dateFormatter, "setTimeZone", DryExpression.MakeStaticMethodCall("NSTimeZone", "NSTimeZone", "timeZoneWithAbbreviation", "UTC")));
+				expressions.Add(DryExpression.Call(dateFormatter, "setTimeZone", DryExpression.StaticCall("NSTimeZone", "NSTimeZone", "timeZoneWithAbbreviation", "UTC")).ToStatement());
 				// [dateFormatter setDateFormat: @"yyyy-MM-ddTHH:mm:ss"];
-				expressions.Add(DryExpression.MakeMethodCall(dateFormatter, "setDateFormat", "yyyy-MM-ddTHH:mm:ss").ToStatement());
+				expressions.Add(DryExpression.Call(dateFormatter, "setDateFormat", "yyyy-MM-ddTHH:mm:ss").ToStatement());
 				
 				expressions.AddRange(block.Expressions);
 

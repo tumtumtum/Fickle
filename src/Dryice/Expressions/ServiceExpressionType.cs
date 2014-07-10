@@ -11,6 +11,7 @@
 		ReferencedType = GroupedExpressions + 7,
 		Comment = GroupedExpressions + 8,
 		ForEach = GroupedExpressions + 9,
-		CodeLiteral = GroupedExpressions + 10
+		CodeLiteral = GroupedExpressions + 10,
+		SimpleLambdaExpression = GroupedExpressions + 11
 	}
 }

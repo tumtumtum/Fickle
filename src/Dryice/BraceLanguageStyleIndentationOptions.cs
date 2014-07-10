@@ -1,8 +1,13 @@
-﻿namespace Dryice
+﻿using System;
+
+namespace Dryice
 {
+	[Flags]
 	public enum BraceLanguageStyleIndentationOptions
 	{
 		Default = 0,
-		IncludeBraces = 1
+		NewLineAfter = 1,
+		IncludeBraces = 2,
+		IncludeBracesNewLineAfter = NewLineAfter | IncludeBraces 
 	}
 }

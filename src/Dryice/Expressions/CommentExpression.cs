@@ -17,6 +17,14 @@ namespace Dryice.Expressions
 			}
 		}
 
+		public override Type Type
+		{
+			get
+			{
+				return typeof(void);
+			}
+		}
+
 		public string Comment { get; private set; }
 
 		public CommentExpression(string comment)

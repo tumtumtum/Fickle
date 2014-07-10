@@ -72,15 +72,13 @@ namespace Dryice.Generators.Objective.Binders
 
 			var propertyBody = this.Visit(expression.Body);
 
-			var interfaceTypes = new ReadOnlyCollection<ServiceClass>(new List<ServiceClass>
+			var interfaceTypes = new List<ServiceClass>
 			{
-				new ServiceClass()
-				{
-					Name = "NSCopying"
-				}
-			});
+				ServiceClass.Make("NSCopying"),
+				ServiceClass.Make("PKDictionarySerializable")
+			};
 
-			return new TypeDefinitionExpression(expression.Type, expression.BaseType, header, propertyBody, true, null, interfaceTypes);
+			return new TypeDefinitionExpression(expression.Type, expression.BaseType, header, propertyBody, true, null, interfaceTypes.ToReadOnlyCollection());
 		}
 	}
 }

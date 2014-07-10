@@ -33,27 +33,23 @@ namespace Dryice
 
 		static TypeSystem()
 		{
-			AddPrimitiveType(typeof(byte));
-			AddPrimitiveType(typeof(byte?));
-			AddPrimitiveType(typeof(char));
-			AddPrimitiveType(typeof(char?));
-			AddPrimitiveType(typeof(short));
-			AddPrimitiveType(typeof(short?));
-			AddPrimitiveType(typeof(int));
-			AddPrimitiveType(typeof(int?));
+			AddPrimitiveType(typeof(byte), "byte");
+			AddPrimitiveType(typeof(byte?), "byte?");
+			AddPrimitiveType(typeof(char), "char");
+			AddPrimitiveType(typeof(char?), "char?");
+			AddPrimitiveType(typeof(short), "short");
+			AddPrimitiveType(typeof(short?), "short?");
 			AddPrimitiveType(typeof(int), "int");
 			AddPrimitiveType(typeof(int?), "int?"); 
-			AddPrimitiveType(typeof(long));
-			AddPrimitiveType(typeof(long?));
 			AddPrimitiveType(typeof(long), "long");
 			AddPrimitiveType(typeof(long?), "long?");
-			AddPrimitiveType(typeof(double));
-			AddPrimitiveType(typeof(double?));
-			AddPrimitiveType(typeof(string));
-			AddPrimitiveType(typeof(DateTime));
-			AddPrimitiveType(typeof(DateTime?));
-			AddPrimitiveType(typeof(TimeSpan));
-			AddPrimitiveType(typeof(TimeSpan?));
+			AddPrimitiveType(typeof(double), "double");
+			AddPrimitiveType(typeof(double?), "double?");
+			AddPrimitiveType(typeof(string), "string");
+			AddPrimitiveType(typeof(DateTime), "datetime");
+			AddPrimitiveType(typeof(DateTime?), "datetime?");
+			AddPrimitiveType(typeof(TimeSpan), "timespan");
+			AddPrimitiveType(typeof(TimeSpan?), "timespan?");
 			AddPrimitiveType(typeof(Guid), "uuid");
 			AddPrimitiveType(typeof(Guid?), "uuid?");
 		}
@@ -61,6 +57,11 @@ namespace Dryice
 		public static bool IsPrimitiveType(Type type)
 		{
 			return primitiveTypes.Contains(type);
+		}
+
+		public static bool IsNotPrimitiveType(Type type)
+		{
+			return !primitiveTypes.Contains(type);
 		}
 
 		public static Type GetPrimitiveType(string name)

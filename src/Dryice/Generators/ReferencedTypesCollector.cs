@@ -7,9 +7,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using Dryice.Model;
 
-namespace Dryice
+namespace Dryice.Generators
 {
 	public class ReferencedTypesCollector
 		: ServiceExpressionVisitor
@@ -31,14 +30,21 @@ namespace Dryice
 
 		protected override Expression VisitPropertyDefinitionExpression(Expressions.PropertyDefinitionExpression property)
 		{
-			referencedTypes.Add(property.PropertyType);
+			this.referencedTypes.Add(property.PropertyType);
 
 			return base.VisitPropertyDefinitionExpression(property);
 		}
 
+		protected override Expression VisitParameter(ParameterExpression node)
+		{
+			this.referencedTypes.Add(node.Type);
+
+			return node;
+		}
+
 		protected override Expression VisitMethodDefinitionExpression(Expressions.MethodDefinitionExpression method)
 		{
-			referencedTypes.Add(method.ReturnType);
+			this.referencedTypes.Add(method.ReturnType);
 
 			return base.VisitMethodDefinitionExpression(method);
 		}

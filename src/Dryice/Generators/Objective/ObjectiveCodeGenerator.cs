@@ -15,8 +15,7 @@ namespace Dryice.Generators.Objective
 	[PrimitiveTypeName(typeof(byte), "UInt8", false)]
 	[PrimitiveTypeName(typeof(char), "unichar", false)]
 	[PrimitiveTypeName(typeof(short), "Int16", false)]
-	[PrimitiveTypeName(typeof(int), "Int", false)]
-	[PrimitiveTypeName(typeof(int), "Int", false)]
+	[PrimitiveTypeName(typeof(int), "int", false)]
 	[PrimitiveTypeName(typeof(long), "Int64", false)]
 	[PrimitiveTypeName(typeof(float), "Float32", false)]
 	[PrimitiveTypeName(typeof(double), "Float64", false)]
@@ -27,6 +26,15 @@ namespace Dryice.Generators.Objective
 	public class ObjectiveCodeGenerator
 		: BraceLanguageStyleSourceCodeGenerator
 	{
+		private readonly string[] reservedKeywords = new string[]
+		{
+			"id",
+			"class",
+			"void",
+			"public",
+			"property"
+		};
+
 		public ObjectiveCodeGenerator(TextWriter writer)
 			: base(writer)
 		{
@@ -49,6 +57,12 @@ namespace Dryice.Generators.Objective
 
 				return;
 			}
+			else if (type == typeof(void))
+			{
+				this.Write("void");
+
+				return;
+			}
 			else if (underlyingType != null && underlyingType.IsPrimitive)
 			{
 				if (nameOnly)
@@ -65,6 +79,12 @@ namespace Dryice.Generators.Objective
 			else if (type.IsClass && type.Name == "id")
 			{
 				this.Write("id");
+
+				return;
+			}
+			else if (type.IsClass && type.Name == "Class")
+			{
+				this.Write("Class");
 
 				return;
 			}
@@ -87,6 +107,28 @@ namespace Dryice.Generators.Objective
 
 				return;
 			}
+			else if (type is DryDelegateType)
+			{
+				var delegateType = (DryDelegateType)type;
+
+				this.Write(delegateType.ReturnType, false);
+				this.Write("(^)");
+				this.Write("(");
+				for (var i = 0; i < delegateType.Parameters.Length; i++)
+				{
+					this.Write(delegateType.Parameters[i].ParameterType, false);
+					this.Write(' ');
+					this.Write(delegateType.Parameters[i].Name);
+
+					if (i != delegateType.Parameters.Length - 1)
+					{
+						this.Write(", ");
+					}
+				}
+				this.Write(")");
+
+				return;
+			} 
 
 			var dryiceType = type as DryType;
 
@@ -276,7 +318,7 @@ namespace Dryice.Generators.Objective
 
 			if (node.Type == typeof(string))
 			{	
-				this.Write("\"" + Convert.ToString(node.Value) + "\"");
+				this.Write("@\"" + Convert.ToString(node.Value) + "\"");
 			}
 			else if (node.Type == typeof(Guid))
 			{
@@ -332,7 +374,7 @@ namespace Dryice.Generators.Objective
 		{
 			this.WriteLine();
 
-			using (this.AcquireIndentationContext(BraceLanguageStyleIndentationOptions.IncludeBraces))
+			using (this.AcquireIndentationContext(BraceLanguageStyleIndentationOptions.IncludeBracesNewLineAfter))
 			{
 				if (node.Variables != null)
 				{
@@ -422,7 +464,9 @@ namespace Dryice.Generators.Objective
 
 		public override void Generate(Expression expression)
 		{
-			base.Generate(DateFormatterInserter.Insert(expression));
+			var normalized = ReservedKeywordNormalizer.Normalize(expression, "$", reservedKeywords);
+
+			base.Generate(DateFormatterInserter.Insert(normalized));
 		}
 
 		public override void ConvertToString(Expression expression)
@@ -435,8 +479,7 @@ namespace Dryice.Generators.Objective
 			{
 				this.Write("[");
 				this.Visit(expression);
-				this.Write(" ");
-				this.Write(" compactStringValue");
+				this.Write(" stringValueWithFormat:PKUUIDFormatCompact");
 				this.Write("]");
 			}
 			else if (expression.Type == typeof(TimeSpan) || expression.Type == typeof(TimeSpan?))
@@ -460,6 +503,28 @@ namespace Dryice.Generators.Objective
 			if (node.Method.Name == "ToString")
 			{
 				ConvertToString(node.Object);
+
+				return node;
+			}
+
+			if (node.Method.Name == "Invoke" && node.Object.Type is DryDelegateType)
+			{
+				this.Visit(node.Object);
+				this.Write('(');
+
+				for (var i = 0; i < node.Arguments.Count; i++)
+				{
+					var arg = node.Arguments[i];
+
+					this.Visit(arg);
+
+					if (i != node.Arguments.Count - 1)
+					{
+						this.Write(", ");
+					}
+				}
+
+				this.Write(')');
 
 				return node;
 			}
@@ -516,18 +581,18 @@ namespace Dryice.Generators.Objective
 					this.Visit(node.Right);
 					break;
 				case ExpressionType.Equal:
-					this.Write('(');
+					this.Write("((");
 					this.Visit(node.Left);
-					this.Write(" == ");
+					this.Write(") == (");
 					this.Visit(node.Right);
-					this.Write(')');
+					this.Write("))");
 					break;
 				case ExpressionType.NotEqual:
-					this.Write('(');
+					this.Write("((");
 					this.Visit(node.Left);
-					this.Write(" != ");
+					this.Write(") != (");
 					this.Visit(node.Right);
-					this.Write(')');
+					this.Write("))");
 					break;
 			}
 
@@ -546,7 +611,7 @@ namespace Dryice.Generators.Objective
 
 				if (node.IfFalse.NodeType != ExpressionType.Default)
 				{
-					this.WriteLine("else ");
+					this.Write("else ");
 					
 					this.Visit(node.IfFalse);
 				}
@@ -615,6 +680,13 @@ namespace Dryice.Generators.Objective
 
 			this.WriteLine();
 
+			if (!expression.IsPredeclaration)
+			{
+				this.WriteLine("#pragma clang diagnostic push");
+				this.WriteLine("#pragma clang diagnostic ignored \"-Wparentheses\"");
+				this.WriteLine();
+			}
+
 			if (expression.IsPredeclaration)
 			{
 				this.Write("@interface ");
@@ -640,6 +712,12 @@ namespace Dryice.Generators.Objective
 			this.Visit(expression.Body);
 
 			this.WriteLine("@end");
+			this.WriteLine();
+
+			if (!expression.IsPredeclaration)
+			{
+				this.WriteLine("#pragma clang diagnostic pop");
+			}
 
 			return expression;
 		}
@@ -677,30 +755,25 @@ namespace Dryice.Generators.Objective
 			this.WriteSpace();
 			this.Write(method.Name);
 
-			if (method.Parameters != null)
+			for (var i = 0; i < method.Parameters.Count; i++)
 			{
-				this.Write(':');
+				var parameter = (ParameterExpression)method.Parameters[i];
 
-				for (var i = 0; i < method.Parameters.Count; i++)
+				if (i != 0)
 				{
-					var parameter = (ParameterExpression)method.Parameters[i];
-
-					if (i != 0)
-					{
-						this.Write(parameter.Name);
-
-						this.Write('(');
-						this.Write(parameter.Type);
-						this.Write(')');
-						this.Write(':');
-					}
-
 					this.Write(parameter.Name);
+				}
 
-					if (i != method.Parameters.Count - 1)
-					{
-						this.Write(" ");
-					}
+				this.Write(':');
+				this.Write('(');
+				this.Write(parameter.Type);
+				this.Write(')');
+					
+				this.Write(parameter.Name);
+
+				if (i != method.Parameters.Count - 1)
+				{
+					this.Write(" ");
 				}
 			}
 
@@ -721,9 +794,26 @@ namespace Dryice.Generators.Objective
 			return method;
 		}
 
-		protected override Expression VisitLambda<T>(Expression<T> node)
+		protected override Expression VisitSimpleLambdaExpression(SimpleLambdaExpression node)
 		{
-			return base.VisitLambda<T>(node);
+			this.Write("^");
+			this.Write("(");
+
+			foreach (ParameterExpression parameter in node.Parameters)
+			{
+				this.Write(parameter.Type);
+				this.Write(" ");
+				this.Write(parameter.Name);
+			}
+
+			this.WriteLine(")");
+
+			using (this.AcquireIndentationContext(BraceLanguageStyleIndentationOptions.IncludeBraces))
+			{
+				this.Visit(node.Body);
+			}
+
+			return node;
 		}
 	}
 }

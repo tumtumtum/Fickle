@@ -26,6 +26,11 @@ namespace Dryice.Generators.Objective.Binders
 			return binder.Visit(expression);
 		}
 
+		private MethodDefinitionExpression CreateInitWithOptionsMethod()
+		{
+			return new MethodDefinitionExpression("initWithOptions", new Expression[] { DryExpression.Parameter("NSDictionary", "options") }.ToReadOnlyCollection(), DryType.Define("id"), null, true, null);
+		}
+
 		protected override Expression VisitMethodDefinitionExpression(MethodDefinitionExpression method)
 		{
 			var methodName = method.Name.Uncapitalize();
@@ -35,7 +40,10 @@ namespace Dryice.Generators.Objective.Binders
 				Expression.Return(Expression.Label(), Expression.Constant(null)).ToStatement()
 			};
 
-			return new MethodDefinitionExpression(methodName, method.Parameters, method.ReturnType, Expression.Block(body), true, null);
+			var newParameters = new List<Expression>(method.Parameters);
+			newParameters.Add(DryExpression.Parameter(new DryDelegateType(typeof(void), new DryParameterInfo(method.ReturnType, "response")), "callback"));
+
+			return new MethodDefinitionExpression(methodName, newParameters.ToReadOnlyCollection(), typeof(void), Expression.Block(body), true, null);
 		}
 			
 		protected override Expression VisitTypeDefinitionExpression(TypeDefinitionExpression expression)
@@ -45,7 +53,7 @@ namespace Dryice.Generators.Objective.Binders
 			var referencedTypes = ReferencedTypesCollector.CollectReferencedTypes(expression);
 			referencedTypes.Sort((x, y) => String.Compare(x.Name, y.Name, StringComparison.InvariantCultureIgnoreCase));
 
-			var lookup = new HashSet<Type>(referencedTypes.Where(TypeSystem.IsPrimitiveType).Select(c => c));
+			var lookup = new HashSet<Type>(referencedTypes.Where(TypeSystem.IsPrimitiveType));
 
 			if (lookup.Contains(typeof(Guid)) || lookup.Contains(typeof(Guid?)))
 			{
@@ -57,12 +65,29 @@ namespace Dryice.Generators.Objective.Binders
 				includeExpressions.Add(new IncludeStatementExpression("PKTimeSpan.h"));
 			}
 
+			includeExpressions.Add(new IncludeStatementExpression("PKDictionarySerializable.h"));
+
+			var referencedUserTypes = referencedTypes.Where
+			(
+				TypeSystem.IsNotPrimitiveType).Sorted((x, y) => 
+				x.Name.Length == y.Name.Length ? String.CompareOrdinal(x.Name, y.Name) : x.Name.Length - y.Name.Length
+			);
+
+			includeExpressions.AddRange(referencedUserTypes.Select(type => new IncludeStatementExpression(type.Name + ".h")));
+			includeExpressions.Add(new IncludeStatementExpression("PKWebServiceClient.h"));
+
+			var optionsProperty = new PropertyDefinitionExpression("options", DryType.Define("NSDictionary"), true);
+
 			var comment = new CommentExpression("This file is AUTO GENERATED");
-
-			var headerGroup = includeExpressions.ToGroupedExpression();
-			var header = new Expression[] { comment, headerGroup }.ToGroupedExpression(GroupedExpressionsExpressionStyle.Wide);
-
-			var body = GroupedExpressionsExpression.FlatConcat(GroupedExpressionsExpressionStyle.Wide, this.Visit(expression.Body));
+			var header = new Expression[] { comment, includeExpressions.ToGroupedExpression() }.ToGroupedExpression(GroupedExpressionsExpressionStyle.Wide);
+			
+			var body = GroupedExpressionsExpression.FlatConcat
+			(
+				GroupedExpressionsExpressionStyle.Wide,
+				optionsProperty,
+				this.CreateInitWithOptionsMethod(),
+				this.Visit(expression.Body)
+			);
 
 			var interfaceTypes = new List<ServiceClass>();
 
@@ -73,7 +98,7 @@ namespace Dryice.Generators.Objective.Binders
 
 			interfaceTypes.Add(ServiceClass.Make("PKWebServiceClientDelegate"));
 
-			return new TypeDefinitionExpression(expression.Type, expression.BaseType, header, body, true, expression.Attributes, new ReadOnlyCollection<ServiceClass>(interfaceTypes));
+			return new TypeDefinitionExpression(expression.Type, expression.BaseType, header, body, true, expression.Attributes, interfaceTypes.ToReadOnlyCollection());
 		}
 	}
 }

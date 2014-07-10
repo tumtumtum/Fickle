@@ -51,7 +51,7 @@ namespace Dryice.Generators.Objective.Binders
 			}
 			else if (propertyType is DryType && !propertyType.IsValueType)
 			{
-				propertyOnSelf = Expression.Convert(DryExpression.MakeMethodCall(propertyOnSelf, typeof(object), "copyWithZone", this.zone), propertyType);
+				propertyOnSelf = Expression.Convert(DryExpression.Call(propertyOnSelf, typeof(object), "copyWithZone", this.zone), propertyType);
 			}
 
 			var assignExpression = Expression.Assign(propertyOnTheCopy, propertyOnSelf);

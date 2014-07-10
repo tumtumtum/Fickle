@@ -35,6 +35,8 @@ namespace Dryice
 					return this.VisitCommentExpression((CommentExpression)expression);
 				case (int)ServiceExpressionType.CodeLiteral:
 					return this.VisitCodeLiteralExpression((CodeLiteralExpression)expression);
+				case (int)ServiceExpressionType.SimpleLambdaExpression:
+					return this.VisitSimpleLambdaExpression((SimpleLambdaExpression)expression);
 			}
 
 			return base.Visit(expression);
@@ -140,6 +142,19 @@ namespace Dryice
 
 		protected virtual Expression VisitCodeLiteralExpression(CodeLiteralExpression expression)
 		{
+			return expression;
+		}
+
+		protected virtual Expression VisitSimpleLambdaExpression(SimpleLambdaExpression expression)
+		{
+			var body = this.Visit(expression.Body);
+			var parameters = this.VisitExpressionList(expression.Parameters);
+
+			if (body != expression.Body || parameters != expression.Parameters)
+			{
+				return new SimpleLambdaExpression(body, parameters);
+			}
+
 			return expression;
 		}
 	}

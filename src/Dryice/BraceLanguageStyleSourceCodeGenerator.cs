@@ -26,7 +26,7 @@ namespace Dryice
 				this.generator = generator;
 				this.options = options;
 
-				if (options == BraceLanguageStyleIndentationOptions.IncludeBraces)
+				if ((options & BraceLanguageStyleIndentationOptions.IncludeBraces) != 0)
 				{
 					generator.WriteLine("{");
 				}
@@ -38,9 +38,14 @@ namespace Dryice
 			{
 				this.generator.CurrentIndent--;
 
-				if (options == BraceLanguageStyleIndentationOptions.IncludeBraces)
+				if ((options & BraceLanguageStyleIndentationOptions.IncludeBraces) != 0)
 				{
-					generator.WriteLine("}");
+					generator.Write("}");
+				}
+
+				if ((options & BraceLanguageStyleIndentationOptions.NewLineAfter) != 0)
+				{
+					generator.WriteLine();
 				}
 			}
 		}
@@ -49,7 +54,7 @@ namespace Dryice
 			: base(writer)
 		{
 		}
-
+			
 		protected override Expression VisitCommentExpression(CommentExpression expression)
 		{
 			this.WriteLine("// " + expression.Comment);
@@ -59,7 +64,7 @@ namespace Dryice
 
 		public override IDisposable AcquireIndentationContext()
 		{
-			return this.AcquireIndentationContext(BraceLanguageStyleIndentationOptions.IncludeBraces);
+			return this.AcquireIndentationContext(BraceLanguageStyleIndentationOptions.IncludeBracesNewLineAfter);
 		}
 
 		public virtual IDisposable AcquireIndentationContext(BraceLanguageStyleIndentationOptions options)
