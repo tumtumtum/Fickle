@@ -37,26 +37,21 @@ namespace Dryice.Generators.Objective
 				typeName = TypeSystem.GetPrimitiveName(type);
 			}
 
-			var retval = new ServiceClass
+			var properties = new List<ServiceProperty>
 			{
-				BaseTypeName = null,
-				Name = ObjectiveBinderHelpers.GetValueResponseWrapperTypeName( type),
-				Properties = new List<ServiceProperty>
+				new ServiceProperty()
 				{
-					new ServiceProperty()
-					{
-						Name = options.ResponseStatusPropertyName,
-						TypeName = options.ResponseStatusTypeName
-					},
-					new ServiceProperty()
-					{
-						Name = "Value",
-						TypeName = typeName
-					},
-				}
+					Name = options.ResponseStatusPropertyName,
+					TypeName = options.ResponseStatusTypeName
+				},
+				new ServiceProperty()
+				{
+					Name = "Value",
+					TypeName = typeName
+				},
 			};
 
-			return retval;
+			return new ServiceClass(ObjectiveBinderHelpers.GetValueResponseWrapperTypeName(type), null, properties);
 		}
 	}
 }

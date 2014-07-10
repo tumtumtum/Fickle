@@ -35,27 +35,22 @@ namespace Dryice.Generators
 				classPrefix = "Optional";
 				typeName += "?";
 			}
-			
-			var retval = new ServiceClass
+
+			var properties = new List<ServiceProperty>
 			{
-				BaseTypeName = null,
-				Name = classPrefix + "ValueResponse",
-				Properties = new List<ServiceProperty>
+				new ServiceProperty()
 				{
-					new ServiceProperty()
-					{
-						Name = options.ResponseStatusPropertyName,
-						TypeName = options.ResponseStatusTypeName
-					},
-					new ServiceProperty()
-					{
-						Name = "Value",
-						TypeName = typeName
-					},
-				}
+					Name = options.ResponseStatusPropertyName,
+					TypeName = options.ResponseStatusTypeName
+				},
+				new ServiceProperty()
+				{
+					Name = "Value",
+					TypeName = typeName
+				},
 			};
 
-			return retval;
+			return new ServiceClass(classPrefix + "ValueResponse", null, properties);
 		}
 
 		private ServiceClass GetOrCreateResponseStatusClass()
@@ -64,23 +59,21 @@ namespace Dryice.Generators
 
 			if (retval == null)
 			{
-				retval = new ServiceClass
+				var properties = new List<ServiceProperty>
 				{
-					Name = this.options.ResponseStatusTypeName,
-					Properties = new List<ServiceProperty>
+					new ServiceProperty
 					{
-						new ServiceProperty
-						{
-							Name = "Message",
-							TypeName = "string"
-						},
-						new ServiceProperty
-						{
-							Name = "ErrorCode",
-							TypeName = "string"
-						}
+						Name = "Message",
+						TypeName = "string"
+					},
+					new ServiceProperty
+					{
+						Name = "ErrorCode",
+						TypeName = "string"
 					}
 				};
+
+				retval = new ServiceClass(this.options.ResponseStatusTypeName, null, properties);
 			}
 
 			return retval;

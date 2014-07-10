@@ -118,13 +118,6 @@ namespace Dryice.Model
 				return retval;
 			}
 
-			this.CreateIndex();
-
-			if (this.serviceTypesByName.TryGetValue(name, out retval))
-			{
-				return retval;
-			}
-
 			throw new InvalidOperationException("Type not found: " + name);
 		}
 	}

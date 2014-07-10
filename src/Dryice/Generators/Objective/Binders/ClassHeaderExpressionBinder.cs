@@ -60,9 +60,17 @@ namespace Dryice.Generators.Objective.Binders
 				includeExpressions.Add(new IncludeStatementExpression("PKTimeSpan.h"));
 			}
 
+			if (ObjectiveBinderHelpers.TypeIsServiceClass(expression.BaseType))
+			{
+				includeExpressions.Add(new IncludeStatementExpression(expression.BaseType.Name + ".h"));
+			}
+
 			includeExpressions.Add(new IncludeStatementExpression("PKDictionarySerializable.h"));
 
-			var referencedTypeExpressions = referencedTypes.Where(ObjectiveBinderHelpers.TypeIsServiceClass).Select(c => (Expression)new ReferencedTypeExpression(c)).ToList();
+			var referencedTypeExpressions = referencedTypes
+				.Where(ObjectiveBinderHelpers.TypeIsServiceClass)
+				.Where(c => c != expression.BaseType)
+				.Select(c => (Expression)new ReferencedTypeExpression(c));
 
 			var comment = new CommentExpression("This file is AUTO GENERATED");
 
@@ -74,10 +82,10 @@ namespace Dryice.Generators.Objective.Binders
 
 			var propertyBody = this.Visit(expression.Body);
 
-			var interfaceTypes = new List<ServiceClass>
+			var interfaceTypes = new List<Type>
 			{
-				ServiceClass.Make("NSCopying"),
-				ServiceClass.Make("PKDictionarySerializable")
+				DryType.Define("NSCopying"),
+				DryType.Define("PKDictionarySerializable")
 			};
 
 			return new TypeDefinitionExpression(expression.Type, expression.BaseType, header, propertyBody, true, null, interfaceTypes.ToReadOnlyCollection());

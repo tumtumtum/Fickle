@@ -9,23 +9,23 @@ namespace Dryice.Generators.Objective.Binders
 	public class PropertiesToCopyExpressionBinder
 		: ServiceExpressionVisitor
 	{
+		private readonly CodeGenerationContext codeGenerationContext;
 		private readonly Type type; 
-		private readonly ServiceModel serviceModel;
 		private readonly Expression zone;
 		private readonly Expression theCopy;
 		private readonly List<Expression> statements = new List<Expression>();
- 
-		protected PropertiesToCopyExpressionBinder(ServiceModel serviceModel, Type type, Expression zone, Expression theCopy)
+
+		protected PropertiesToCopyExpressionBinder(CodeGenerationContext codeGenerationContext, Type type, Expression zone, Expression theCopy)
 		{
-			this.serviceModel = serviceModel;
+			this.codeGenerationContext = codeGenerationContext;
 			this.type = type;
 			this.zone = zone;
 			this.theCopy = theCopy;
 		}
 
-		public static Expression Bind(ServiceModel serviceModel, TypeDefinitionExpression expression, ParameterExpression zone, ParameterExpression theCopy)
+		public static Expression Bind(CodeGenerationContext codeGenerationContext, TypeDefinitionExpression expression, ParameterExpression zone, ParameterExpression theCopy)
 		{
-			var builder = new PropertiesToCopyExpressionBinder(serviceModel, expression.Type, zone, theCopy);
+			var builder = new PropertiesToCopyExpressionBinder(codeGenerationContext, expression.Type, zone, theCopy);
 
 			builder.Visit(expression);
 

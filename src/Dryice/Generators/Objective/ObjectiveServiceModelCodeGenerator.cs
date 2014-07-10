@@ -50,7 +50,7 @@ namespace Dryice.Generators.Objective
 
 					using (var writer = this.GetTextWriterForFile(serviceClass.Name + ".m"))
 					{
-						var classFileExpression = ClassSourceExpressionBinder.Bind(serviceModel, classExpression);
+						var classFileExpression = ClassSourceExpressionBinder.Bind(codeGenerationContext, classExpression);
 
 						var codeGenerator = new ObjectiveCodeGenerator(writer);
 

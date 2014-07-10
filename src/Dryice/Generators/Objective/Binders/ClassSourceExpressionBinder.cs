@@ -16,16 +16,16 @@ namespace Dryice.Generators.Objective.Binders
 	public class ClassSourceExpressionBinder
 		: ServiceExpressionVisitor
 	{
-		private readonly ServiceModel serviceModel;
-
-		private ClassSourceExpressionBinder(ServiceModel serviceModel)
+		private readonly CodeGenerationContext codeGenerationContext;
+		
+		private ClassSourceExpressionBinder(CodeGenerationContext codeGenerationContext)
 		{
-			this.serviceModel = serviceModel;
+			this.codeGenerationContext = codeGenerationContext;
 		}
 
-		public static Expression Bind(ServiceModel serviceModel, Expression expression)
+		public static Expression Bind(CodeGenerationContext codeGenerationContext, Expression expression)
 		{
-			var binder = new ClassSourceExpressionBinder(serviceModel);
+			var binder = new ClassSourceExpressionBinder(codeGenerationContext);
 
 			return binder.Visit(expression);
 		}
@@ -82,22 +82,25 @@ namespace Dryice.Generators.Objective.Binders
 		{
 			var zone = DryExpression.Parameter("NSZone", "zone");
 			var theCopy = Expression.Variable(expression.Type, "theCopy");
-			var objectiveClassType = new DryType("Class");
-			var currentType = new DryType(expression.Type.Name);
-			var allocWithZone = objectiveClassType.GetMethod("allocWithZone", currentType, new Type[] { new DryType("NSZone") });
-			var classMethod = currentType.GetMethod("class", objectiveClassType, new Type[0]);
+			var currentType = (DryType)expression.Type;
 			var self = Expression.Parameter(currentType, "self");
-			var selfInitMethod = currentType.GetMethod("init", currentType, new ParameterInfo[0]);
 
-			var newExpression = Expression.Call(Expression.Call(Expression.Call(self, classMethod), allocWithZone, zone), selfInitMethod);
+			// [[[self class] allocWithZone:zone] init]]
+			var newExpression = DryExpression.Call(DryExpression.Call(DryExpression.Call(self, "Class", "class", null), "allocWithZone", zone), expression.Type, "init", null);
 
 			var initTheCopy = Expression.Assign(theCopy, newExpression).ToStatement();
 			var returnStatement = Expression.Return(Expression.Label(), theCopy).ToStatement();
-			var copyStatements = PropertiesToCopyExpressionBinder.Bind(this.serviceModel, expression, zone, theCopy);
+			var copyStatements = PropertiesToCopyExpressionBinder.Bind(codeGenerationContext, expression, zone, theCopy);
 
-			Expression methodBody = Expression.Block(new ParameterExpression[] { theCopy }, new[] { initTheCopy, copyStatements, returnStatement }.ToGroupedExpression(GroupedExpressionsExpressionStyle.Wide));
+			Expression methodBody = Expression.Block
+			(
+				new[] { theCopy },
+				initTheCopy,
+				copyStatements,
+				returnStatement
+			);
 
-			return new MethodDefinitionExpression("copyWithZone", new ReadOnlyCollection<Expression>(new List<Expression>(new [] { zone })), typeof(object), methodBody, false, null);
+			return new MethodDefinitionExpression("copyWithZone", new Expression[] { zone }.ToReadOnlyCollection(), typeof(object), methodBody, false, null);
 		}
 
 		protected override Expression VisitTypeDefinitionExpression(TypeDefinitionExpression expression)

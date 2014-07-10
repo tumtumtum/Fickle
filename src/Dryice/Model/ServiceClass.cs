@@ -1,27 +1,21 @@
 ﻿using System.Collections.Generic;
-using Platform.Xml.Serialization;
 
 namespace Dryice.Model
 {
-	[XmlElement("Class")]
 	public class ServiceClass
 	{
-		[XmlAttribute]
 		public string Name { get; set; }
-
-		[XmlAttribute]
 		public string BaseTypeName { get; set; }
-
-		[XmlElement, XmlListElement(typeof(ServiceProperty))]
 		public List<ServiceProperty> Properties { get; set; }
 
-		public static ServiceClass Make(string name)
+		public ServiceClass(string name, string baseTypeName, List<ServiceProperty> properties)
 		{
-			return new ServiceClass()
-			{
-				Name = name
-			};
+			this.Name = name;
+			this.BaseTypeName = baseTypeName;
+			this.Properties = properties;
 		}
+
+		#region Equals
 
 		public override int GetHashCode()
 		{
@@ -44,5 +38,7 @@ namespace Dryice.Model
 
 			return this.Name.Equals(typedObj.Name);
 		}
+
+		#endregion
 	}
 }

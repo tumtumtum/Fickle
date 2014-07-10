@@ -39,14 +39,9 @@ namespace Dryice.Generators
 			Type baseType = null;
 			var propertyDefinitions = serviceClass.Properties.Select(this.Build).ToList();
 
-			if (!string.IsNullOrEmpty(this.CodeGenerationOptions.BaseTypeTypeName))
-			{
-				baseType = new DryType(this.CodeGenerationOptions.BaseTypeTypeName);
-			}
-
 			if (baseType == null && !string.IsNullOrEmpty(serviceClass.BaseTypeName))
 			{
-				baseType = new DryType(serviceClass.BaseTypeName);
+				baseType = this.ServiceModel.GetTypeFromName(serviceClass.BaseTypeName);
 			}
 
 			if (baseType == null)
@@ -77,11 +72,6 @@ namespace Dryice.Generators
 		{
 			Type baseType = null;
 			
-			if (!string.IsNullOrEmpty(this.CodeGenerationOptions.BaseTypeTypeName))
-			{
-				baseType = new DryType(this.CodeGenerationOptions.BaseTypeTypeName);
-			}
-
 			if (baseType == null && !string.IsNullOrEmpty(serviceGateway.BaseTypeName))
 			{
 				baseType = new DryType(serviceGateway.BaseTypeName);

@@ -90,14 +90,14 @@ namespace Dryice.Generators.Objective.Binders
 			var comment = new CommentExpression("This file is AUTO GENERATED");
 			var header = new Expression[] { comment, includeExpressions.ToGroupedExpression(), referencedExpressions.ToGroupedExpression() }.ToGroupedExpression(GroupedExpressionsExpressionStyle.Wide);
 			
-			var interfaceTypes = new List<ServiceClass>();
+			var interfaceTypes = new List<Type>();
 
 			if (expression.InterfaceTypes != null)
 			{
 				interfaceTypes.AddRange(expression.InterfaceTypes);
 			}
 
-			interfaceTypes.Add(ServiceClass.Make("PKWebServiceClientDelegate"));
+			interfaceTypes.Add(DryType.Define("PKWebServiceClientDelegate"));
 
 			return new TypeDefinitionExpression(expression.Type, expression.BaseType, header, body, true, expression.Attributes, interfaceTypes.ToReadOnlyCollection());
 		}

@@ -37,12 +37,12 @@ namespace Dryice.Expressions
 		}
 
 		public bool IsPredeclaration { get; private set; }
-		public ReadOnlyCollection<ServiceClass> InterfaceTypes { get; private set; }
+		public ReadOnlyCollection<Type> InterfaceTypes { get; private set; }
 		public Expression Header { get; private set; }
 		public Expression Body { get; private set; }
 		public ReadOnlyDictionary<string, string> Attributes {get; private set;}
 
-		public TypeDefinitionExpression(Type type, Type baseType, Expression header, Expression body, bool isPredeclaration, ReadOnlyDictionary<string, string> attributes = null, ReadOnlyCollection<ServiceClass> interfaceTypes = null)
+		public TypeDefinitionExpression(Type type, Type baseType, Expression header, Expression body, bool isPredeclaration, ReadOnlyDictionary<string, string> attributes = null, ReadOnlyCollection<Type> interfaceTypes = null)
 		{
 			this.type = type;
 			this.Body = body;

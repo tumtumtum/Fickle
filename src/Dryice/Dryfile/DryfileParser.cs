@@ -192,11 +192,7 @@ namespace Dryice.Dryfile
 
 			this.Expect(DryfilelToken.Identifier);
 
-			var retval = new ServiceClass
-			{
-				Name = this.tokenizer.CurrentIdentifier,
-				Properties = new List<ServiceProperty>()
-			};
+			var retval = new ServiceClass(this.tokenizer.CurrentIdentifier, null, new List<ServiceProperty>());
 
 			this.ReadNextToken();
 			this.Expect(DryfilelToken.Indent);

@@ -43,11 +43,6 @@ namespace Dryice
 			this.byRef = byRef;
 		}
 
-		public static implicit operator DryType(string name)
-		{
-			return new DryType(name);
-		}
-
 		public static DryType Make(string name)
 		{
 			return new DryType(name);

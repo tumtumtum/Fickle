@@ -70,5 +70,12 @@ namespace Dryice.Generators
 
 			return base.VisitMethodDefinitionExpression(method);
 		}
+
+		protected override Expression VisitTypeDefinitionExpression(TypeDefinitionExpression expression)
+		{
+			this.AddType(expression.BaseType);
+
+			return base.VisitTypeDefinitionExpression(expression);
+		}
 	}
 }
