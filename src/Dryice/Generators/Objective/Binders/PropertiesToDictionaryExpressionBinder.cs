@@ -34,7 +34,7 @@ namespace Dryice.Generators.Objective.Binders
 		{
 			var self = Expression.Variable(this.type, "self");
 			var retval = DryExpression.Variable("NSDictionary", "retval");
-			var propertyExpression = DryExpression.Property(self, this.type, property.PropertyName);
+			var propertyExpression = DryExpression.Property(self, property.PropertyType, property.PropertyName);
 
 			var setObjectForKeyMethodCall = DryExpression.Call(retval, "setObject", new
 			{

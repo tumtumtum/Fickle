@@ -53,6 +53,10 @@ namespace Dryice.Generators.Objective.Binders
 			{
 				propertyOnSelf = Expression.Convert(DryExpression.Call(propertyOnSelf, typeof(object), "copyWithZone", this.zone), propertyType);
 			}
+			else if (propertyType == typeof(string))
+			{
+				propertyOnSelf = DryExpression.Call(propertyOnSelf, typeof(string), "copy", null);
+			}
 
 			var assignExpression = Expression.Assign(propertyOnTheCopy, propertyOnSelf);
 

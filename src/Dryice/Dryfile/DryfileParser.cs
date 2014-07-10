@@ -11,18 +11,13 @@ namespace Dryice.Dryfile
 	public class DryfileParser
 	{
 		private readonly DryfileTokenizer tokenizer;
-		private readonly ServiceModel serviceModel;
+		private readonly List<ServiceEnum> enums = new List<ServiceEnum>();
+		private readonly List<ServiceClass> classes = new List<ServiceClass>();
+		private readonly List<ServiceGateway> gateways = new List<ServiceGateway>();
 	
 		public DryfileParser(TextReader reader)
 		{
 			this.tokenizer = new DryfileTokenizer(reader);
-
-			this.serviceModel = new ServiceModel
-			{
-				Enums = new List<ServiceEnum>(),
-				Classes = new List<ServiceClass>(),
-				Gateways = new List<ServiceGateway>()
-			};
 
 			this.tokenizer.ReadNextToken();
 		}
@@ -36,9 +31,7 @@ namespace Dryice.Dryfile
 		{
 			var parser = new DryfileParser(reader);
 
-			parser.Parse();
-
-			return parser.serviceModel;
+			return parser.Parse();
 		}
 
 		protected virtual void ProcessTopLevel()
@@ -48,13 +41,13 @@ namespace Dryice.Dryfile
 				switch (this.tokenizer.CurrentKeyword)
 				{
 					case DryfileKeyword.Class:
-						this.serviceModel.Classes.Add(this.ProcessClass());
+						this.classes.Add(this.ProcessClass());
 						break;
 					case DryfileKeyword.Enum:
-						this.serviceModel.Enums.Add(this.ProcessEnum());
+						this.enums.Add(this.ProcessEnum());
 						break;
 					case DryfileKeyword.Gateway:
-						this.serviceModel.Gateways.Add(this.ProcessGateway());
+						this.gateways.Add(this.ProcessGateway());
 						break;
 				}
 			}
@@ -402,7 +395,7 @@ namespace Dryice.Dryfile
 				this.ProcessTopLevel();
 			}
 
-			return this.serviceModel;
+			return new ServiceModel(enums, classes, gateways);
 		}
 	}
 }

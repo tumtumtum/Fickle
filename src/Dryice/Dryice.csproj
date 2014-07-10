@@ -43,9 +43,9 @@
     <Reference Include="ICSharpCode.SharpZipLib">
       <HintPath>..\packages\SharpZipLib.0.86.0\lib\20\ICSharpCode.SharpZipLib.dll</HintPath>
     </Reference>
-    <Reference Include="Platform, Version=1.0.0.119, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="Platform, Version=1.0.0.121, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\Platform.NET.1.0.0.119\lib\35\Platform.dll</HintPath>
+      <HintPath>..\packages\Platform.NET.1.0.0.121\lib\35\Platform.dll</HintPath>
     </Reference>
     <Reference Include="Platform.VirtualFileSystem, Version=1.0.0.70, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -55,9 +55,8 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\Platform.VirtualFileSystem.Providers.Zip.1.0.0.70\lib\35\Platform.VirtualFileSystem.Providers.Zip.dll</HintPath>
     </Reference>
-    <Reference Include="Platform.Xml.Serialization, Version=1.0.0.119, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\Platform.Xml.Serialization.1.0.0.119\lib\35\Platform.Xml.Serialization.dll</HintPath>
+    <Reference Include="Platform.Xml.Serialization">
+      <HintPath>..\packages\Platform.Xml.Serialization.1.0.0.121\lib\35\Platform.Xml.Serialization.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -68,8 +67,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="BraceLanguageStyleIndentationOptions.cs" />
-    <Compile Include="BraceLanguageStyleSourceCodeGenerator.cs" />
+    <Compile Include="Generators\BraceLanguageStyleIndentationOptions.cs" />
+    <Compile Include="Generators\BraceLanguageStyleSourceCodeGenerator.cs" />
+    <Compile Include="CodeGenerationContext.cs" />
     <Compile Include="CodeGenerationOptions.cs" />
     <Compile Include="DryDelegateType.cs" />
     <Compile Include="EnumerableExtensions.cs" />
@@ -90,6 +90,7 @@
     <Compile Include="Generators\Objective\Binders\GatewayHeaderExpressionBinder.cs" />
     <Compile Include="Generators\Objective\Binders\GatewaySourceExpressionBinder.cs" />
     <Compile Include="Generators\Objective\Binders\PropertiesToCopyExpressionBinder.cs" />
+    <Compile Include="Generators\Objective\ObjectiveBinderHelpers.cs" />
     <Compile Include="Generators\Objective\ObjectiveParameterInfo.cs" />
     <Compile Include="Generators\Objective\ObjectiveServiceModelCodeGenerator.cs" />
     <Compile Include="Generators\Objective\Binders\PropertiesFromDictionaryExpressonBinder.cs" />
@@ -97,12 +98,15 @@
     <Compile Include="Generators\Objective\ObjectiveCodeGenerator.cs" />
     <Compile Include="Generators\Objective\Binders\ClassHeaderExpressionBinder.cs" />
     <Compile Include="Generators\Objective\Binders\PropertiesToDictionaryExpressionBinder.cs" />
+    <Compile Include="Generators\Objective\ObjectiveServiceModelResponseStatusAmmender.cs" />
+    <Compile Include="Generators\PropertyTypeChanger.cs" />
     <Compile Include="Generators\ReservedKeywordNormalizer.cs" />
     <Compile Include="Generators\ReturnTypesCollector.cs" />
+    <Compile Include="Generators\ServiceModelResponseStatusAmmender.cs" />
     <Compile Include="Model\ServiceEnum.cs" />
     <Compile Include="Model\ServiceEnumValue.cs" />
     <Compile Include="Generators\ReferencedTypesCollector.cs" />
-    <Compile Include="ServiceExpressionBuilder.cs" />
+    <Compile Include="Generators\ServiceExpressionBuilder.cs" />
     <Compile Include="Model\ServiceInbuiltTypeType.cs" />
     <Compile Include="Model\ServiceMethod.cs" />
     <Compile Include="Model\ServiceGateway.cs" />
@@ -114,9 +118,9 @@
     <Compile Include="ServiceExpressionVisitor.cs" />
     <Compile Include="ServiceModelCodeGenerator.cs" />
     <Compile Include="ServiceModelCodeGeneratorAttribute.cs" />
-    <Compile Include="SourceCodeGenerator.cs" />
+    <Compile Include="Generators\SourceCodeGenerator.cs" />
     <Compile Include="PrimitiveTypeNameAttribute.cs" />
-    <Compile Include="DryBasicType.cs" />
+    <Compile Include="DryBaseType.cs" />
     <Compile Include="DryConstructorInfo.cs" />
     <Compile Include="DryListType.cs" />
     <Compile Include="DryMethodInfo.cs" />

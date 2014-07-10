@@ -48,7 +48,7 @@ namespace Dryice.Generators.Objective.Binders
 			var referencedTypes = ReferencedTypesCollector.CollectReferencedTypes(expression);
 			referencedTypes.Sort((x, y) => String.Compare(x.Name, y.Name, StringComparison.InvariantCultureIgnoreCase));
 
-			var lookup = new HashSet<Type>(referencedTypes.Where(TypeSystem.IsPrimitiveType).Select(c => c));
+			var lookup = new HashSet<Type>(referencedTypes.Where(TypeSystem.IsPrimitiveType));
 
 			if (lookup.Contains(typeof(Guid)) || lookup.Contains(typeof(Guid?)))
 			{
@@ -60,7 +60,9 @@ namespace Dryice.Generators.Objective.Binders
 				includeExpressions.Add(new IncludeStatementExpression("PKTimeSpan.h"));
 			}
 
-			var referencedTypeExpressions = referencedTypes.Where(c => c is DryType && ((DryType)c).ServiceClass != null).Select(c => (Expression)new ReferencedTypeExpression(c)).ToList();
+			includeExpressions.Add(new IncludeStatementExpression("PKDictionarySerializable.h"));
+
+			var referencedTypeExpressions = referencedTypes.Where(ObjectiveBinderHelpers.TypeIsServiceClass).Select(c => (Expression)new ReferencedTypeExpression(c)).ToList();
 
 			var comment = new CommentExpression("This file is AUTO GENERATED");
 
@@ -68,7 +70,7 @@ namespace Dryice.Generators.Objective.Binders
 			var headerGroup = includeExpressions.ToGroupedExpression();
 			var referencedGroup =referencedTypeExpressions.ToGroupedExpression();
 
-			var header = GroupedExpressionsExpression.FlatConcat(GroupedExpressionsExpressionStyle.Wide, commentGroup, headerGroup, referencedGroup);
+			var header = new[] { commentGroup, headerGroup, referencedGroup }.ToGroupedExpression(GroupedExpressionsExpressionStyle.Wide);
 
 			var propertyBody = this.Visit(expression.Body);
 

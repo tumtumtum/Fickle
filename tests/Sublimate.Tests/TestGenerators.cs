@@ -26,7 +26,7 @@ namespace Dryice.Tests
 		{
 			var options = new CodeGenerationOptions
 			{
-				GenerateClasses = false
+				GenerateClasses = true
 			};
 
 			var outputDir = FileSystemManager.Default.ResolveDirectory("./Test_Generate_Objective_Files");

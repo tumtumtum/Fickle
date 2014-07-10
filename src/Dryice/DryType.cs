@@ -10,15 +10,21 @@ namespace Dryice
 	public class DryType
 		: Type
 	{
+		private Type baseType;
 		private readonly bool byRef;
+		private readonly string name;
 		private readonly ServiceModel serviceModel;
 		public ServiceEnum ServiceEnum { get; set; }
-		private Type baseType;
-		private readonly string name;
 		public ServiceClass ServiceClass { get; private set; }
-
 		private static readonly Dictionary<string, DryType> dryTypeByName = new Dictionary<string, DryType>();
 
+		public override string Name { get { return name; } }
+		public override string Namespace { get { return null; } }
+		public override Type BaseType { get { return this.baseType; } }
+		public override Type UnderlyingSystemType { get { return this; } }
+		public override bool ContainsGenericParameters { get { return false; } }
+		public override Assembly Assembly { get { return typeof(DryType).Assembly; } }
+		
 		public static DryType Define(string name, bool byRef = false)
 		{
 			DryType retval;
@@ -104,6 +110,8 @@ namespace Dryice
 			baseType = type;
 		}
 
+		#region Unimplemented
+
 		public override object[] GetCustomAttributes(bool inherit)
 		{
 			throw new NotImplementedException();
@@ -149,120 +157,9 @@ namespace Dryice
 			throw new NotImplementedException();
 		}
 
-		public override Type GetElementType()
-		{
-			return this;
-		}
-
-		protected override bool HasElementTypeImpl()
-		{
-			return false;
-		}
-
-		public override bool ContainsGenericParameters
-		{
-			get
-			{
-				return false;
-			}
-		}
-
-		public override MethodBase DeclaringMethod
-		{
-			get
-			{
-				return base.DeclaringMethod;
-			}
-		}
-
-		public override Type DeclaringType
-		{
-			get
-			{
-				return base.DeclaringType;
-			}
-		}
-
-		public override bool IsSubclassOf(Type c)
-		{
-			return base.IsSubclassOf(c);
-		}
-
-		public override Type ReflectedType
-		{
-			get
-			{
-				return base.ReflectedType;
-			}
-		}
-
-		public override MemberTypes MemberType
-		{
-			get
-			{
-				return base.MemberType;
-			}
-		}
-
-		public override MemberInfo[] GetDefaultMembers()
-		{
-			return base.GetDefaultMembers();
-		}
-
-		public override MemberInfo[] GetMember(string name, MemberTypes type, BindingFlags bindingAttr)
-		{
-			return base.GetMember(name, type, bindingAttr);
-		}
-
-		public override MemberInfo[] GetMember(string name, BindingFlags bindingAttr)
-		{
-			return base.GetMember(name, bindingAttr);
-		}
-
-		public override bool IsGenericType
-		{
-			get
-			{
-				return base.IsGenericType;
-			}
-		}
-
-		public override bool IsGenericTypeDefinition
-		{
-			get
-			{
-				return base.IsGenericTypeDefinition;
-			}
-		}
-
-		public override System.Type GetGenericTypeDefinition()
-		{
-			return base.GetGenericTypeDefinition();
-		}
-
-		protected override PropertyInfo GetPropertyImpl(string name, BindingFlags bindingAttr, Binder binder, Type returnType, Type[] types, ParameterModifier[] modifiers)
-		{
-			if (returnType == null)
-			{
-				if (this.ServiceClass != null)
-				{
-					var returnTypeName = this.ServiceClass.Properties.FirstOrDefault(c => c.Name.Equals(name, StringComparison.InvariantCultureIgnoreCase)).TypeName;
-
-					returnType = this.serviceModel.GetTypeFromName(returnTypeName);
-				}
-			}
-
-			return new DryPropertyInfo(this, returnType, name);
-		}
-
 		public override PropertyInfo[] GetProperties(BindingFlags bindingAttr)
 		{
 			throw new NotImplementedException();
-		}
-
-		protected override MethodInfo GetMethodImpl(string name, BindingFlags bindingAttr, Binder binder, CallingConventions callConvention, Type[] types, ParameterModifier[] modifiers)
-		{
-			return typeof(object).GetMethod(name, bindingAttr, binder, callConvention, types, modifiers);
 		}
 
 		public override MethodInfo[] GetMethods(BindingFlags bindingAttr)
@@ -283,6 +180,74 @@ namespace Dryice
 		public override MemberInfo[] GetMembers(BindingFlags bindingAttr)
 		{
 			throw new NotImplementedException();
+		}
+
+		public override object InvokeMember(string name, BindingFlags invokeAttr, Binder binder, object target, object[] args, ParameterModifier[] modifiers, CultureInfo culture, string[] namedParameters)
+		{
+			throw new NotImplementedException();
+		}
+
+		public override Guid GUID
+		{
+			get
+			{
+				throw new NotImplementedException();
+			}
+		}
+
+		public override Module Module
+		{
+			get
+			{
+				throw new NotImplementedException();
+			}
+		}
+
+		public override string AssemblyQualifiedName
+		{
+			get { throw new NotImplementedException(); }
+		}
+		public override string FullName
+		{
+			get { throw new NotImplementedException(); }
+		}
+
+		public override object[] GetCustomAttributes(Type attributeType, bool inherit)
+		{
+			throw new NotImplementedException();
+		}
+
+		#endregion
+
+		public override Type GetElementType()
+		{
+			return this;
+		}
+
+		protected override bool HasElementTypeImpl()
+		{
+			return false;
+		}
+
+		protected override PropertyInfo GetPropertyImpl(string name, BindingFlags bindingAttr, Binder binder, Type returnType, Type[] types, ParameterModifier[] modifiers)
+		{
+			if (returnType == null)
+			{
+				if (this.ServiceClass != null)
+				{
+					var returnTypeName = this.ServiceClass.Properties.FirstOrDefault(c => c.Name.Equals(name, StringComparison.InvariantCultureIgnoreCase)).TypeName;
+
+					returnType = this.serviceModel.GetTypeFromName(returnTypeName);
+				}
+			}
+
+			return new DryPropertyInfo(this, returnType, name);
+		}
+
+		
+		protected override MethodInfo GetMethodImpl(string name, BindingFlags bindingAttr, Binder binder, CallingConventions callConvention, Type[] types, ParameterModifier[] modifiers)
+		{
+			return typeof(object).GetMethod(name, bindingAttr, binder, callConvention, types, modifiers);
 		}
 
 		protected override TypeAttributes GetAttributeFlagsImpl()
@@ -315,19 +280,6 @@ namespace Dryice
 			return false;
 		}
 
-		public override object InvokeMember(string name, BindingFlags invokeAttr, Binder binder, object target, object[] args, ParameterModifier[] modifiers, CultureInfo culture, string[] namedParameters)
-		{
-			throw new NotImplementedException();
-		}
-
-		public override Type UnderlyingSystemType
-		{
-			get
-			{
-				return this;
-			}
-		}
-
 		public virtual ConstructorInfo GetConstructor(string name)
 		{
 			return new DryConstructorInfo(this, name, new ParameterInfo[0]);
@@ -345,46 +297,6 @@ namespace Dryice
 			var parameters = types.Select(c => (ParameterInfo)new DryParameterInfo(c, "param" + (i++).ToString())).ToArray();
 
 			return new DryConstructorInfo(this, "ctor", parameters);
-		}
-
-		public override string Name
-		{
-			get
-			{
-				return name;
-			}
-		}
-
-		public override Guid GUID
-		{
-			get
-			{
-				throw new NotImplementedException();
-			}
-		}
-
-		public override Module Module
-		{
-			get
-			{
-				throw new NotImplementedException();
-			}
-		}
-
-		public override Assembly Assembly
-		{
-			get
-			{
-				return typeof(DryType).Assembly;
-			}
-		}
-
-		public override string Namespace
-		{
-			get
-			{
-				return null;
-			}
 		}
 
 		public override bool IsInstanceOfType(object o)
@@ -417,29 +329,6 @@ namespace Dryice
 			}
 
 			return this.Name.Equals(typedObject.name, StringComparison.InvariantCultureIgnoreCase);
-		}
-
-		public override string AssemblyQualifiedName
-		{
-			get { throw new NotImplementedException(); }
-		}
-
-		public override Type BaseType
-		{
-			get
-			{
-				return this.baseType;
-			}
-		}
-
-		public override string FullName
-		{
-			get { throw new NotImplementedException(); }
-		}
-
-		public override object[] GetCustomAttributes(Type attributeType, bool inherit)
-		{
-			throw new NotImplementedException();
 		}
 	}
 }

@@ -2,7 +2,6 @@
 // Copyright (c) 2013-2014 Thong Nguyen (tumtumtum@gmail.com)
 //
 
-
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -12,17 +11,17 @@ using Dryice.Expressions;
 using Dryice.Model;
 using Platform;
 
-namespace Dryice
+namespace Dryice.Generators
 {
 	public class ServiceExpressionBuilder
 	{
 		public ServiceModel ServiceModel { get; private set; }
-		public CodeGenerationOptions Options { get; private set; }
+		public CodeGenerationOptions CodeGenerationOptions { get; private set; }
 
-		public ServiceExpressionBuilder(ServiceModel serviceModel, CodeGenerationOptions options)
+		public ServiceExpressionBuilder(ServiceModel serviceModel, CodeGenerationOptions codeGenerationOptions)
 		{
 			this.ServiceModel = serviceModel;
-			this.Options = options;
+			this.CodeGenerationOptions = codeGenerationOptions;
 		}
 
 		public virtual Type GetTypeFromName(string name)
@@ -38,11 +37,11 @@ namespace Dryice
 		public virtual Expression Build(ServiceClass serviceClass)
 		{
 			Type baseType = null;
-			var propertyDefinitions = serviceClass.Properties.Select(Build).ToList();
+			var propertyDefinitions = serviceClass.Properties.Select(this.Build).ToList();
 
-			if (!string.IsNullOrEmpty(this.Options.BaseTypeTypeName))
+			if (!string.IsNullOrEmpty(this.CodeGenerationOptions.BaseTypeTypeName))
 			{
-				baseType = new DryType(this.Options.BaseTypeTypeName);
+				baseType = new DryType(this.CodeGenerationOptions.BaseTypeTypeName);
 			}
 
 			if (baseType == null && !string.IsNullOrEmpty(serviceClass.BaseTypeName))
@@ -65,7 +64,7 @@ namespace Dryice
 
 		public virtual Expression Build(ServiceMethod method)
 		{
-			var parameterExpressions = new ReadOnlyCollection<Expression>(method.Parameters.Select(Build).ToList());
+			var parameterExpressions = new ReadOnlyCollection<Expression>(method.Parameters.Select(this.Build).ToList());
 
 			var attributes = new Dictionary<string, string>();
 
@@ -78,9 +77,9 @@ namespace Dryice
 		{
 			Type baseType = null;
 			
-			if (!string.IsNullOrEmpty(this.Options.BaseTypeTypeName))
+			if (!string.IsNullOrEmpty(this.CodeGenerationOptions.BaseTypeTypeName))
 			{
-				baseType = new DryType(this.Options.BaseTypeTypeName);
+				baseType = new DryType(this.CodeGenerationOptions.BaseTypeTypeName);
 			}
 
 			if (baseType == null && !string.IsNullOrEmpty(serviceGateway.BaseTypeName))
@@ -93,7 +92,7 @@ namespace Dryice
 				baseType = typeof(object);
 			}
 
-			var methodDefinitions = serviceGateway.Methods.Select(Build).ToList();
+			var methodDefinitions = serviceGateway.Methods.Select(this.Build).ToList();
 
 			var attributes = new Dictionary<string, string>()
 			{

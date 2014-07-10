@@ -3,7 +3,7 @@
 namespace Dryice
 {
 	public class DryListType
-		: DryBasicType
+		: DryBaseType
 	{
 		public Type ListElementType { get; set; }
 

@@ -20,8 +20,7 @@ class User
 	Birthdate : datetime
 	Name : string
 	Password : string
-	Age : int32?
-	Sex : Sex
+	Age : int
 	TimeSinceLastLogin : timespan[]
 	Friends : User[]
 	FollowerUserIds : uuid[]
@@ -35,9 +34,15 @@ gateway UserService
 		@method get
 		@returns Response
 
+	GetUserNoResponse(id:uuid fromDate:datetime)
+		@format json
+		@path /api/UserService/User/{id}/{fromDate}
+		@method get
+		@returns User
+
 	SetPassword(id:uuid password:String)
 		@secure true
 		@format json
 		@path /api/UserService/SetPassword?id={id}&password={password}
 		@method get
-		@returns int
+		@returns int?

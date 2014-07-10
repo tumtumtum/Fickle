@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using System.IO.Ports;
 using Dryice.Generators.Objective.Binders;
 using Platform.VirtualFileSystem;
 using Dryice.Model;
@@ -25,7 +26,11 @@ namespace Dryice.Generators.Objective
 		}
 
 		public override void Generate(ServiceModel serviceModel)
-		{
+		{	
+			serviceModel = new ObjectiveServiceModelResponseStatusAmmender(serviceModel, this.Options).Ammend();
+
+			var codeGenerationContext = new CodeGenerationContext(serviceModel, this.Options);
+
 			var serviceExpressionBuilder = new ServiceExpressionBuilder(serviceModel, this.Options);
 
 			if (this.Options.GenerateClasses)
@@ -62,7 +67,7 @@ namespace Dryice.Generators.Objective
 
 					using (var writer = this.GetTextWriterForFile(serviceGateway.Name + ".h"))
 					{
-						var headerFileExpression = GatewayHeaderExpressionBinder.Bind(serviceModel, gatewayExpression);
+						var headerFileExpression = GatewayHeaderExpressionBinder.Bind(codeGenerationContext, gatewayExpression);
 
 						var codeGenerator = new ObjectiveCodeGenerator(writer);
 
@@ -71,7 +76,7 @@ namespace Dryice.Generators.Objective
 
 					using (var writer = this.GetTextWriterForFile(serviceGateway.Name + ".m"))
 					{
-						var classFileExpression = GatewaySourceExpressionBinder.Bind(serviceModel, gatewayExpression, this.Options);
+						var classFileExpression = GatewaySourceExpressionBinder.Bind(codeGenerationContext, gatewayExpression);
 
 						var codeGenerator = new ObjectiveCodeGenerator(writer);
 

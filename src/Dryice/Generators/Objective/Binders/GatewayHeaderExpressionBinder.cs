@@ -12,16 +12,16 @@ namespace Dryice.Generators.Objective.Binders
 	public class GatewayHeaderExpressionBinder
 		: ServiceExpressionVisitor
 	{
-		private readonly ServiceModel serviceModel;
+		public CodeGenerationContext CodeGenerationContext { get; private set; }
 
-		private GatewayHeaderExpressionBinder(ServiceModel serviceModel)
+		private GatewayHeaderExpressionBinder(CodeGenerationContext codeGenerationContext)
 		{
-			this.serviceModel = serviceModel;
+			this.CodeGenerationContext = codeGenerationContext;
 		}
 
-		public static Expression Bind(ServiceModel serviceModel, Expression expression)
+		public static Expression Bind(CodeGenerationContext codeGenerationContext, Expression expression)
 		{
-			var binder = new GatewayHeaderExpressionBinder(serviceModel);
+			var binder = new GatewayHeaderExpressionBinder(codeGenerationContext);
 
 			return binder.Visit(expression);
 		}
@@ -40,8 +40,12 @@ namespace Dryice.Generators.Objective.Binders
 				Expression.Return(Expression.Label(), Expression.Constant(null)).ToStatement()
 			};
 
-			var newParameters = new List<Expression>(method.Parameters);
-			newParameters.Add(DryExpression.Parameter(new DryDelegateType(typeof(void), new DryParameterInfo(method.ReturnType, "response")), "callback"));
+			var responseType = ObjectiveBinderHelpers.GetWrappedResponseType(this.CodeGenerationContext, method.ReturnType);
+
+			var newParameters = new List<Expression>(method.Parameters)
+			{
+				DryExpression.Parameter(new DryDelegateType(typeof(void), new DryParameterInfo(responseType, "response")), "callback")
+			};
 
 			return new MethodDefinitionExpression(methodName, newParameters.ToReadOnlyCollection(), typeof(void), Expression.Block(body), true, null);
 		}
@@ -49,8 +53,17 @@ namespace Dryice.Generators.Objective.Binders
 		protected override Expression VisitTypeDefinitionExpression(TypeDefinitionExpression expression)
 		{
 			var includeExpressions = new List<Expression>();
+			var optionsProperty = new PropertyDefinitionExpression("options", DryType.Define("NSDictionary"), true);
 
-			var referencedTypes = ReferencedTypesCollector.CollectReferencedTypes(expression);
+			var body = GroupedExpressionsExpression.FlatConcat
+			(
+				GroupedExpressionsExpressionStyle.Wide,
+				optionsProperty,
+				this.CreateInitWithOptionsMethod(),
+				this.Visit(expression.Body)
+			);
+
+			var referencedTypes = ReferencedTypesCollector.CollectReferencedTypes(body);
 			referencedTypes.Sort((x, y) => String.Compare(x.Name, y.Name, StringComparison.InvariantCultureIgnoreCase));
 
 			var lookup = new HashSet<Type>(referencedTypes.Where(TypeSystem.IsPrimitiveType));
@@ -66,29 +79,17 @@ namespace Dryice.Generators.Objective.Binders
 			}
 
 			includeExpressions.Add(new IncludeStatementExpression("PKDictionarySerializable.h"));
-
-			var referencedUserTypes = referencedTypes.Where
-			(
-				TypeSystem.IsNotPrimitiveType).Sorted((x, y) => 
-				x.Name.Length == y.Name.Length ? String.CompareOrdinal(x.Name, y.Name) : x.Name.Length - y.Name.Length
-			);
-
-			includeExpressions.AddRange(referencedUserTypes.Select(type => new IncludeStatementExpression(type.Name + ".h")));
 			includeExpressions.Add(new IncludeStatementExpression("PKWebServiceClient.h"));
 
-			var optionsProperty = new PropertyDefinitionExpression("options", DryType.Define("NSDictionary"), true);
+			var referencedUserTypes = referencedTypes
+				.Where(c => c is DryType && ((DryType)c).ServiceClass != null)
+				.Sorted((x, y) => x.Name.Length == y.Name.Length ? String.CompareOrdinal(x.Name, y.Name) : x.Name.Length - y.Name.Length);
 
-			var comment = new CommentExpression("This file is AUTO GENERATED");
-			var header = new Expression[] { comment, includeExpressions.ToGroupedExpression() }.ToGroupedExpression(GroupedExpressionsExpressionStyle.Wide);
+			var referencedExpressions =referencedUserTypes.Select(c => new ReferencedTypeExpression(c));
 			
-			var body = GroupedExpressionsExpression.FlatConcat
-			(
-				GroupedExpressionsExpressionStyle.Wide,
-				optionsProperty,
-				this.CreateInitWithOptionsMethod(),
-				this.Visit(expression.Body)
-			);
-
+			var comment = new CommentExpression("This file is AUTO GENERATED");
+			var header = new Expression[] { comment, includeExpressions.ToGroupedExpression(), referencedExpressions.ToGroupedExpression() }.ToGroupedExpression(GroupedExpressionsExpressionStyle.Wide);
+			
 			var interfaceTypes = new List<ServiceClass>();
 
 			if (expression.InterfaceTypes != null)

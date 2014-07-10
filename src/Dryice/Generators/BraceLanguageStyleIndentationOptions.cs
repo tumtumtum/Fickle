@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Dryice
+namespace Dryice.Generators
 {
 	[Flags]
 	public enum BraceLanguageStyleIndentationOptions

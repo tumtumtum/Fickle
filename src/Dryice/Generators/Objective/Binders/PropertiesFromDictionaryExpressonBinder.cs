@@ -58,7 +58,7 @@ namespace Dryice.Generators.Objective.Binders
 				typeToCompare = new DryType("NSDictionary");
 
 				processingStatements = null;
-				outputValue = DryExpression.New("NSDictionary", "initWithPropertyDictionary", DryExpression.Convert(value, "NSDictionary"));
+				outputValue = DryExpression.New(propertyType, "initWithPropertyDictionary", DryExpression.Convert(value, "NSDictionary"));
 			}
 			else if (propertyType is DryType && ((DryType)propertyType).ServiceEnum != null)
 			{
@@ -102,7 +102,7 @@ namespace Dryice.Generators.Objective.Binders
 
 				processingStatements = new Expression[]
 				{
-					Expression.Assign(arrayVar, DryExpression.New("NSMutableArray", "initWithCapacity", DryExpression.Property(value, typeof(int), "count"))).ToStatement(),
+					Expression.Assign(arrayVar, DryExpression.New("NSMutableArray", "initWithCapacity", DryExpression.Call(value, typeof(int), "count", null))).ToStatement(),
 					DryExpression.ForEach(arrayItem, value, Expression.Block(forEachBodyStatements.ToGroupedExpression()))
 				};
 
@@ -139,8 +139,9 @@ namespace Dryice.Generators.Objective.Binders
 			{
 				statements.AddRange(processingStatements);
 			}
-			statements.Add(Expression.Assign(propertyExpression, outputValue).ToStatement());
 			
+			statements.Add(Expression.Assign(propertyExpression,outputValue).ToStatement());
+
 			expressions.Add(Expression.IfThen(Expression.TypeIs(currentValueFromDictionary, typeToCompare), Expression.Block(variables, new GroupedExpressionsExpression(statements, GroupedExpressionsExpressionStyle.Wide))));
 
 			this.propertyGetterExpressions.Add(expressions.ToGroupedExpression(GroupedExpressionsExpressionStyle.Wide));

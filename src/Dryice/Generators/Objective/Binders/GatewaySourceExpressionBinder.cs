@@ -14,20 +14,18 @@ namespace Dryice.Generators.Objective.Binders
 		: ServiceExpressionVisitor
 	{
 		private Type currentType;
-		private readonly ServiceModel serviceModel;
 		private HashSet<Type> currentReferencedTypes;
-		private readonly CodeGenerationOptions codeGenerationOptions; 
 		private TypeDefinitionExpression currentTypeDefinitionExpression;
+		public CodeGenerationContext CodeGenerationContext { get; set; }
 		
-		private GatewaySourceExpressionBinder(ServiceModel serviceModel, CodeGenerationOptions codeGenerationOptions)
+		private GatewaySourceExpressionBinder(CodeGenerationContext codeGenerationContext)
 		{
-			this.codeGenerationOptions = codeGenerationOptions; 
-			this.serviceModel = serviceModel;
+			this.CodeGenerationContext = codeGenerationContext; 
 		}
 
-		public static Expression Bind(ServiceModel serviceModel, Expression expression, CodeGenerationOptions options)
+		public static Expression Bind(CodeGenerationContext codeCodeGenerationContext, Expression expression)
 		{
-			var binder = new GatewaySourceExpressionBinder(serviceModel, options);
+			var binder = new GatewaySourceExpressionBinder(codeCodeGenerationContext);
 
 			return binder.Visit(expression);
 		}
@@ -70,8 +68,9 @@ namespace Dryice.Generators.Objective.Binders
 			var self = Expression.Variable(currentType, "self");
 			var options = DryExpression.Variable("NSMutableDictionary", "localOptions");
 			var url = Expression.Variable(typeof(string), "url");
-			var client = Expression.Variable(DryType.Make(this.codeGenerationOptions.ServiceClientTypeName ?? "PKWebServiceClient"), "client");
-			
+			var client = Expression.Variable(DryType.Make(this.CodeGenerationContext.Options.ServiceClientTypeName ?? "PKWebServiceClient"), "client");
+			var responseType = ObjectiveBinderHelpers.GetWrappedResponseType(this.CodeGenerationContext, method.ReturnType);
+
 			var variables = new [] { url, client, options };
 
 			var hostname = currentTypeDefinitionExpression.Attributes["Hostname"];
@@ -105,12 +104,35 @@ namespace Dryice.Generators.Objective.Binders
 			args.AddRange(parameters.Select(c => Expression.Call(Expression.Parameter(c.Type, c.Name), typeof(object).GetMethod("ToString", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public))));
 
 			var newParameters = new List<Expression>(method.Parameters);
-			var callback = Expression.Parameter(new DryDelegateType(typeof(void), new DryParameterInfo(method.ReturnType, "response")), "callback");
+			var callback = Expression.Parameter(new DryDelegateType(typeof(void), new DryParameterInfo(responseType, "response")), "callback");
 
 			newParameters.Add(callback);
 
 			var blockArg = Expression.Parameter(DryType.Define("id"), "arg1");
-			var conversionBlock = DryExpression.SimpleLambda(DryExpression.Call(callback, "Invoke", Expression.Convert(blockArg, method.ReturnType)).ToStatement(), blockArg);
+
+			Expression body;
+			var conversion = Expression.Convert(blockArg, method.ReturnType);
+
+			if (TypeSystem.IsPrimitiveType(method.ReturnType))
+			{
+				var typeName = ObjectiveBinderHelpers.GetValueResponseWrapperTypeName(method.ReturnType);
+
+				var valueResponse = (DryExpression.Variable(typeName, "valueResponse"));
+
+				body = DryExpression.Block
+				(
+					new [] { valueResponse },
+					Expression.Assign(valueResponse, DryExpression.New(typeName, "init", null)),
+					Expression.Assign(DryExpression.Property(valueResponse, method.ReturnType, "value"), conversion),
+					DryExpression.Call(callback, "Invoke", valueResponse)
+				);
+			}
+			else
+			{
+				body = DryExpression.Call(callback, "Invoke", conversion).ToStatement();
+			}
+
+			var conversionBlock = DryExpression.SimpleLambda(body, blockArg);
 
 			var responseClassType = method.ReturnType;
 
@@ -372,13 +394,12 @@ namespace Dryice.Generators.Objective.Binders
 			var includeExpressions = new List<Expression>
 			{
 				new IncludeStatementExpression(expression.Name + ".h"),
-				new IncludeStatementExpression("PKWebServiceClient.h")
+				new IncludeStatementExpression("PKWebServiceClient.h"),
+				new IncludeStatementExpression(this.CodeGenerationContext.Options.ResponseStatusTypeName + ".h")
 			};
 
 			var comment = new CommentExpression("This file is AUTO GENERATED");
-			var headerGroup = includeExpressions.ToGroupedExpression();
-			var header = new Expression[] { comment, headerGroup }.ToGroupedExpression(GroupedExpressionsExpressionStyle.Wide);
-
+			
 			var body = GroupedExpressionsExpression.FlatConcat
 			(
 				GroupedExpressionsExpressionStyle.Wide, 
@@ -389,6 +410,17 @@ namespace Dryice.Generators.Objective.Binders
 				this.CreateParseResultMethod(),
 				this.Visit(expression.Body)
 			);
+
+			var referencedTypes = ReferencedTypesCollector.CollectReferencedTypes(body);
+			referencedTypes.Sort((x, y) => String.Compare(x.Name, y.Name, StringComparison.InvariantCultureIgnoreCase));
+
+			foreach (var referencedType in referencedTypes.Where(c => c is DryType && ((DryType)c).ServiceClass != null))
+			{
+				includeExpressions.Add(new IncludeStatementExpression(referencedType.Name + ".h"));
+			}
+
+			var headerGroup = includeExpressions.ToGroupedExpression();
+			var header = new Expression[] { comment, headerGroup }.ToGroupedExpression(GroupedExpressionsExpressionStyle.Wide);
 
 			currentType = null;
 

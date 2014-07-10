@@ -6,15 +6,17 @@ using System.Reflection;
 
 namespace Dryice
 {
-	public class DryBasicType
+	public class DryBaseType
 		: Type
 	{
 		private readonly string name;
 
-		public DryBasicType(string name)
+		public DryBaseType(string name)
 		{
 			this.name = name;
 		}
+
+		#region Unimplemented
 
 		public override object[] GetCustomAttributes(bool inherit)
 		{
@@ -61,16 +63,6 @@ namespace Dryice
 			throw new NotImplementedException();
 		}
 
-		public override Type GetElementType()
-		{
-			return null;
-		}
-
-		protected override bool HasElementTypeImpl()
-		{
-			return false;
-		}
-
 		protected override PropertyInfo GetPropertyImpl(string name, BindingFlags bindingAttr, Binder binder, Type returnType, Type[] types, ParameterModifier[] modifiers)
 		{
 			throw new NotImplementedException();
@@ -106,6 +98,63 @@ namespace Dryice
 			throw new NotImplementedException();
 		}
 
+		public override object InvokeMember(string name, BindingFlags invokeAttr, Binder binder, object target, object[] args, ParameterModifier[] modifiers, CultureInfo culture, string[] namedParameters)
+		{
+			throw new NotImplementedException();
+		}
+
+		public override Guid GUID
+		{
+			get
+			{
+				throw new NotImplementedException();
+			}
+		}
+
+		public override Module Module
+		{
+			get
+			{
+				throw new NotImplementedException();
+			}
+		}
+
+		public override string FullName
+		{
+			get
+			{
+				throw new NotImplementedException();
+			}
+		}
+
+		public override string Namespace
+		{
+			get
+			{
+				throw new NotImplementedException();
+			}
+		}
+
+		public override string AssemblyQualifiedName
+		{
+			get
+			{
+				throw new NotImplementedException();
+			}
+		}
+
+		#endregion
+
+		public override Type GetElementType()
+		{
+			return null;
+		}
+
+		protected override bool HasElementTypeImpl()
+		{
+			return false;
+		}
+
 		protected override TypeAttributes GetAttributeFlagsImpl()
 		{
 			return typeof(object).Attributes;
@@ -136,11 +185,6 @@ namespace Dryice
 			return false;
 		}
 
-		public override object InvokeMember(string name, BindingFlags invokeAttr, Binder binder, object target, object[] args, ParameterModifier[] modifiers, CultureInfo culture, string[] namedParameters)
-		{
-			throw new NotImplementedException();
-		}
-
 		public override Type UnderlyingSystemType
 		{
 			get
@@ -162,51 +206,11 @@ namespace Dryice
 			}
 		}
 
-		public override Guid GUID
-		{
-			get
-			{
-				throw new NotImplementedException();
-			}
-		}
-
-		public override Module Module
-		{
-			get
-			{
-				throw new NotImplementedException();
-			}
-		}
-
 		public override Assembly Assembly
 		{
 			get
 			{
 				return null;
-			}
-		}
-
-		public override string FullName
-		{
-			get
-			{
-				throw new NotImplementedException();
-			}
-		}
-
-		public override string Namespace
-		{
-			get
-			{
-				throw new NotImplementedException();
-			}
-		}
-
-		public override string AssemblyQualifiedName
-		{
-			get
-			{
-				throw new NotImplementedException();
 			}
 		}
 
@@ -235,7 +239,7 @@ namespace Dryice
 				return true;
 			}
 
-			var typedObject = o as DryBasicType;
+			var typedObject = o as DryBaseType;
 
 			if (typedObject == null)
 			{

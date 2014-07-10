@@ -41,8 +41,9 @@
     <Reference Include="nunit.framework">
       <HintPath>..\..\src\packages\NUnit.2.6.3\lib\nunit.framework.dll</HintPath>
     </Reference>
-    <Reference Include="Platform">
-      <HintPath>..\..\src\packages\Platform.NET.1.0.0.119\lib\35\Platform.dll</HintPath>
+    <Reference Include="Platform, Version=1.0.0.121, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\src\packages\Platform.NET.1.0.0.121\lib\35\Platform.dll</HintPath>
     </Reference>
     <Reference Include="Platform.VirtualFileSystem">
       <HintPath>..\..\src\packages\Platform.VirtualFileSystem.1.0.0.70\lib\35\Platform.VirtualFileSystem.dll</HintPath>
@@ -50,8 +51,9 @@
     <Reference Include="Platform.VirtualFileSystem.Providers.Zip">
       <HintPath>..\..\src\packages\Platform.VirtualFileSystem.Providers.Zip.1.0.0.70\lib\35\Platform.VirtualFileSystem.Providers.Zip.dll</HintPath>
     </Reference>
-    <Reference Include="Platform.Xml.Serialization">
-      <HintPath>..\..\src\packages\Platform.Xml.Serialization.1.0.0.119\lib\35\Platform.Xml.Serialization.dll</HintPath>
+    <Reference Include="Platform.Xml.Serialization, Version=1.0.0.121, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\src\packages\Platform.Xml.Serialization.1.0.0.121\lib\35\Platform.Xml.Serialization.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -64,7 +66,6 @@
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TestGenerators.cs" />
-    <Compile Include="TestModel.cs" />
     <Compile Include="TestWebsParser.cs" />
   </ItemGroup>
   <ItemGroup>

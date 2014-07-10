@@ -5,6 +5,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Dryice.Expressions;
@@ -39,7 +40,7 @@ namespace Dryice.Generators.Objective.Binders
 				retvalExpression
 			};
 
-			var newDictionaryExpression = Expression.Assign(retvalExpression, Expression.New(dictionaryType.GetConstructor("dictionaryWithCapacity", typeof(int)), Expression.Constant(16))).ToStatement();
+			var newDictionaryExpression = Expression.Assign(retvalExpression, Expression.New(dictionaryType.GetConstructor("initWithCapacity", typeof(int)), Expression.Constant(16))).ToStatement();
 			var makeDictionaryExpression = PropertiesToDictionaryExpressionBinder.Build(expression);
 			var returnDictionaryExpression = Expression.Return(Expression.Label(), Expression.Parameter(dictionaryType, "retval")).ToStatement();
 
@@ -69,7 +70,7 @@ namespace Dryice.Generators.Objective.Binders
 
 			IEnumerable<ParameterExpression> variables = new ParameterExpression[]
 			{
-				Expression.Parameter(typeof(object), "currentValueFromDictionary")
+				Expression.Parameter(DryType.Define("id"), "currentValueFromDictionary")
 			};
 
 			var methodBody = Expression.Block(variables, (Expression)methodBodyExpressions.ToGroupedExpression(GroupedExpressionsExpressionStyle.Wide));
@@ -108,8 +109,15 @@ namespace Dryice.Generators.Objective.Binders
 
 			var comment = new CommentExpression("This file is AUTO GENERATED");
 
-			var headerGroup = includeExpressions.ToGroupedExpression();
+			var referencedTypes = ReferencedTypesCollector.CollectReferencedTypes(expression);
+			referencedTypes.Sort((x, y) => String.Compare(x.Name, y.Name, StringComparison.InvariantCultureIgnoreCase));
 
+			foreach (var referencedType in referencedTypes.Where(ObjectiveBinderHelpers.TypeIsServiceClass))
+			{
+				includeExpressions.Add(new IncludeStatementExpression(referencedType.Name + ".h"));
+			}
+
+			var headerGroup = includeExpressions.ToGroupedExpression();
 			var header = new Expression[] { comment, headerGroup }.ToGroupedExpression(GroupedExpressionsExpressionStyle.Wide);
 
 			var methods = new List<Expression>

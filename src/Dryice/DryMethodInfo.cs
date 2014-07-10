@@ -10,8 +10,14 @@ namespace Dryice
 		private readonly string name;
 		private readonly Type returnType;
 		private readonly Type declaringType;
+		private readonly ParameterInfo[] parameters; 
 		private readonly MethodAttributes methodAttributes;
-		private readonly ParameterInfo[] parameters;
+
+		public override string Name { get { return name; } }
+		public override Type ReturnType { get { return returnType; } }
+		public override Type DeclaringType { get { return declaringType; } }
+		public override Type ReflectedType { get { return declaringType; } }
+		public override MethodAttributes Attributes { get { return methodAttributes; } }
 
 		public DryMethodInfo(Type declaringType, Type returnType, string name, ParameterInfo[] parameters, bool isStatic = false)
 		{
@@ -27,13 +33,17 @@ namespace Dryice
 			}
 		}
 
-		public override Type ReturnType
+		public override ParameterInfo[] GetParameters()
 		{
-			get
-			{
-				return returnType;
-			}
+			return (ParameterInfo[])this.parameters.Clone();
 		}
+
+		public override string ToString()
+		{
+			return "DryMethodInfo: " + this.Name;
+		}
+
+		#region Unimplemented
 
 		public override object[] GetCustomAttributes(bool inherit)
 		{
@@ -43,11 +53,6 @@ namespace Dryice
 		public override bool IsDefined(Type attributeType, bool inherit)
 		{
 			throw new NotImplementedException();
-		}
-
-		public override ParameterInfo[] GetParameters()
-		{
-			return this.parameters;
 		}
 
 		public override MethodImplAttributes GetMethodImplementationFlags()
@@ -73,30 +78,6 @@ namespace Dryice
 			}
 		}
 
-		public override string Name
-		{
-			get
-			{
-				return name;
-			}
-		}
-
-		public override Type DeclaringType
-		{
-			get
-			{
-				return declaringType;
-			}
-		}
-
-		public override Type ReflectedType
-		{
-			get
-			{
-				return declaringType;
-			}
-		}
-
 		public override RuntimeMethodHandle MethodHandle
 		{
 			get
@@ -105,22 +86,11 @@ namespace Dryice
 			}
 		}
 
-		public override MethodAttributes Attributes
-		{
-			get
-			{
-				return methodAttributes;
-			}
-		}
-
 		public override object[] GetCustomAttributes(Type attributeType, bool inherit)
 		{
 			throw new NotImplementedException();
 		}
 
-		public override string ToString()
-		{
-			return this.Name;
-		}
+		#endregion
 	}
 }

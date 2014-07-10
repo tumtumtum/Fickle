@@ -20,8 +20,11 @@ namespace Dryice.Generators.Objective
 	[PrimitiveTypeName(typeof(float), "Float32", false)]
 	[PrimitiveTypeName(typeof(double), "Float64", false)]
 	[PrimitiveTypeName(typeof(Guid), "PKUUID", true)]
+	[PrimitiveTypeName(typeof(Guid?), "PKUUID", true)]
 	[PrimitiveTypeName(typeof(DateTime), "NSDate", true)]
+	[PrimitiveTypeName(typeof(DateTime?), "NSDate", true)]
 	[PrimitiveTypeName(typeof(TimeSpan), "PKTimeSpan", true)]
+	[PrimitiveTypeName(typeof(TimeSpan?), "PKTimeSpan", true)]
 	[PrimitiveTypeName(typeof(string), "NSString", true)]
 	public class ObjectiveCodeGenerator
 		: BraceLanguageStyleSourceCodeGenerator
@@ -63,7 +66,7 @@ namespace Dryice.Generators.Objective
 
 				return;
 			}
-			else if (underlyingType != null && underlyingType.IsPrimitive)
+			else if (underlyingType != null && underlyingType.IsNumericType())
 			{
 				if (nameOnly)
 				{
@@ -98,11 +101,11 @@ namespace Dryice.Generators.Objective
 			{
 				if (nameOnly)
 				{
-					this.Write("NSArray");
+					this.Write("NSMutableArray");
 				}
 				else
 				{
-					this.Write("NSArray*");
+					this.Write("NSMutableArray*");
 				}
 
 				return;
@@ -158,7 +161,13 @@ namespace Dryice.Generators.Objective
 			{
 				if (node.Type == typeof(Guid) || node.Type == typeof(Guid?))
 				{
-					this.Write("[PKUUID uuidFromString:");
+					this.Write("[");
+					this.Write(typeof(Guid), true);
+					this.Write(" uuidFromString:");
+					if (node.Operand.Type != typeof(string))
+					{
+						this.Write("(NSString*)");
+					}
 					this.Visit(node.Operand);
 					this.Write("]");
 				}
@@ -238,42 +247,30 @@ namespace Dryice.Generators.Objective
 				{
 					this.Write("((NSString*)currentValueFromDictionary).length >= 16 ? [NSDate dateWithTimeIntervalSince1970:[[(NSString*)");
 					this.Visit(node.Operand);
-					this.Write("substringWithRange:NSMakeRange(6, 10)] intValue]] : nil");
+					this.Write(" substringWithRange:NSMakeRange(6, 10)] intValue]] : nil");
 				}
 				else if (node.Type == typeof(TimeSpan?) || node.Type == typeof(TimeSpan))
 				{
-					this.Write("[TimeSpan fromIsoString:(NSString*)");
+					this.Write("[");
+					this.Write(typeof(TimeSpan), true);
+					this.Write(" fromIsoString:");
+
+					if (node.Operand.Type != typeof(string))
+					{
+						this.Write("(NSString*)");
+					}
+
 					this.Visit(node.Operand);
 					this.Write("]");
 				}
 				else if (node.Type == typeof(object))
 				{
-					if (node.Operand.Type.IsPrimitive)
+					if (node.Operand.Type.IsNumericType(false)
+						|| node.Operand.Type.GetUnwrappedNullableType() == typeof(bool))
 					{
-						if (node.Operand.Type == typeof(long))
-						{
-							this.Write("[NSNumber numberWithLongLong:");
-							this.Visit(node.Operand);
-							this.Write("]");
-						}
-						else if (node.Operand.Type == typeof(float))
-						{
-							this.Write("[NSNumber numberWithFloat:");
-							this.Visit(node.Operand);
-							this.Write("]");
-						}
-						else if (node.Operand.Type == typeof(double))
-						{
-							this.Write("[NSNumber numberWithDouble:");
-							this.Visit(node.Operand);
-							this.Write("]");
-						}
-						else
-						{
-							this.Write("[NSNumber numberWithInt:");
-							this.Visit(node.Operand);
-							this.Write("]");
-						}
+						this.Write("@(");
+						this.Visit(node.Operand);
+						this.Write(")");
 					}
 					else
 					{
@@ -372,9 +369,7 @@ namespace Dryice.Generators.Objective
 
 		protected override Expression VisitBlock(BlockExpression node)
 		{
-			this.WriteLine();
-
-			using (this.AcquireIndentationContext(BraceLanguageStyleIndentationOptions.IncludeBracesNewLineAfter))
+			using (this.AcquireIndentationContext(BraceLanguageStyleIndentationOptions.IncludeBraces))
 			{
 				if (node.Variables != null)
 				{
@@ -607,13 +602,33 @@ namespace Dryice.Generators.Objective
 				this.Visit(node.Test);
 				this.Write(") ");
 
+				if (node.IfTrue.NodeType == ExpressionType.Block)
+				{
+					this.WriteLine();
+				}
+
 				this.Visit(node.IfTrue);
 
 				if (node.IfFalse.NodeType != ExpressionType.Default)
 				{
+					this.WriteLine();
 					this.Write("else ");
-					
+
+					if (node.IfFalse.NodeType == ExpressionType.Block)
+					{
+						this.WriteLine();
+					}
+
 					this.Visit(node.IfFalse);
+
+					if (node.IfFalse.NodeType != ExpressionType.Conditional)
+					{
+						this.WriteLine();
+					}
+				}
+				else
+				{
+					this.WriteLine();
 				}
 			}
 			else
@@ -788,7 +803,9 @@ namespace Dryice.Generators.Objective
 			}
 			else
 			{
+				this.WriteLine();
 				this.Visit(method.Body);
+				this.WriteLine();
 			}
 
 			return method;
@@ -808,7 +825,14 @@ namespace Dryice.Generators.Objective
 
 			this.WriteLine(")");
 
-			using (this.AcquireIndentationContext(BraceLanguageStyleIndentationOptions.IncludeBraces))
+			if (node.Body.NodeType != ExpressionType.Block)
+			{
+				using (this.AcquireIndentationContext(BraceLanguageStyleIndentationOptions.IncludeBraces))
+				{
+					this.Visit(node.Body);
+				}
+			}
+			else
 			{
 				this.Visit(node.Body);
 			}

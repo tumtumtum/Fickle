@@ -3,14 +3,11 @@
 //
 
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Linq.Expressions;
-using System.Text;
 using Dryice.Expressions;
 
-namespace Dryice
+namespace Dryice.Generators
 {
 	public class BraceLanguageStyleSourceCodeGenerator
 		: SourceCodeGenerator
@@ -38,14 +35,14 @@ namespace Dryice
 			{
 				this.generator.CurrentIndent--;
 
-				if ((options & BraceLanguageStyleIndentationOptions.IncludeBraces) != 0)
+				if ((this.options & BraceLanguageStyleIndentationOptions.IncludeBraces) != 0)
 				{
-					generator.Write("}");
+					this.generator.Write("}");
 				}
 
-				if ((options & BraceLanguageStyleIndentationOptions.NewLineAfter) != 0)
+				if ((this.options & BraceLanguageStyleIndentationOptions.NewLineAfter) != 0)
 				{
-					generator.WriteLine();
+					this.generator.WriteLine();
 				}
 			}
 		}

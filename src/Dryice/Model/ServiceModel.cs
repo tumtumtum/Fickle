@@ -1,24 +1,24 @@
 ﻿using System;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Collections.Generic;
-using System.Reflection;
-using Platform.Xml.Serialization;
 
 namespace Dryice.Model
 {
-	[XmlElement]
 	public class ServiceModel
 	{
-		[XmlElement]
-		public List<ServiceClass> Classes { get; set; }
-
-		[XmlElement]
-		public List<ServiceEnum> Enums { get; set; }
-
-		[XmlElement]
-		public List<ServiceGateway> Gateways { get; set; }
+		public ReadOnlyCollection<ServiceEnum> Enums { get; private set; }
+		public ReadOnlyCollection<ServiceClass> Classes { get; private set; }
+		public ReadOnlyCollection<ServiceGateway> Gateways { get; private set; }
 
 		private Dictionary<string, Type> serviceTypesByName;
+
+		public ServiceModel(IEnumerable<ServiceEnum> enums, IEnumerable<ServiceClass> classes, IEnumerable<ServiceGateway> gateways)
+		{
+			this.Enums = enums.ToReadOnlyCollection();
+			this.Classes = classes.ToReadOnlyCollection();
+			this.Gateways = gateways.ToReadOnlyCollection();
+		}
 
 		public virtual Type GetTypeFromName(string name)
 		{
@@ -61,35 +61,64 @@ namespace Dryice.Model
 			return value;
 		}
 
+		public virtual ServiceClass GetServiceClass(string name)
+		{
+			return this.GetServiceClass(this.GetServiceType(name));
+		}
+
+		public virtual ServiceClass GetServiceClass(Type type)
+		{
+			var dryType = type as DryType;
+
+			if (dryType == null)
+			{
+				return null;
+			}
+
+			return dryType.ServiceClass;
+		}
+
+		private void CreateIndex()
+		{
+			this.serviceTypesByName = this.Classes.Select(c => (object)c).Concat(this.Enums ?? Enumerable.Empty<object>()).Select(c => c is ServiceEnum ? (Type)new DryType((ServiceEnum)c, this) : (Type)new DryType((ServiceClass)c, this)).Distinct().ToDictionary(c => c.Name, c => c, StringComparer.InvariantCultureIgnoreCase);
+
+			foreach (DryType type in this.serviceTypesByName.Values)
+			{
+				if (type.ServiceClass != null && !string.IsNullOrEmpty(type.ServiceClass.BaseTypeName))
+				{
+					Type baseType;
+
+					if (this.serviceTypesByName.TryGetValue(type.ServiceClass.BaseTypeName, out baseType))
+					{
+						type.SetBaseType(baseType);
+					}
+					else
+					{
+						type.SetBaseType(new DryType(type.ServiceClass.BaseTypeName));
+					}
+				}
+				else
+				{
+					type.SetBaseType(typeof(object));
+				}
+			}
+		}
+
 		public virtual Type GetServiceType(string name)
 		{
 			if (this.serviceTypesByName == null)
 			{
-				this.serviceTypesByName = this.Classes.Select(c => (object)c).Concat(this.Enums ?? Enumerable.Empty<object>()).Select(c => c is ServiceEnum ? (Type)new DryType((ServiceEnum)c, this) : (Type)new DryType((ServiceClass)c, this)).ToDictionary(c => c.Name, c => c, StringComparer.InvariantCultureIgnoreCase);
-
-				foreach (DryType type in this.serviceTypesByName.Values)
-				{
-					if (type.ServiceClass != null && !string.IsNullOrEmpty(type.ServiceClass.BaseTypeName))
-					{
-						Type baseType;
-
-						if (this.serviceTypesByName.TryGetValue(type.ServiceClass.BaseTypeName, out baseType))
-						{
-							type.SetBaseType(baseType);
-						}
-						else
-						{
-							type.SetBaseType(new DryType(type.ServiceClass.BaseTypeName));
-						}
-					}
-					else
-					{
-						type.SetBaseType(typeof(object));
-					}
-				}
+				this.CreateIndex();
 			}
 
 			Type retval;
+
+			if (this.serviceTypesByName.TryGetValue(name, out retval))
+			{
+				return retval;
+			}
+
+			this.CreateIndex();
 
 			if (this.serviceTypesByName.TryGetValue(name, out retval))
 			{

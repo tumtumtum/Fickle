@@ -8,7 +8,7 @@ using System.IO;
 using System.Linq.Expressions;
 using Dryice.Expressions;
 
-namespace Dryice
+namespace Dryice.Generators
 {
 	public abstract class SourceCodeGenerator
 		: ServiceExpressionVisitor
@@ -26,7 +26,7 @@ namespace Dryice
 
 			public virtual void Dispose()
 			{
-				generator.CurrentIndent--;
+				this.generator.CurrentIndent--;
 			}
 		}
 
@@ -55,15 +55,15 @@ namespace Dryice
 
 		protected virtual void AddPrimitiveTypeDecl(Type type, string name, bool isReferenceType)
 		{
-			typeNameByPrimitiveType[type] = name;
-			isReferenceTypeByType[type] = isReferenceType;
+			this.typeNameByPrimitiveType[type] = name;
+			this.isReferenceTypeByType[type] = isReferenceType;
 		}
 
 		protected virtual bool IsReferenceType(Type type)
 		{
 			bool value;
 
-			if (isReferenceTypeByType.TryGetValue(type, out value))
+			if (this.isReferenceTypeByType.TryGetValue(type, out value))
 			{
 				return value;
 			}
@@ -78,10 +78,10 @@ namespace Dryice
 
 		protected virtual void Write(Type type, bool nameOnly)
 		{
-			if (typeNameByPrimitiveType == null)
+			if (this.typeNameByPrimitiveType == null)
 			{
-				typeNameByPrimitiveType = new Dictionary<Type, string>();
-				isReferenceTypeByType = new Dictionary<Type, bool>();
+				this.typeNameByPrimitiveType = new Dictionary<Type, string>();
+				this.isReferenceTypeByType = new Dictionary<Type, bool>();
 
 				foreach (PrimitiveTypeNameAttribute attribute in this.GetType().GetCustomAttributes(typeof(PrimitiveTypeNameAttribute), true))
 				{
@@ -91,7 +91,7 @@ namespace Dryice
 
 			string name;
 
-			if (typeNameByPrimitiveType.TryGetValue(type, out name))
+			if (this.typeNameByPrimitiveType.TryGetValue(type, out name))
 			{
 				this.Write(name);
 
@@ -111,10 +111,10 @@ namespace Dryice
 
 		private void CheckAndWriteIndent()
 		{
-			if (indentRequired)
+			if (this.indentRequired)
 			{
 				this.WriteIndent();
-				indentRequired = false;
+				this.indentRequired = false;
 			}
 		}
 
@@ -150,7 +150,7 @@ namespace Dryice
 
 			this.writer.WriteLine();
 
-			indentRequired = true;
+			this.indentRequired = true;
 		}
 
 		public virtual void WriteLine(char c)
@@ -160,7 +160,7 @@ namespace Dryice
 			this.writer.Write(c);
 			this.WriteLine();
 
-			indentRequired = true;
+			this.indentRequired = true;
 		}
 
 		public virtual void WriteLine(string value)
@@ -169,7 +169,7 @@ namespace Dryice
 
 			this.writer.WriteLine(value);
 
-			indentRequired = true;
+			this.indentRequired = true;
 		}
 
 		public virtual void WriteLine(string format, params object[] args)
@@ -178,7 +178,7 @@ namespace Dryice
 
 			this.writer.WriteLine(format, args);
 
-			indentRequired = true;
+			this.indentRequired = true;
 		}
 
 		protected override Expression VisitGroupedExpressionsExpression(GroupedExpressionsExpression groupedExpression)

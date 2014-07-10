@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using Dryice.Generators;
 using Platform.Reflection;
 using Platform.VirtualFileSystem;
 using Dryice.Model;

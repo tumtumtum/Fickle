@@ -7,6 +7,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using Dryice.Expressions;
+using Platform;
 
 namespace Dryice.Generators
 {
@@ -17,6 +19,26 @@ namespace Dryice.Generators
 
 		private ReferencedTypesCollector()
 		{	
+		}
+
+		private void AddType(Type type)
+		{
+			referencedTypes.Add(type);
+
+			var delegateType = type as DryDelegateType;
+
+			if (delegateType != null)
+			{
+				this.AddType(delegateType.ReturnType);
+				delegateType.Parameters.Select(c => c.ParameterType).ForEach(this.AddType);
+			}
+
+			var listType = type as DryListType;
+
+			if (listType != null)
+			{
+				this.AddType(listType.ListElementType);
+			}
 		}
 
 		public static List<Type> CollectReferencedTypes(Expression expression)
@@ -30,21 +52,21 @@ namespace Dryice.Generators
 
 		protected override Expression VisitPropertyDefinitionExpression(Expressions.PropertyDefinitionExpression property)
 		{
-			this.referencedTypes.Add(property.PropertyType);
+			AddType(property.PropertyType);
 
 			return base.VisitPropertyDefinitionExpression(property);
 		}
 
 		protected override Expression VisitParameter(ParameterExpression node)
 		{
-			this.referencedTypes.Add(node.Type);
+			AddType(node.Type);
 
 			return node;
 		}
 
 		protected override Expression VisitMethodDefinitionExpression(Expressions.MethodDefinitionExpression method)
 		{
-			this.referencedTypes.Add(method.ReturnType);
+			AddType(method.ReturnType);
 
 			return base.VisitMethodDefinitionExpression(method);
 		}

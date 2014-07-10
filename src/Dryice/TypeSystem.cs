@@ -46,12 +46,17 @@ namespace Dryice
 			AddPrimitiveType(typeof(double), "double");
 			AddPrimitiveType(typeof(double?), "double?");
 			AddPrimitiveType(typeof(string), "string");
-			AddPrimitiveType(typeof(DateTime), "datetime");
-			AddPrimitiveType(typeof(DateTime?), "datetime?");
-			AddPrimitiveType(typeof(TimeSpan), "timespan");
-			AddPrimitiveType(typeof(TimeSpan?), "timespan?");
-			AddPrimitiveType(typeof(Guid), "uuid");
-			AddPrimitiveType(typeof(Guid?), "uuid?");
+			AddPrimitiveType(typeof(DateTime), "DateTime");
+			AddPrimitiveType(typeof(DateTime?), "DateTime?");
+			AddPrimitiveType(typeof(TimeSpan), "TimeSpan");
+			AddPrimitiveType(typeof(TimeSpan?), "TimeSpan?");
+			AddPrimitiveType(typeof(Guid), "UUID");
+			AddPrimitiveType(typeof(Guid?), "UUID?");
+		}
+
+		public static string GetPrimitiveName(Type type)
+		{
+			return primitiveTypeByName.FirstOrDefault(c => c.Value == type).Key;
 		}
 
 		public static bool IsPrimitiveType(Type type)
