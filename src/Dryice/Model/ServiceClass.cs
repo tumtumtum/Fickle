@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace Dryice.Model
 {
@@ -24,19 +25,14 @@ namespace Dryice.Model
 
 		public override bool Equals(object obj)
 		{
-			if (obj == this)
+			if (Object.ReferenceEquals(obj, this))
 			{
 				return true;
 			}
 
-			var typedObj = obj as ServiceClass;
+			var value = obj as ServiceClass;
 
-			if (typedObj == null)
-			{
-				return false;
-			}
-
-			return this.Name.Equals(typedObj.Name);
+			return value != null && this.Name.Equals(value.Name);
 		}
 
 		#endregion

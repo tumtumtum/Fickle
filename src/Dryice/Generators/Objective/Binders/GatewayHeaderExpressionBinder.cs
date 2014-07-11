@@ -85,10 +85,10 @@ namespace Dryice.Generators.Objective.Binders
 				.Where(c => c is DryType && ((DryType)c).ServiceClass != null)
 				.Sorted((x, y) => x.Name.Length == y.Name.Length ? String.CompareOrdinal(x.Name, y.Name) : x.Name.Length - y.Name.Length);
 
-			var referencedExpressions =referencedUserTypes.Select(c => new ReferencedTypeExpression(c));
+			includeExpressions.AddRange(referencedUserTypes.Select(c => new IncludeStatementExpression(c.Name + ".h")));
 			
 			var comment = new CommentExpression("This file is AUTO GENERATED");
-			var header = new Expression[] { comment, includeExpressions.ToGroupedExpression(), referencedExpressions.ToGroupedExpression() }.ToGroupedExpression(GroupedExpressionsExpressionStyle.Wide);
+			var header = new Expression[] { comment, includeExpressions.ToGroupedExpression() }.ToGroupedExpression(GroupedExpressionsExpressionStyle.Wide);
 			
 			var interfaceTypes = new List<Type>();
 

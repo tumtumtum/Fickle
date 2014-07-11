@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using Platform.Xml.Serialization;
 
 namespace Dryice.Model
 {

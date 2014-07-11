@@ -16,7 +16,7 @@ namespace Dryice.Expressions
 
 		public static BlockExpression Block(params Expression[] expressions)
 		{
-			return DryExpression.Block(null, expressions);
+			return Block(null, expressions);
 		}
 
 		public static SimpleLambdaExpression SimpleLambda(Expression body, params Expression[] parameters)
@@ -26,7 +26,7 @@ namespace Dryice.Expressions
 
 		public static BlockExpression Block(IEnumerable<ParameterExpression> variables, params Expression[] expressions)
 		{
-			var newExpressions = expressions.ToGroupedExpression(GroupedExpressionsExpressionStyle.Wide);
+			var newExpressions = expressions.Where(c => c != null).ToGroupedExpression(GroupedExpressionsExpressionStyle.Wide);
 
 			if (variables == null)
 			{
@@ -75,6 +75,12 @@ namespace Dryice.Expressions
 		public static MethodCallExpression StaticCall(string type, string methodName, object arguments)
 		{
 			return Call(null, new DryType(type), typeof(void), methodName, arguments, true);
+		}
+
+
+		public static MethodCallExpression StaticCall(string type, Type returnType, string methodName, object arguments)
+		{
+			return Call(null, DryType.Define(type), returnType, methodName, arguments, true);
 		}
 
 		public static MethodCallExpression StaticCall(Type type, Type returnType, string methodName, object arguments)
@@ -243,17 +249,17 @@ namespace Dryice.Expressions
 
 		public static GroupedExpressionsExpression Grouped(params Expression[] expressions)
 		{
-			return new GroupedExpressionsExpression(expressions);
+			return new GroupedExpressionsExpression(expressions.Where(c => c != null));
 		}
 
-		public static GroupedExpressionsExpression GroupedWode(params Expression[] expressions)
+		public static GroupedExpressionsExpression GroupedWide(params Expression[] expressions)
 		{
-			return new GroupedExpressionsExpression(expressions, GroupedExpressionsExpressionStyle.Wide);
+			return new GroupedExpressionsExpression(expressions.Where(c => c != null), GroupedExpressionsExpressionStyle.Wide);
 		}
 
 		public static GroupedExpressionsExpression Grouped(IEnumerable<Expression> expressions)
 		{
-			return new GroupedExpressionsExpression(expressions);
+			return new GroupedExpressionsExpression(expressions.Where(c => c != null));
 		}
 
 		public static IncludeStatementExpression IncludeStatement(string fileName)

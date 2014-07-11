@@ -26,13 +26,13 @@ class User
 	FollowerUserIds : uuid[]
 
 gateway UserService
-	@hostname dryice.kingstreetapps.com
+	@hostname www.kingstreetapps.com
 
 	GetUser(id:uuid fromDate:datetime)
 		@format json
 		@path /api/UserService/User/{id}/{fromDate}
 		@method get
-		@returns Response
+		@returns string
 
 	GetUserNoResponse(id:uuid fromDate:datetime)
 		@format json
@@ -46,3 +46,13 @@ gateway UserService
 		@path /api/UserService/SetPassword?id={id}&password={password}
 		@method get
 		@returns int?
+
+gateway TestService
+	@hostname localhost
+
+	AddOne(value:int)
+		@format json
+		@path /api/Test/AddOne?x={value}
+		@method get
+		@returns int?
+

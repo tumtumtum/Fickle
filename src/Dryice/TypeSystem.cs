@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace Dryice
 {
@@ -33,19 +32,21 @@ namespace Dryice
 
 		static TypeSystem()
 		{
-			AddPrimitiveType(typeof(byte), "byte");
-			AddPrimitiveType(typeof(byte?), "byte?");
-			AddPrimitiveType(typeof(char), "char");
-			AddPrimitiveType(typeof(char?), "char?");
-			AddPrimitiveType(typeof(short), "short");
-			AddPrimitiveType(typeof(short?), "short?");
-			AddPrimitiveType(typeof(int), "int");
-			AddPrimitiveType(typeof(int?), "int?"); 
-			AddPrimitiveType(typeof(long), "long");
-			AddPrimitiveType(typeof(long?), "long?");
-			AddPrimitiveType(typeof(double), "double");
-			AddPrimitiveType(typeof(double?), "double?");
-			AddPrimitiveType(typeof(string), "string");
+			AddPrimitiveType(typeof(bool), "bool");
+			AddPrimitiveType(typeof(bool?), "bool?");
+			AddPrimitiveType(typeof(byte), "Byte");
+			AddPrimitiveType(typeof(byte?), "Byte?");
+			AddPrimitiveType(typeof(char), "Char");
+			AddPrimitiveType(typeof(char?), "Char?");
+			AddPrimitiveType(typeof(short), "Short");
+			AddPrimitiveType(typeof(short?), "Short?");
+			AddPrimitiveType(typeof(int), "Int");
+			AddPrimitiveType(typeof(int?), "Int?"); 
+			AddPrimitiveType(typeof(long), "Long");
+			AddPrimitiveType(typeof(long?), "Long?");
+			AddPrimitiveType(typeof(double), "Double");
+			AddPrimitiveType(typeof(double?), "Double?");
+			AddPrimitiveType(typeof(string), "String");
 			AddPrimitiveType(typeof(DateTime), "DateTime");
 			AddPrimitiveType(typeof(DateTime?), "DateTime?");
 			AddPrimitiveType(typeof(TimeSpan), "TimeSpan");

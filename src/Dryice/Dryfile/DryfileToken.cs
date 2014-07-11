@@ -1,6 +1,6 @@
 ﻿namespace Dryice.Dryfile
 {
-	public enum DryfilelToken
+	public enum DryfileToken
 	{
 		None,
 		Keyword,

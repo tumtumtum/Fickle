@@ -14,7 +14,7 @@ namespace Dryice.Dryfile
 		private readonly Stack<int> indentStack; 
 		public TextReader Reader { get; set; }
 		public DryfileKeyword CurrentKeyword { get; private set; }
-		public DryfilelToken CurrentToken { get; private set; }
+		public DryfileToken CurrentToken { get; private set; }
 		public string CurrentString { get; private set; }
 		public long CurrentInteger { get; private set; }
 		public double CurrentFloat { get; private set; }
@@ -24,7 +24,7 @@ namespace Dryice.Dryfile
 		{
 			this.currentChar = -1;
 			this.Reader = reader;
-			this.CurrentToken = DryfilelToken.None;
+			this.CurrentToken = DryfileToken.None;
 			this.stringBuilder = new StringBuilder();
 
 			foreach (var name in Enum.GetNames(typeof(DryfileKeyword)))
@@ -74,21 +74,21 @@ namespace Dryice.Dryfile
 			{
 				switch (this.CurrentToken)
 				{
-					case DryfilelToken.Colon:
+					case DryfileToken.Colon:
 						return ':';
-					case DryfilelToken.EndOfFile:
+					case DryfileToken.EndOfFile:
 						return null;
-					case DryfilelToken.Float:
+					case DryfileToken.Float:
 						return this.CurrentFloat;
-					case DryfilelToken.Integer:
+					case DryfileToken.Integer:
 						return this.CurrentInteger;
-					case DryfilelToken.Keyword:
+					case DryfileToken.Keyword:
 						return this.CurrentKeyword;
-					case DryfilelToken.None:
+					case DryfileToken.None:
 						return null;
-					case DryfilelToken.StringLiteral:
+					case DryfileToken.StringLiteral:
 						return this.CurrentString;
-					case DryfilelToken.Identifier:
+					case DryfileToken.Identifier:
 						return this.CurrentString;
 					default:
 						return null;
@@ -116,6 +116,9 @@ namespace Dryice.Dryfile
 				{
 					this.ConsumeChar();
 
+					this.encounteredSymbolOnCurrentLine = false;
+					this.workingIndent = 0;
+
 					break;
 				}
 				else if (this.currentChar == '\r')
@@ -139,13 +142,13 @@ namespace Dryice.Dryfile
 				this.ConsumeChar();
 			}
 
-			this.CurrentToken = DryfilelToken.StringLiteral;
+			this.CurrentToken = DryfileToken.StringLiteral;
 			this.CurrentString = builder.ToString();
 		}
 
-		public DryfilelToken ReadNextToken()
+		public DryfileToken ReadNextToken()
 		{
-			if (this.CurrentToken == DryfilelToken.Dedent && this.workingIndent > 0)
+			if (this.CurrentToken == DryfileToken.Dedent)
 			{
 				if (this.workingIndent != this.CurrentIndent)
 				{
@@ -158,7 +161,6 @@ namespace Dryice.Dryfile
 					this.workingIndent = 0;
 				}
 			}
-			
 
 			while (char.IsWhiteSpace((char)this.currentChar))
 			{
@@ -185,13 +187,13 @@ namespace Dryice.Dryfile
 					this.indentStack.Pop();
 					this.workingIndent = this.indentStack.Peek();
 
-					this.CurrentToken = DryfilelToken.Dedent;
+					this.CurrentToken = DryfileToken.Dedent;
 
 					return this.CurrentToken;
 				}
 				else
 				{
-					this.CurrentToken = DryfilelToken.EndOfFile;
+					this.CurrentToken = DryfileToken.EndOfFile;
 
 					return this.CurrentToken;
 				}
@@ -207,7 +209,7 @@ namespace Dryice.Dryfile
 					{
 						this.indentStack.Push(this.workingIndent);
 
-						this.CurrentToken = DryfilelToken.Indent;
+						this.CurrentToken = DryfileToken.Indent;
 
 						return this.CurrentToken;
 					}
@@ -215,7 +217,7 @@ namespace Dryice.Dryfile
 					{
 						this.indentStack.Pop();
 
-						this.CurrentToken = DryfilelToken.Dedent;
+						this.CurrentToken = DryfileToken.Dedent;
 
 						return this.CurrentToken;
 					}
@@ -225,32 +227,32 @@ namespace Dryice.Dryfile
 			if (this.currentChar == ':')
 			{
 				this.ConsumeChar();
-				this.CurrentToken = DryfilelToken.Colon;
+				this.CurrentToken = DryfileToken.Colon;
 			}
 			else if (this.currentChar == '?')
 			{
 				this.ConsumeChar();
-				this.CurrentToken = DryfilelToken.QuestionMark;
+				this.CurrentToken = DryfileToken.QuestionMark;
 			}
 			else if (this.currentChar == '[')
 			{
 				this.ConsumeChar(); 
-				this.CurrentToken = DryfilelToken.OpenBracket;
+				this.CurrentToken = DryfileToken.OpenBracket;
 			}
 			else if (this.currentChar == ']')
 			{
 				this.ConsumeChar(); 
-				this.CurrentToken = DryfilelToken.CloseBracket;
+				this.CurrentToken = DryfileToken.CloseBracket;
 			}
 			else if (this.currentChar == '(')
 			{
 				this.ConsumeChar();
-				this.CurrentToken = DryfilelToken.OpenParen;
+				this.CurrentToken = DryfileToken.OpenParen;
 			}
 			else if (this.currentChar == ')')
 			{
 				this.ConsumeChar();
-				this.CurrentToken = DryfilelToken.CloseParen;
+				this.CurrentToken = DryfileToken.CloseParen;
 			}
 			else if (char.IsDigit((char)this.currentChar))
 			{
@@ -271,12 +273,12 @@ namespace Dryice.Dryfile
 
 				if (foundPoint)
 				{
-					this.CurrentToken = DryfilelToken.Float;
+					this.CurrentToken = DryfileToken.Float;
 					this.CurrentFloat = Double.Parse(this.stringBuilder.ToString());
 				}
 				else
 				{
-					this.CurrentToken = DryfilelToken.Integer;
+					this.CurrentToken = DryfileToken.Integer;
 					this.CurrentInteger = Int64.Parse(this.stringBuilder.ToString());
 				}
 			}
@@ -298,22 +300,28 @@ namespace Dryice.Dryfile
 					this.ConsumeChar();
 				}
 
+				if (this.currentChar == '?')
+				{
+					this.stringBuilder.Append("?");
+					this.ConsumeChar();
+				}
+
 				this.CurrentString = this.stringBuilder.ToString();
 
 				DryfileKeyword keyword;
 
 				if (isAnnotation)
 				{
-					this.CurrentToken = DryfilelToken.Annotation;
+					this.CurrentToken = DryfileToken.Annotation;
 				}
 				else if (this.keywordsByName.TryGetValue(this.CurrentString, out keyword))
 				{
 					this.CurrentKeyword = keyword;
-					this.CurrentToken = DryfilelToken.Keyword;
+					this.CurrentToken = DryfileToken.Keyword;
 				}
 				else
 				{
-					this.CurrentToken = DryfilelToken.Identifier;
+					this.CurrentToken = DryfileToken.Identifier;
 				}
 			}
 			else

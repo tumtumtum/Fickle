@@ -12,7 +12,7 @@ namespace Dryice.Generators.Objective
 	{
 		public static string GetValueResponseWrapperTypeName(Type type)
 		{
-			if (type.IsNumericType(true))
+			if (type.IsNumericType(true) || type.GetUnwrappedNullableType() == typeof(bool))
 			{
 				return "NumberValueResponse";
 			}

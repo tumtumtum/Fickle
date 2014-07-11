@@ -12,13 +12,22 @@ using Dryice.Expressions;
 
 namespace Dryice.Generators.Objective
 {
+	[PrimitiveTypeName(typeof(bool), "BOOL", false)]
+	[PrimitiveTypeName(typeof(bool?), "NSNumber", true)]
 	[PrimitiveTypeName(typeof(byte), "UInt8", false)]
+	[PrimitiveTypeName(typeof(byte?), "NSNumber", true)]
 	[PrimitiveTypeName(typeof(char), "unichar", false)]
+	[PrimitiveTypeName(typeof(char?), "NSNumber", true)]
 	[PrimitiveTypeName(typeof(short), "Int16", false)]
+	[PrimitiveTypeName(typeof(short?), "NSNumber", true)]
 	[PrimitiveTypeName(typeof(int), "int", false)]
+	[PrimitiveTypeName(typeof(int?), "NSNumber", true)]
 	[PrimitiveTypeName(typeof(long), "Int64", false)]
+	[PrimitiveTypeName(typeof(long?), "NSNumber", true)]
 	[PrimitiveTypeName(typeof(float), "Float32", false)]
+	[PrimitiveTypeName(typeof(float?), "NSNumber", true)]
 	[PrimitiveTypeName(typeof(double), "Float64", false)]
+	[PrimitiveTypeName(typeof(double?), "NSNumber", true)]
 	[PrimitiveTypeName(typeof(Guid), "PKUUID", true)]
 	[PrimitiveTypeName(typeof(Guid?), "PKUUID", true)]
 	[PrimitiveTypeName(typeof(DateTime), "NSDate", true)]
@@ -171,77 +180,102 @@ namespace Dryice.Generators.Objective
 					this.Visit(node.Operand);
 					this.Write("]");
 				}
-				else if (node.Type == typeof(byte))
+				else if ((node.Type.GetUnwrappedNullableType().IsNumericType() || node.Type.GetUnwrappedNullableType() == typeof(bool))
+				         && (node.Operand.Type == typeof(object) 
+					|| Nullable.GetUnderlyingType(node.Operand.Type) != null 
+					|| node.Operand.Type.Name == "NSNumber"
+					|| node.Operand.Type.Name == "id"))
 				{
-					this.Write("(uint8_t)((NSNumber*)");
-					this.Visit(node.Operand);
-					this.Write(").intValue");
-				}
-				else if (node.Type == typeof(byte?))
-				{
-					this.Write("((NSNumber*)");
-					this.Visit(node.Operand);
-					this.Write(")");
-				}
-				else if (node.Type == typeof(short))
-				{
-					this.Write("((NSNumber*)");
-					this.Visit(node.Operand);
-					this.Write(").shortValue");
-				}
-				else if (node.Type == typeof(short?))
-				{
-					this.Write("((NSNumber*)");
-					this.Visit(node.Operand);
-					this.Write(")");
-				}
-				else if (node.Type == typeof(int))
-				{
-					this.Write("((NSNumber*)");
-					this.Visit(node.Operand);
-					this.Write(").intValue");
-				}
-				else if (node.Type == typeof(int?))
-				{
-					this.Write("((NSNumber*)");
-					this.Visit(node.Operand);
-					this.Write(")");
-				}
-				else if (node.Type == typeof(long))
-				{
-					this.Write("(int64_t)((NSNumber*)");
-					this.Visit(node.Operand);
-					this.Write(").longLongValue");
-				}
-				else if (node.Type == typeof(long?))
-				{
-					this.Write("((NSNumber*)");
-					this.Visit(node.Operand);
-					this.Write(")");
-				}
-				else if (node.Type == typeof(float))
-				{
-					this.Write("(float)((NSNumber*)");
-					this.Visit(node.Operand);
-					this.Write(").floatValue");
-				}
-				else if (node.Type == typeof(float?))
-				{
-					this.Write("((NSNumber*)");
-					this.Visit(node.Operand);
-					this.Write(")");
-				}
-				else if (node.Type == typeof(double))
-				{
-					this.Write("(double)((NSNumber*)");
-					this.Visit(node.Operand);
-					this.Write(").doubleValue");
-				}
-				else if (node.Type == typeof(double?))
-				{
-					this.Write("((NSNumber*)");
-					this.Visit(node.Operand);
-					this.Write(")");
+					var type = node.Type;
+
+					if (type == typeof(bool))
+					{
+						this.Write("(BOOL)((NSNumber*)");
+						this.Visit(node.Operand);
+						this.Write(").boolValue");
+					}
+					else if (type == typeof(bool?))
+					{
+						this.Write("((NSNumber*)");
+						this.Visit(node.Operand);
+						this.Write(")");
+					} 
+					else if (type == typeof(byte))
+					{
+						this.Write("(uint8_t)((NSNumber*)");
+						this.Visit(node.Operand);
+						this.Write(").intValue");
+					}
+					else if (type == typeof(byte?))
+					{
+						this.Write("((NSNumber*)");
+						this.Visit(node.Operand);
+						this.Write(")");
+					}
+					else if (type == typeof(short))
+					{
+						this.Write("((NSNumber*)");
+						this.Visit(node.Operand);
+						this.Write(").shortValue");
+					}
+					else if (type == typeof(short?))
+					{
+						this.Write("((NSNumber*)");
+						this.Visit(node.Operand);
+						this.Write(")");
+					}
+					else if (type == typeof(int))
+					{
+						this.Write("((NSNumber*)");
+						this.Visit(node.Operand);
+						this.Write(").intValue");
+					}
+					else if (type == typeof(int?))
+					{
+						this.Write("((NSNumber*)");
+						this.Visit(node.Operand);
+						this.Write(")");
+					}
+					else if (type == typeof(long))
+					{
+						this.Write("(int64_t)((NSNumber*)");
+						this.Visit(node.Operand);
+						this.Write(").longLongValue");
+					}
+					else if (type == typeof(long?))
+					{
+						this.Write("((NSNumber*)");
+						this.Visit(node.Operand);
+						this.Write(")");
+					}
+					else if (type == typeof(float))
+					{
+						this.Write("(float)((NSNumber*)");
+						this.Visit(node.Operand);
+						this.Write(").floatValue");
+					}
+					else if (type == typeof(float?))
+					{
+						this.Write("((NSNumber*)");
+						this.Visit(node.Operand);
+						this.Write(")");
+					}
+					else if (type == typeof(double))
+					{
+						this.Write("(double)((NSNumber*)");
+						this.Visit(node.Operand);
+						this.Write(").doubleValue");
+					}
+					else if (type == typeof(double?))
+					{
+						this.Write("((NSNumber*)");
+						this.Visit(node.Operand);
+						this.Write(")");
+					}
+					else
+					{
+						throw new Exception("Unexpected type: " + node.Type.Name);
+					}
 				}
 				else if (node.Type == typeof(DateTime?) || node.Type == typeof(DateTime))
 				{
@@ -266,7 +300,7 @@ namespace Dryice.Generators.Objective
 				else if (node.Type == typeof(object))
 				{
 					if (node.Operand.Type.IsNumericType(false)
-						|| node.Operand.Type.GetUnwrappedNullableType() == typeof(bool))
+					    || node.Operand.Type.GetUnwrappedNullableType() == typeof(bool))
 					{
 						this.Write("@(");
 						this.Visit(node.Operand);
@@ -490,6 +524,32 @@ namespace Dryice.Generators.Objective
 				this.Write("[dateFormatter stringFromDate:");
 				this.Visit(expression);
 				this.Write("]");
+			}
+			else if (expression.Type == typeof(bool))
+			{
+				this.Write("(");
+				this.Visit(expression);
+				this.Write(") ? @\"true\" : @\"false\"");
+			}
+			else if (expression.Type == typeof(bool?))
+			{
+				this.Write("[");
+				this.Visit(expression);
+				this.Write(" boolValue] ? @\"true\" : @\"false\"");
+			}
+			else if (expression.Type.GetUnwrappedNullableType().IsNumericType())
+			{
+				this.Write("[");
+				this.Visit(expression);
+				this.Write(" ");
+				this.Write(" stringValue");
+				this.Write("]");
+			}
+			else
+			{
+				this.Write("[");
+				this.Visit(expression);
+				this.Write(" description]");
 			}
 		}
 

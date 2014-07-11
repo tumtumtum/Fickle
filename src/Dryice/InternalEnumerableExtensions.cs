@@ -3,7 +3,7 @@ using System.Collections.ObjectModel;
 
 namespace Dryice
 {
-	internal static class EnumerableExtensions
+	internal static class InternalEnumerableExtensions
 	{
 		public static ReadOnlyCollection<T> ToReadOnlyCollection<T>(this IEnumerable<T> items)
 		{

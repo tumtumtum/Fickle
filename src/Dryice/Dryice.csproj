@@ -67,12 +67,13 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Expressions\GroupedExpressionsExpressionStyle.cs" />
     <Compile Include="Generators\BraceLanguageStyleIndentationOptions.cs" />
     <Compile Include="Generators\BraceLanguageStyleSourceCodeGenerator.cs" />
     <Compile Include="CodeGenerationContext.cs" />
     <Compile Include="CodeGenerationOptions.cs" />
     <Compile Include="DryDelegateType.cs" />
-    <Compile Include="EnumerableExtensions.cs" />
+    <Compile Include="InternalEnumerableExtensions.cs" />
     <Compile Include="Expressions\CodeLiteralExpression.cs" />
     <Compile Include="Expressions\SimpleLambdaExpression.cs" />
     <Compile Include="Generators\Objective\DateFormatterInserter.cs" />
@@ -107,7 +108,6 @@
     <Compile Include="Model\ServiceEnumValue.cs" />
     <Compile Include="Generators\ReferencedTypesCollector.cs" />
     <Compile Include="Generators\ServiceExpressionBuilder.cs" />
-    <Compile Include="Model\ServiceInbuiltTypeType.cs" />
     <Compile Include="Model\ServiceMethod.cs" />
     <Compile Include="Model\ServiceGateway.cs" />
     <Compile Include="Model\ServiceModel.cs" />
@@ -127,13 +127,13 @@
     <Compile Include="DryParameterInfo.cs" />
     <Compile Include="DryPropertyInfo.cs" />
     <Compile Include="DryType.cs" />
-    <Compile Include="TypeExtensions.cs" />
+    <Compile Include="InternalTypeExtensions.cs" />
     <Compile Include="TypeSystem.cs" />
     <Compile Include="Dryfile\UnexpectedDryfileTokenException.cs" />
     <Compile Include="Dryfile\DryfileKeyword.cs" />
     <Compile Include="Dryfile\DryfileParser.cs" />
     <Compile Include="Dryfile\DryfileParserException.cs" />
-    <Compile Include="Dryfile\DryfilelToken.cs" />
+    <Compile Include="Dryfile\DryfileToken.cs" />
     <Compile Include="Dryfile\DryfileTokenizer.cs" />
   </ItemGroup>
   <ItemGroup>

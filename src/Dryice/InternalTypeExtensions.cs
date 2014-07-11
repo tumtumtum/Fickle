@@ -2,7 +2,7 @@
 
 namespace Dryice
 {
-	public static class TypeExtensions
+	internal static class InternalTypeExtensions
 	{
 		public static Type GetDryiceListElementType(this Type type)
 		{

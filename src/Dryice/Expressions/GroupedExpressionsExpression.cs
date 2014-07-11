@@ -5,12 +5,6 @@ using System.Linq.Expressions;
 
 namespace Dryice.Expressions
 {
-	public enum GroupedExpressionsExpressionStyle
-	{
-		Narrow,
-		Wide
-	}
-
 	public class GroupedExpressionsExpression
 		: Expression
 	{
@@ -31,7 +25,6 @@ namespace Dryice.Expressions
 		}
 
 		public virtual GroupedExpressionsExpressionStyle Style { get; set; }
-
 		public ReadOnlyCollection<Expression> Expressions { get; private set; }
 
 		public static GroupedExpressionsExpression FlatConcat(GroupedExpressionsExpressionStyle style, params Expression[] expressions)
