@@ -34,22 +34,18 @@ namespace Dryice.Generators
 			return new PropertyDefinitionExpression(property.Name, this.GetTypeFromName(property.TypeName));
 		}
 
+		public virtual Expression Build(ServiceEnum serviceEnum)
+		{
+			var expressions = serviceEnum.Values.Select(value => Expression.Assign(Expression.Variable(typeof(int), value.Name), Expression.Constant(value.Value))).Cast<Expression>().ToList();
+
+			return new TypeDefinitionExpression(this.GetTypeFromName(serviceEnum.Name), null, expressions.ToGroupedExpression(), true, null, null);
+		}
+
 		public virtual Expression Build(ServiceClass serviceClass)
 		{
-			Type baseType = null;
 			var propertyDefinitions = serviceClass.Properties.Select(this.Build).ToList();
 
-			if (baseType == null && !string.IsNullOrEmpty(serviceClass.BaseTypeName))
-			{
-				baseType = this.ServiceModel.GetTypeFromName(serviceClass.BaseTypeName);
-			}
-
-			if (baseType == null)
-			{
-				baseType = typeof(object);
-			}
-
-			return new TypeDefinitionExpression(this.GetTypeFromName(serviceClass.Name), baseType, null, propertyDefinitions.ToGroupedExpression(), false);
+			return new TypeDefinitionExpression(this.GetTypeFromName(serviceClass.Name), null, propertyDefinitions.ToStatementisedGroupedExpression(), false);
 		}
 
 		public virtual Expression Build(ServiceParameter parameter)
@@ -70,18 +66,6 @@ namespace Dryice.Generators
 
 		public virtual Expression Build(ServiceGateway serviceGateway)
 		{
-			Type baseType = null;
-			
-			if (baseType == null && !string.IsNullOrEmpty(serviceGateway.BaseTypeName))
-			{
-				baseType = new DryType(serviceGateway.BaseTypeName);
-			}
-
-			if (baseType == null)
-			{
-				baseType = typeof(object);
-			}
-
 			var methodDefinitions = serviceGateway.Methods.Select(this.Build).ToList();
 
 			var attributes = new Dictionary<string, string>()
@@ -89,7 +73,7 @@ namespace Dryice.Generators
 				{ "Hostname", serviceGateway.Hostname }
 			};
 
-			return new TypeDefinitionExpression(new DryType(serviceGateway.Name), baseType, null, methodDefinitions.ToGroupedExpression(GroupedExpressionsExpressionStyle.Wide), false, new ReadOnlyDictionary<string, string>(attributes), null);
+			return new TypeDefinitionExpression(new DryType(serviceGateway.Name), null, methodDefinitions.ToStatementisedGroupedExpression(GroupedExpressionsExpressionStyle.Wide), false, new ReadOnlyDictionary<string, string>(attributes), null);
 		}
 	}
 }

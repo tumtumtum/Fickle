@@ -300,12 +300,6 @@ namespace Dryice.Dryfile
 					this.ConsumeChar();
 				}
 
-				if (this.currentChar == '?')
-				{
-					this.stringBuilder.Append("?");
-					this.ConsumeChar();
-				}
-
 				this.CurrentString = this.stringBuilder.ToString();
 
 				DryfileKeyword keyword;

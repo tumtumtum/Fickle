@@ -254,6 +254,20 @@ namespace Dryice.Dryfile
 
 			this.ReadNextToken();
 
+			if (this.tokenizer.CurrentToken == DryfileToken.QuestionMark)
+			{
+				retval.TypeName += "?";
+
+				this.ReadNextToken();
+			}
+			else if (this.tokenizer.CurrentToken == DryfileToken.OpenBracket)
+			{
+				this.ReadNextToken();
+				this.Expect(DryfileToken.CloseBracket);
+				this.ReadNextToken();
+				retval.TypeName += "[]";
+			}
+
 			return retval;
 		}
 

@@ -3,7 +3,7 @@
 namespace Dryice.Expressions
 {
 	public class StatementExpression
-		: Expression
+		: BaseExpression
 	{
 		public Expression Expression { get; private set; }
 

@@ -6,7 +6,7 @@ using System.Linq.Expressions;
 namespace Dryice.Expressions
 {
 	public class MethodDefinitionExpression
-		: Expression
+		: BaseExpression
 	{
 		public override ExpressionType NodeType
 		{

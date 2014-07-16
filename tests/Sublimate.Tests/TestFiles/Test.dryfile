@@ -1,58 +1,12 @@
 ﻿enum Sex
-	Male : 1
-	Female : 2
-
-class ResponseStatus
-	Message : string
-	ErrorCode : string
-	StackTrace : string
-
-class Response
-	ResponseStatus : ResponseStatus
-
-class UserResponse
-	@extends Response
-	User : User
-
-class User
-	Id : uuid
-	CashBalance : double
-	Birthdate : datetime
-	Name : string
-	Password : string
-	Age : int
-	TimeSinceLastLogin : timespan[]
-	Friends : User[]
-	FollowerUserIds : uuid[]
-
-gateway UserService
-	@hostname www.kingstreetapps.com
-
-	GetUser(id:uuid fromDate:datetime)
-		@format json
-		@path /api/UserService/User/{id}/{fromDate}
-		@method get
-		@returns string
-
-	GetUserNoResponse(id:uuid fromDate:datetime)
-		@format json
-		@path /api/UserService/User/{id}/{fromDate}
-		@method get
-		@returns User
-
-	SetPassword(id:uuid password:String)
-		@secure true
-		@format json
-		@path /api/UserService/SetPassword?id={id}&password={password}
-		@method get
-		@returns int?
+	male : 1
+	female : 2
 
 gateway TestService
-	@hostname localhost
+	@hostname ws.geronimo.thisisglobal.com
 
-	AddOne(value:int)
+	AddOne(value:int? sex:Sex?)
 		@format json
 		@path /api/Test/AddOne?x={value}
 		@method get
 		@returns int?
-

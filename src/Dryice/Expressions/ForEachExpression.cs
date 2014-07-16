@@ -3,7 +3,7 @@
 namespace Dryice.Expressions
 {
 	public class ForEachExpression
-		: Expression
+		: BaseExpression
 	{
 		public Expression Body { get; private set; }
 		public Expression Target { get; private set; }

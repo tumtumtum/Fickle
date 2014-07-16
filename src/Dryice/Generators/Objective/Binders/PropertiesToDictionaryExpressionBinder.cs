@@ -27,7 +27,7 @@ namespace Dryice.Generators.Objective.Binders
 
 			builder.Visit(expression);
 
-			return builder.propertySetterExpressions.ToGroupedExpression(GroupedExpressionsExpressionStyle.Wide);
+			return builder.propertySetterExpressions.ToStatementisedGroupedExpression(GroupedExpressionsExpressionStyle.Wide);
 		}
 
 		protected override Expression VisitPropertyDefinitionExpression(PropertyDefinitionExpression property)
@@ -55,7 +55,7 @@ namespace Dryice.Generators.Objective.Binders
 				setExpression
 			};
 
-			this.propertySetterExpressions.Add(expressions.ToGroupedExpression(GroupedExpressionsExpressionStyle.Wide));
+			this.propertySetterExpressions.Add(expressions.ToStatementisedGroupedExpression(GroupedExpressionsExpressionStyle.Wide));
 
 			return property;
 		}

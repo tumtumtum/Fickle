@@ -5,7 +5,7 @@ using Dryice.Generators;
 namespace Dryice.Expressions
 {
 	public class CodeLiteralExpression
-		: Expression
+		: BaseExpression
 	{
 		public Action<SourceCodeGenerator> Action { get; private set; }
 

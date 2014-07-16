@@ -1,8 +1,10 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Text.RegularExpressions;
+using Dryice.Expressions;
 using Dryice.Generators;
 using Platform.Reflection;
 using Platform.VirtualFileSystem;
@@ -142,7 +144,46 @@ namespace Dryice
 			return null;
 		}
 
-		public abstract void Generate(ServiceModel serviceModel);
+		protected virtual ServiceModel ProcessPregeneration(ServiceModel serviceModel)
+		{
+			return serviceModel;
+		}
+
+		public virtual void Generate(ServiceModel serviceModel)
+		{
+			serviceModel = this.ProcessPregeneration(serviceModel);
+
+			var codeGenerationContext = new CodeGenerationContext(serviceModel, this.Options);
+			var serviceExpressionBuilder = new ServiceExpressionBuilder(serviceModel, this.Options);
+
+			if (this.Options.GenerateClasses)
+			{
+				foreach (var expression in serviceModel.Classes.Select(serviceExpressionBuilder.Build).Cast<TypeDefinitionExpression>())
+				{
+					this.GenerateClass(codeGenerationContext, expression);
+				}
+			}
+
+			if (this.Options.GenerateGateways)
+			{
+				foreach (var expression in serviceModel.Gateways.Select(serviceExpressionBuilder.Build).Cast<TypeDefinitionExpression>())
+				{
+					this.GenerateGateway(codeGenerationContext, expression);
+				}
+			}
+
+			if (this.Options.GenerateEnums)
+			{
+				foreach (var expression in serviceModel.Enums.Select(serviceExpressionBuilder.Build).Cast<TypeDefinitionExpression>())
+				{
+					this.GenerateEnum(codeGenerationContext, expression);
+				}
+			}
+		}
+
+		protected abstract void GenerateEnum(CodeGenerationContext codeGenerationContext, TypeDefinitionExpression expression);
+		protected abstract void GenerateClass(CodeGenerationContext codeGenerationContext, TypeDefinitionExpression expression);
+		protected abstract void GenerateGateway(CodeGenerationContext codeGenerationContext, TypeDefinitionExpression expression);
 
 		public virtual void Dispose()
 		{

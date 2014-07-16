@@ -52,15 +52,17 @@ namespace Dryice.Generators.Objective.Binders
 			
 		protected override Expression VisitTypeDefinitionExpression(TypeDefinitionExpression expression)
 		{
-			var includeExpressions = new List<Expression>();
+			var includeExpressions = new List<IncludeExpression>();
 			var optionsProperty = new PropertyDefinitionExpression("options", DryType.Define("NSDictionary"), true);
 
-			var body = GroupedExpressionsExpression.FlatConcat
+			var body = DryExpression.GroupedWide
 			(
-				GroupedExpressionsExpressionStyle.Wide,
 				optionsProperty,
+				DryExpression.Grouped
+				(
 				this.CreateInitWithOptionsMethod(),
 				this.Visit(expression.Body)
+				)
 			);
 
 			var referencedTypes = ReferencedTypesCollector.CollectReferencedTypes(body);
@@ -70,25 +72,25 @@ namespace Dryice.Generators.Objective.Binders
 
 			if (lookup.Contains(typeof(Guid)) || lookup.Contains(typeof(Guid?)))
 			{
-				includeExpressions.Add(new IncludeStatementExpression("PKUUID.h"));
+				includeExpressions.Add(DryExpression.Include("PKUUID.h"));
 			}
 
 			if (lookup.Contains(typeof(TimeSpan)) || lookup.Contains(typeof(TimeSpan?)))
 			{
-				includeExpressions.Add(new IncludeStatementExpression("PKTimeSpan.h"));
+				includeExpressions.Add(DryExpression.Include("PKTimeSpan.h"));
 			}
 
-			includeExpressions.Add(new IncludeStatementExpression("PKDictionarySerializable.h"));
-			includeExpressions.Add(new IncludeStatementExpression("PKWebServiceClient.h"));
+			includeExpressions.Add(DryExpression.Include("PKDictionarySerializable.h"));
+			includeExpressions.Add(DryExpression.Include("PKWebServiceClient.h"));
 
 			var referencedUserTypes = referencedTypes
-				.Where(c => c is DryType && ((DryType)c).ServiceClass != null)
+				.Where(c => (c is DryType && ((DryType)c).ServiceClass != null) || c is DryType && ((DryType)c).ServiceEnum != null)
 				.Sorted((x, y) => x.Name.Length == y.Name.Length ? String.CompareOrdinal(x.Name, y.Name) : x.Name.Length - y.Name.Length);
 
-			includeExpressions.AddRange(referencedUserTypes.Select(c => new IncludeStatementExpression(c.Name + ".h")));
+			includeExpressions.AddRange(referencedUserTypes.Select(c => DryExpression.Include(c.Name + ".h")));
 			
 			var comment = new CommentExpression("This file is AUTO GENERATED");
-			var header = new Expression[] { comment, includeExpressions.ToGroupedExpression() }.ToGroupedExpression(GroupedExpressionsExpressionStyle.Wide);
+			var header = new Expression[] { comment, includeExpressions.Sorted(IncludeExpression.Compare).ToStatementisedGroupedExpression() }.ToStatementisedGroupedExpression(GroupedExpressionsExpressionStyle.Wide);
 			
 			var interfaceTypes = new List<Type>();
 
@@ -99,7 +101,7 @@ namespace Dryice.Generators.Objective.Binders
 
 			interfaceTypes.Add(DryType.Define("PKWebServiceClientDelegate"));
 
-			return new TypeDefinitionExpression(expression.Type, expression.BaseType, header, body, true, expression.Attributes, interfaceTypes.ToReadOnlyCollection());
+			return new TypeDefinitionExpression(expression.Type, header, body, true, expression.Attributes, interfaceTypes.ToReadOnlyCollection());
 		}
 	}
 }

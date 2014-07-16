@@ -14,6 +14,11 @@ namespace Dryice.Expressions
 			return new CommentExpression(comment);
 		}
 
+		public static IncludeExpression Include(string fileName)
+		{
+			return new IncludeExpression(fileName);
+		}
+
 		public static BlockExpression Block(params Expression[] expressions)
 		{
 			return Block(null, expressions);
@@ -26,7 +31,7 @@ namespace Dryice.Expressions
 
 		public static BlockExpression Block(IEnumerable<ParameterExpression> variables, params Expression[] expressions)
 		{
-			var newExpressions = expressions.Where(c => c != null).ToGroupedExpression(GroupedExpressionsExpressionStyle.Wide);
+			var newExpressions = expressions.Where(c => c != null).ToStatementisedGroupedExpression(GroupedExpressionsExpressionStyle.Wide);
 
 			if (variables == null)
 			{
@@ -257,14 +262,9 @@ namespace Dryice.Expressions
 			return new GroupedExpressionsExpression(expressions.Where(c => c != null), GroupedExpressionsExpressionStyle.Wide);
 		}
 
-		public static GroupedExpressionsExpression Grouped(IEnumerable<Expression> expressions)
+		public static GroupedExpressionsExpression Grouped(IEnumerable<Expression> expressions, GroupedExpressionsExpressionStyle style)
 		{
-			return new GroupedExpressionsExpression(expressions.Where(c => c != null));
-		}
-
-		public static IncludeStatementExpression IncludeStatement(string fileName)
-		{
-			return new IncludeStatementExpression(fileName);
+			return new GroupedExpressionsExpression(expressions.Where(c => c != null), style);
 		}
 
 		public static StatementExpression Statement(Expression expression)
@@ -291,6 +291,11 @@ namespace Dryice.Expressions
 		}
 
 		public static GroupedExpressionsExpression ToGroupedExpression(this IEnumerable<Expression> expressions, GroupedExpressionsExpressionStyle style = GroupedExpressionsExpressionStyle.Narrow)
+		{
+			return DryExpression.Grouped(expressions, style);
+		}
+
+		public static GroupedExpressionsExpression ToStatementisedGroupedExpression(this IEnumerable<Expression> expressions, GroupedExpressionsExpressionStyle style = GroupedExpressionsExpressionStyle.Narrow)
 		{
 			return new GroupedExpressionsExpression(expressions.ToStatementsNormalized(), style);
 		}

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using NUnit.Framework;
 using Platform.VirtualFileSystem;
 
@@ -29,7 +30,7 @@ namespace Dryice.Tests
 				GenerateClasses = true
 			};
 
-			var outputDir = FileSystemManager.Default.ResolveDirectory("./Test_Generate_Objective_Files");
+			var outputDir = FileSystemManager.Default.ResolveDirectory("./" + new StackTrace().GetFrame(0).GetMethod().Name);
 			var serviceModel = TestWebsParser.GetTestServiceModel();
 
 			outputDir.Create(true);

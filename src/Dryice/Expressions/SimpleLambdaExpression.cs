@@ -7,7 +7,7 @@ using System.Linq.Expressions;
 namespace Dryice.Expressions
 {
 	public class SimpleLambdaExpression
-		: Expression
+		: BaseExpression
 	{
 		public Expression Body { get; private set; }
 		public ReadOnlyCollection<Expression> Parameters { get; private set; }

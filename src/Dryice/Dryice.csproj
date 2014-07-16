@@ -67,12 +67,15 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DryNullable.cs" />
+    <Compile Include="Expressions\BaseExpression.cs" />
     <Compile Include="Expressions\GroupedExpressionsExpressionStyle.cs" />
     <Compile Include="Generators\BraceLanguageStyleIndentationOptions.cs" />
     <Compile Include="Generators\BraceLanguageStyleSourceCodeGenerator.cs" />
     <Compile Include="CodeGenerationContext.cs" />
     <Compile Include="CodeGenerationOptions.cs" />
     <Compile Include="DryDelegateType.cs" />
+    <Compile Include="Generators\Objective\Binders\EnumHeaderExpressionBinder.cs" />
     <Compile Include="InternalEnumerableExtensions.cs" />
     <Compile Include="Expressions\CodeLiteralExpression.cs" />
     <Compile Include="Expressions\SimpleLambdaExpression.cs" />
@@ -82,7 +85,7 @@
     <Compile Include="Expressions\StatementExpression.cs" />
     <Compile Include="Expressions\CommentExpression.cs" />
     <Compile Include="Expressions\GroupedExpressionsExpression.cs" />
-    <Compile Include="Expressions\IncludeStatementExpression.cs" />
+    <Compile Include="Expressions\IncludeExpression.cs" />
     <Compile Include="Expressions\MethodDefinitionExpression.cs" />
     <Compile Include="Expressions\PropertyDefinitionExpression.cs" />
     <Compile Include="Expressions\ReferencedTypeExpression.cs" />

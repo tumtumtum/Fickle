@@ -12,47 +12,30 @@ namespace Dryice
 		static void AddPrimitiveType(Type type, string name = null)
 		{
 			primitiveTypes.Add(type);
-
-			if (name == null)
-			{
-				Type underlyingType;
-
-				if ((underlyingType = Nullable.GetUnderlyingType(type)) == null)
-				{
-					name = type.Name;
-				}
-				else
-				{
-					name = underlyingType.Name + "?";
-				}
-			}
-
 			primitiveTypeByName[name] = type;
+
+			if (type.IsValueType)
+			{
+				type = typeof(Nullable<>).MakeGenericType(type);
+
+				primitiveTypes.Add(type);
+				primitiveTypeByName[name + "?"] = type;
+			}
 		}
 
 		static TypeSystem()
 		{
-			AddPrimitiveType(typeof(bool), "bool");
-			AddPrimitiveType(typeof(bool?), "bool?");
+			AddPrimitiveType(typeof(bool), "Bool");
 			AddPrimitiveType(typeof(byte), "Byte");
-			AddPrimitiveType(typeof(byte?), "Byte?");
 			AddPrimitiveType(typeof(char), "Char");
-			AddPrimitiveType(typeof(char?), "Char?");
 			AddPrimitiveType(typeof(short), "Short");
-			AddPrimitiveType(typeof(short?), "Short?");
-			AddPrimitiveType(typeof(int), "Int");
-			AddPrimitiveType(typeof(int?), "Int?"); 
+			AddPrimitiveType(typeof(int), "Int"); 
 			AddPrimitiveType(typeof(long), "Long");
-			AddPrimitiveType(typeof(long?), "Long?");
 			AddPrimitiveType(typeof(double), "Double");
-			AddPrimitiveType(typeof(double?), "Double?");
 			AddPrimitiveType(typeof(string), "String");
 			AddPrimitiveType(typeof(DateTime), "DateTime");
-			AddPrimitiveType(typeof(DateTime?), "DateTime?");
 			AddPrimitiveType(typeof(TimeSpan), "TimeSpan");
-			AddPrimitiveType(typeof(TimeSpan?), "TimeSpan?");
 			AddPrimitiveType(typeof(Guid), "UUID");
-			AddPrimitiveType(typeof(Guid?), "UUID?");
 		}
 
 		public static string GetPrimitiveName(Type type)

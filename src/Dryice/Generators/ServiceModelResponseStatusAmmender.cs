@@ -20,11 +20,11 @@ namespace Dryice.Generators
 
 		protected virtual ServiceClass CreateValueResponseServiceClass(Type type)
 		{
-			var isNullable = Nullable.GetUnderlyingType(type) != null;
+			var isNullable = DryNullable.GetUnderlyingType(type) != null;
 
 			if (isNullable)
 			{
-				type = Nullable.GetUnderlyingType(type);
+				type = DryNullable.GetUnderlyingType(type);
 			}
 
 			var typeName = TypeSystem.GetPrimitiveName(type);
@@ -83,13 +83,6 @@ namespace Dryice.Generators
 		{
 			var returnTypes = serviceModel.Gateways.SelectMany(c => c.Methods).Select(c => serviceModel.GetTypeFromName(c.Returns)).ToHashSet();
 			var returnServiceClasses = returnTypes.Where(TypeSystem.IsNotPrimitiveType).Select(serviceModel.GetServiceClass);
-			
-			foreach (var type in returnTypes.Where(TypeSystem.IsPrimitiveType))
-			{ 
-				var valueResponse = CreateValueResponseServiceClass(type);
-
-				additionalClasses.Add(valueResponse);
-			}
 
 			var containsResponseStatus = serviceModel.GetServiceClass(options.ResponseStatusTypeName) != null;
 
@@ -98,6 +91,13 @@ namespace Dryice.Generators
 				var responseStatusClass = this.GetOrCreateResponseStatusClass();
 
 				additionalClasses.Add(responseStatusClass);
+			} 
+			
+			foreach (var type in returnTypes.Where(TypeSystem.IsPrimitiveType))
+			{ 
+				var valueResponse = CreateValueResponseServiceClass(type);
+
+				additionalClasses.Add(valueResponse);
 			}
 
 			foreach (var returnTypeClass in returnServiceClasses)

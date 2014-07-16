@@ -54,9 +54,22 @@ namespace Dryice.Generators.Objective
 
 		protected override void Write(Type type, bool nameOnly)
 		{
-			var underlyingType = Nullable.GetUnderlyingType(type);
+			var underlyingType = DryNullable.GetUnderlyingType(type);
 
-			if (type == typeof(object))
+			if (underlyingType != null && underlyingType.BaseType == typeof(Enum))
+			{
+				if (nameOnly)
+				{
+					this.WriteLine("NSNumber");
+				}
+				else
+				{
+					this.WriteLine("NSNumber*");
+				}
+
+				return;
+			}
+			else if (type == typeof(object))
 			{
 				if (nameOnly)
 				{
@@ -181,8 +194,8 @@ namespace Dryice.Generators.Objective
 					this.Write("]");
 				}
 				else if ((node.Type.GetUnwrappedNullableType().IsNumericType() || node.Type.GetUnwrappedNullableType() == typeof(bool))
-				         && (node.Operand.Type == typeof(object) 
-					|| Nullable.GetUnderlyingType(node.Operand.Type) != null 
+				         && (node.Operand.Type == typeof(object)
+					|| DryNullable.GetUnderlyingType(node.Operand.Type) != null 
 					|| node.Operand.Type.Name == "NSNumber"
 					|| node.Operand.Type.Name == "id"))
 				{
@@ -723,7 +736,7 @@ namespace Dryice.Generators.Objective
 			return node;
 		}
 
-		protected override Expression VisitIncludeStatementExpresson(IncludeStatementExpression expression)
+		protected override Expression VisitIncludeStatementExpresson(IncludeExpression expression)
 		{
 			this.Write("#import \"");
 			this.Write(expression.FileName);
@@ -751,47 +764,82 @@ namespace Dryice.Generators.Objective
 
 		protected override Expression VisitTypeDefinitionExpression(TypeDefinitionExpression expression)
 		{
-			this.Visit(expression.Header);
-
-			this.WriteLine();
-
-			if (!expression.IsPredeclaration)
+			if (expression.Header != null)
 			{
-				this.WriteLine("#pragma clang diagnostic push");
-				this.WriteLine("#pragma clang diagnostic ignored \"-Wparentheses\"");
+				this.Visit(expression.Header);
 				this.WriteLine();
 			}
 
-			if (expression.IsPredeclaration)
-			{
-				this.Write("@interface ");
-				this.Write(expression.Name);
-				this.Write(" : ");
-				this.Write(expression.BaseType, true);
+			var dryType = expression.Type as DryType;
 
-				if (expression.InterfaceTypes != null && expression.InterfaceTypes.Count > 0)
+			if (dryType != null && dryType.IsClass)
+			{
+				if (!expression.IsPredeclaration)
 				{
-					this.Write("<");
-					this.Write(expression.InterfaceTypes.Select(c => c.Name).ToList().JoinToString(", "));
-					this.Write(">");
+					this.WriteLine("#pragma clang diagnostic push");
+					this.WriteLine("#pragma clang diagnostic ignored \"-Wparentheses\"");
+					this.WriteLine();
+				}
+
+				if (expression.IsPredeclaration)
+				{
+					this.Write("@interface ");
+					this.Write(expression.Name);
+					this.Write(" : ");
+					this.Write(expression.Type.BaseType, true);
+
+					if (expression.InterfaceTypes != null && expression.InterfaceTypes.Count > 0)
+					{
+						this.Write("<");
+						this.Write(expression.InterfaceTypes.Select(c => c.Name).ToList().JoinToString(", "));
+						this.Write(">");
+					}
+				}
+				else
+				{
+					this.Write("@implementation ");
+					this.Write(expression.Name);
+				}
+
+				this.WriteLine();
+
+				this.Visit(expression.Body);
+
+				this.WriteLine("@end");
+				this.WriteLine();
+
+				if (!expression.IsPredeclaration)
+				{
+					this.WriteLine("#pragma clang diagnostic pop");
 				}
 			}
-			else
+			else if (dryType != null && dryType.BaseType == typeof(Enum))
 			{
-				this.Write("@implementation ");
-				this.Write(expression.Name);
-			}
+				this.WriteLine("typedef enum");
+				
+				using (this.AcquireIndentationContext(BraceLanguageStyleIndentationOptions.IncludeBracesNewLineAfter))
+				{
+					var expressions = ((GroupedExpressionsExpression)expression.Body).Expressions;
 
-			this.WriteLine();
+					var i = 0;
 
-			this.Visit(expression.Body);
+					foreach (BinaryExpression assignment in expressions)
+					{
+						this.Write(((ParameterExpression)assignment.Left).Name);
+						this.Write(" = ");
+						this.Visit(assignment.Right);
 
-			this.WriteLine("@end");
-			this.WriteLine();
+						if (i++ != expressions.Count - 1)
+						{
+							this.Write(',');
+						}
 
-			if (!expression.IsPredeclaration)
-			{
-				this.WriteLine("#pragma clang diagnostic pop");
+						this.WriteLine();
+					}
+				}
+				
+				this.Write(dryType.Name);
+				this.WriteLine(";");
 			}
 
 			return expression;

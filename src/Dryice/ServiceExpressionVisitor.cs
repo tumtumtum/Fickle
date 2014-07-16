@@ -28,7 +28,7 @@ namespace Dryice
 				case (int)ServiceExpressionType.TypeDefinition:
 					return this.VisitTypeDefinitionExpression((TypeDefinitionExpression)expression);
 				case (int)ServiceExpressionType.IncludeStatement:
-					return this.VisitIncludeStatementExpresson((IncludeStatementExpression)expression);
+					return this.VisitIncludeStatementExpresson((IncludeExpression)expression);
 				case (int)ServiceExpressionType.ReferencedType:
 					return this.VisitReferencedTypeExpresson((ReferencedTypeExpression)expression);
 				case (int)ServiceExpressionType.Comment:
@@ -53,7 +53,7 @@ namespace Dryice
 
 			if (expressions != expression.Expressions)
 			{
-				return expressions.ToGroupedExpression(expression.Style);
+				return new GroupedExpressionsExpression(expressions, expression.Style);
 			}
 
 			return expression;
@@ -105,13 +105,13 @@ namespace Dryice
 
 			if (header != expression.Header || body != expression.Body)
 			{
-				return new TypeDefinitionExpression(expression.Type, expression.BaseType, header, body, expression.IsPredeclaration, null, expression.InterfaceTypes);
+				return new TypeDefinitionExpression(expression.Type, header, body, expression.IsPredeclaration, null, expression.InterfaceTypes);
 			}
 
 			return expression;
 		}
 
-		protected virtual Expression VisitIncludeStatementExpresson(IncludeStatementExpression expression)
+		protected virtual Expression VisitIncludeStatementExpresson(IncludeExpression expression)
 		{
 			return expression;
 		}

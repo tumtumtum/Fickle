@@ -28,7 +28,7 @@ namespace Dryice.Generators.Objective.Binders
 
 			builder.Visit(expression);
 
-			return builder.propertyGetterExpressions.ToGroupedExpression(GroupedExpressionsExpressionStyle.Wide);
+			return builder.propertyGetterExpressions.ToStatementisedGroupedExpression(GroupedExpressionsExpressionStyle.Wide);
 		}
 
 		private void ProcessPropertyDeserializer(Type propertyType, string propertyName, Expression value, out Type typeToCompare, out Expression[] processingStatements, out Expression outputValue, out ParameterExpression[] variables)
@@ -37,7 +37,7 @@ namespace Dryice.Generators.Objective.Binders
 
 			if (TypeSystem.IsPrimitiveType(propertyType))
 			{
-				var underlyingType = Nullable.GetUnderlyingType(propertyType) ?? propertyType;
+				var underlyingType = DryNullable.GetUnderlyingType(propertyType) ?? propertyType;
 
 				if (underlyingType == typeof(byte)
 					|| underlyingType == typeof(char) || underlyingType == typeof(short)
@@ -97,13 +97,13 @@ namespace Dryice.Generators.Objective.Binders
 				var forEachBodyStatements = new Expression[]
 				{
 					Expression.IfThen(Expression.TypeEqual(arrayItem, typeToCompareInner), 
-					Expression.Block(new [] { constructedArrayItem }, statements.ToGroupedExpression(GroupedExpressionsExpressionStyle.Wide)))
+					Expression.Block(new [] { constructedArrayItem }, statements.ToStatementisedGroupedExpression(GroupedExpressionsExpressionStyle.Wide)))
 				};
 
 				processingStatements = new Expression[]
 				{
 					Expression.Assign(arrayVar, DryExpression.New("NSMutableArray", "initWithCapacity", DryExpression.Call(value, typeof(int), "count", null))).ToStatement(),
-					DryExpression.ForEach(arrayItem, value, Expression.Block(forEachBodyStatements.ToGroupedExpression()))
+					DryExpression.ForEach(arrayItem, value, Expression.Block(forEachBodyStatements.ToStatementisedGroupedExpression()))
 				};
 
 				outputValue = Expression.Convert(arrayVar, propertyType);
@@ -144,7 +144,7 @@ namespace Dryice.Generators.Objective.Binders
 
 			expressions.Add(Expression.IfThen(Expression.TypeIs(currentValueFromDictionary, typeToCompare), Expression.Block(variables, new GroupedExpressionsExpression(statements, GroupedExpressionsExpressionStyle.Wide))));
 
-			this.propertyGetterExpressions.Add(expressions.ToGroupedExpression(GroupedExpressionsExpressionStyle.Wide));
+			this.propertyGetterExpressions.Add(expressions.ToStatementisedGroupedExpression(GroupedExpressionsExpressionStyle.Wide));
 
 			return property;
 		}

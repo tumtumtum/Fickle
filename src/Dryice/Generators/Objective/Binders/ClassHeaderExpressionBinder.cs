@@ -4,11 +4,9 @@
 
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
 using System.Linq.Expressions;
 using Dryice.Expressions;
-using Dryice.Model;
 using Platform;
 
 namespace Dryice.Generators.Objective.Binders
@@ -33,7 +31,7 @@ namespace Dryice.Generators.Objective.Binders
 			{
 				var attributedPropertyGetter = new MethodDefinitionExpression(name, null, property.PropertyType, null, true, "(objc_method_family(none))", null);
 
-				return new Expression[] { propertyDefinition, attributedPropertyGetter }.ToGroupedExpression();
+				return new Expression[] { propertyDefinition, attributedPropertyGetter }.ToStatementisedGroupedExpression();
 			}
 			else
 			{
@@ -52,33 +50,33 @@ namespace Dryice.Generators.Objective.Binders
 
 			if (lookup.Contains(typeof(Guid)) || lookup.Contains(typeof(Guid?)))
 			{
-				includeExpressions.Add(new IncludeStatementExpression("PKUUID.h"));
+				includeExpressions.Add(DryExpression.Include("PKUUID.h"));
 			}
 
 			if (lookup.Contains(typeof(TimeSpan)) || lookup.Contains(typeof(TimeSpan?)))
 			{
-				includeExpressions.Add(new IncludeStatementExpression("PKTimeSpan.h"));
+				includeExpressions.Add(DryExpression.Include("PKTimeSpan.h"));
 			}
 
-			if (ObjectiveBinderHelpers.TypeIsServiceClass(expression.BaseType))
+			if (ObjectiveBinderHelpers.TypeIsServiceClass(expression.Type.BaseType))
 			{
-				includeExpressions.Add(new IncludeStatementExpression(expression.BaseType.Name + ".h"));
+				includeExpressions.Add(DryExpression.Include(expression.Type.BaseType.Name + ".h"));
 			}
 
-			includeExpressions.Add(new IncludeStatementExpression("PKDictionarySerializable.h"));
+			includeExpressions.Add(DryExpression.Include("PKDictionarySerializable.h"));
 
 			var referencedTypeExpressions = referencedTypes
 				.Where(ObjectiveBinderHelpers.TypeIsServiceClass)
-				.Where(c => c != expression.BaseType)
+				.Where(c => c != expression.Type.BaseType)
 				.Select(c => (Expression)new ReferencedTypeExpression(c));
 
 			var comment = new CommentExpression("This file is AUTO GENERATED");
 
-			var commentGroup = new [] { comment }.ToGroupedExpression();
-			var headerGroup = includeExpressions.ToGroupedExpression();
-			var referencedGroup =referencedTypeExpressions.ToGroupedExpression();
+			var commentGroup = new [] { comment }.ToStatementisedGroupedExpression();
+			var headerGroup = includeExpressions.ToStatementisedGroupedExpression();
+			var referencedGroup =referencedTypeExpressions.ToStatementisedGroupedExpression();
 
-			var header = new[] { commentGroup, headerGroup, referencedGroup }.ToGroupedExpression(GroupedExpressionsExpressionStyle.Wide);
+			var header = new[] { commentGroup, headerGroup, referencedGroup }.ToStatementisedGroupedExpression(GroupedExpressionsExpressionStyle.Wide);
 
 			var propertyBody = this.Visit(expression.Body);
 
@@ -88,7 +86,7 @@ namespace Dryice.Generators.Objective.Binders
 				DryType.Define("PKDictionarySerializable")
 			};
 
-			return new TypeDefinitionExpression(expression.Type, expression.BaseType, header, propertyBody, true, null, interfaceTypes.ToReadOnlyCollection());
+			return new TypeDefinitionExpression(expression.Type, header, propertyBody, true, null, interfaceTypes.ToReadOnlyCollection());
 		}
 	}
 }

@@ -4,7 +4,7 @@ using System.Linq.Expressions;
 namespace Dryice.Expressions
 {
 	public class CommentExpression
-		: Expression
+		: BaseExpression
 	{
 		public override ExpressionType NodeType
 		{

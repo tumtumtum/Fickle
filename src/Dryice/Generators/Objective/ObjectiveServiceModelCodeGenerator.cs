@@ -1,5 +1,7 @@
 ﻿using System.IO;
 using System.IO.Ports;
+using System.Linq.Expressions;
+using Dryice.Expressions;
 using Dryice.Generators.Objective.Binders;
 using Platform.VirtualFileSystem;
 using Dryice.Model;
@@ -15,74 +17,74 @@ namespace Dryice.Generators.Objective
 		{
 		}
 
-		public ObjectiveServiceModelCodeGenerator(TextWriter writer,  CodeGenerationOptions options)
+		public ObjectiveServiceModelCodeGenerator(TextWriter writer, CodeGenerationOptions options)
 			: base(writer, options)
 		{
 		}
 
-		public ObjectiveServiceModelCodeGenerator(IDirectory directory,  CodeGenerationOptions options)
+		public ObjectiveServiceModelCodeGenerator(IDirectory directory, CodeGenerationOptions options)
 			: base(directory, options)
 		{
 		}
 
-		public override void Generate(ServiceModel serviceModel)
-		{	
+		protected override ServiceModel ProcessPregeneration(ServiceModel serviceModel)
+		{
 			serviceModel = new ObjectiveServiceModelResponseStatusAmmender(serviceModel, this.Options).Ammend();
 
-			var codeGenerationContext = new CodeGenerationContext(serviceModel, this.Options);
+			return serviceModel;
+		}
 
-			var serviceExpressionBuilder = new ServiceExpressionBuilder(serviceModel, this.Options);
-
-			if (this.Options.GenerateClasses)
+		protected override void GenerateClass(CodeGenerationContext codeGenerationContext, TypeDefinitionExpression expression)
+		{
+			using (var writer = this.GetTextWriterForFile(expression.Name + ".h"))
 			{
-				foreach (var serviceClass in serviceModel.Classes)
-				{
-					var classExpression = serviceExpressionBuilder.Build(serviceClass);
+				var headerFileExpression = ClassHeaderExpressionBinder.Bind(expression);
 
-					using (var writer = this.GetTextWriterForFile(serviceClass.Name + ".h"))
-					{
-						var headerFileExpression = ClassHeaderExpressionBinder.Bind(classExpression);
+				var codeGenerator = new ObjectiveCodeGenerator(writer);
 
-						var codeGenerator = new ObjectiveCodeGenerator(writer);
-
-						codeGenerator.Generate(headerFileExpression);
-					}
-
-					using (var writer = this.GetTextWriterForFile(serviceClass.Name + ".m"))
-					{
-						var classFileExpression = ClassSourceExpressionBinder.Bind(codeGenerationContext, classExpression);
-
-						var codeGenerator = new ObjectiveCodeGenerator(writer);
-
-						codeGenerator.Generate(classFileExpression);
-					}
-				}
+				codeGenerator.Generate(headerFileExpression);
 			}
 
-			if (this.Options.GenerateGateways)
+			using (var writer = this.GetTextWriterForFile(expression.Name + ".m"))
 			{
-				foreach (var serviceGateway in serviceModel.Gateways)
-				{
-					var gatewayExpression = serviceExpressionBuilder.Build(serviceGateway);
+				var classFileExpression = ClassSourceExpressionBinder.Bind(codeGenerationContext, expression);
 
-					using (var writer = this.GetTextWriterForFile(serviceGateway.Name + ".h"))
-					{
-						var headerFileExpression = GatewayHeaderExpressionBinder.Bind(codeGenerationContext, gatewayExpression);
+				var codeGenerator = new ObjectiveCodeGenerator(writer);
 
-						var codeGenerator = new ObjectiveCodeGenerator(writer);
+				codeGenerator.Generate(classFileExpression);
+			}
+		}
 
-						codeGenerator.Generate(headerFileExpression);
-					}
+		protected override void GenerateGateway(CodeGenerationContext codeGenerationContext, TypeDefinitionExpression expression)
+		{
+			using (var writer = this.GetTextWriterForFile(expression.Name + ".h"))
+			{
+				var headerFileExpression = GatewayHeaderExpressionBinder.Bind(codeGenerationContext, expression);
 
-					using (var writer = this.GetTextWriterForFile(serviceGateway.Name + ".m"))
-					{
-						var classFileExpression = GatewaySourceExpressionBinder.Bind(codeGenerationContext, gatewayExpression);
+				var codeGenerator = new ObjectiveCodeGenerator(writer);
 
-						var codeGenerator = new ObjectiveCodeGenerator(writer);
+				codeGenerator.Generate(headerFileExpression);
+			}
 
-						codeGenerator.Generate(classFileExpression);
-					}
-				}
+			using (var writer = this.GetTextWriterForFile(expression.Name + ".m"))
+			{
+				var classFileExpression = GatewaySourceExpressionBinder.Bind(codeGenerationContext, expression);
+
+				var codeGenerator = new ObjectiveCodeGenerator(writer);
+
+				codeGenerator.Generate(classFileExpression);
+			}
+		}
+
+		protected override void GenerateEnum(CodeGenerationContext codeGenerationContext, TypeDefinitionExpression expression)
+		{
+			using (var writer = this.GetTextWriterForFile(expression.Name + ".h"))
+			{
+				var enumFileExpression = EnumHeaderExpressionBinder.Bind(codeGenerationContext, expression);
+
+				var codeGenerator = new ObjectiveCodeGenerator(writer);
+
+				codeGenerator.Generate(enumFileExpression);
 			}
 		}
 	}

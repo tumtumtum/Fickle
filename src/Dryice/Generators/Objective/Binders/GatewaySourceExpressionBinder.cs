@@ -166,7 +166,7 @@ namespace Dryice.Generators.Objective.Binders
 
 			var responseClassType = method.ReturnType;
 
-			if ((Nullable.GetUnderlyingType(method.ReturnType) ?? method.ReturnType).IsNumericType())
+			if ((DryNullable.GetUnderlyingType(method.ReturnType) ?? method.ReturnType).IsNumericType())
 			{
 				responseClassType = DryType.Define("NSNumber");
 			}
@@ -460,11 +460,11 @@ namespace Dryice.Generators.Objective.Binders
 			currentTypeDefinitionExpression = expression;
 			currentReferencedTypes = new HashSet<Type>(ReferencedTypesCollector.CollectReferencedTypes(expression));
 			
-			var includeExpressions = new List<Expression>
+			var includeExpressions = new List<IncludeExpression>
 			{
-				new IncludeStatementExpression(expression.Name + ".h"),
-				new IncludeStatementExpression("PKWebServiceClient.h"),
-				new IncludeStatementExpression(this.CodeGenerationContext.Options.ResponseStatusTypeName + ".h")
+				DryExpression.Include(expression.Name + ".h"),
+				DryExpression.Include("PKWebServiceClient.h"),
+				DryExpression.Include(this.CodeGenerationContext.Options.ResponseStatusTypeName + ".h")
 			};
 
 			var comment = new CommentExpression("This file is AUTO GENERATED");
@@ -485,23 +485,15 @@ namespace Dryice.Generators.Objective.Binders
 
 			foreach (var referencedType in referencedTypes.Where(c => c is DryType && ((DryType)c).ServiceClass != null))
 			{
-				includeExpressions.Add(new IncludeStatementExpression(referencedType.Name + ".h"));
+				includeExpressions.Add(DryExpression.Include(referencedType.Name + ".h"));
 			}
 
-			var headerGroup = includeExpressions.ToGroupedExpression();
+			var headerGroup = includeExpressions.Sorted(IncludeExpression.Compare).ToGroupedExpression();
 			var header = new Expression[] { comment, headerGroup }.ToGroupedExpression(GroupedExpressionsExpressionStyle.Wide);
 
 			currentType = null;
 
-			return new TypeDefinitionExpression
-			(
-				expression.Type,
-				expression.BaseType,
-				header,
-				body,
-				false,
-				null
-			);
+			return new TypeDefinitionExpression(expression.Type, header, body, false, null);
 		}
 	}
 }

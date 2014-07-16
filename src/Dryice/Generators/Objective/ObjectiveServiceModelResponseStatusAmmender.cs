@@ -15,11 +15,11 @@ namespace Dryice.Generators.Objective
 
 		protected override ServiceClass CreateValueResponseServiceClass(Type type)
 		{
-			var isNullable = Nullable.GetUnderlyingType(type) != null;
+			var isNullable = DryNullable.GetUnderlyingType(type) != null;
 
 			if (isNullable)
 			{
-				type = Nullable.GetUnderlyingType(type);
+				type = DryNullable.GetUnderlyingType(type);
 			}
 
 			string typeName;

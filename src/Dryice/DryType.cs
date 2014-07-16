@@ -14,7 +14,8 @@ namespace Dryice
 		private readonly bool byRef;
 		private readonly string name;
 		private readonly ServiceModel serviceModel;
-		public ServiceEnum ServiceEnum { get; set; }
+		public ServiceEnum ServiceEnum { get; private set; }
+		public bool Nullable { get; private set; }
 		public ServiceClass ServiceClass { get; private set; }
 		private static readonly Dictionary<string, DryType> dryTypeByName = new Dictionary<string, DryType>();
 
@@ -67,10 +68,11 @@ namespace Dryice
 			this.ServiceClass = serviceClass;
 		}
 
-		public DryType(ServiceEnum serviceEnum, ServiceModel serviceModel)
+		public DryType(ServiceEnum serviceEnum, ServiceModel serviceModel, bool nullable = false)
 		{
 			this.serviceModel = serviceModel;
 			this.ServiceEnum = serviceEnum;
+			this.Nullable = nullable;
 			this.name = serviceEnum.Name;
 		}
 
@@ -247,7 +249,14 @@ namespace Dryice
 
 		protected override TypeAttributes GetAttributeFlagsImpl()
 		{
-			return typeof(object).Attributes;
+			if (this.ServiceEnum != null)
+			{
+				return typeof(StringComparison).Attributes;
+			}
+			else
+			{
+				return typeof(object).Attributes;
+			}
 		}
 
 		protected override bool IsArrayImpl()

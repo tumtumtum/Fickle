@@ -73,7 +73,7 @@ namespace Dryice.Generators.Objective.Binders
 				Expression.Parameter(DryType.Define("id"), "currentValueFromDictionary")
 			};
 
-			var methodBody = Expression.Block(variables, (Expression)methodBodyExpressions.ToGroupedExpression(GroupedExpressionsExpressionStyle.Wide));
+			var methodBody = Expression.Block(variables, (Expression)methodBodyExpressions.ToStatementisedGroupedExpression(GroupedExpressionsExpressionStyle.Wide));
 
 			return new MethodDefinitionExpression("initWithPropertyDictionary", new ReadOnlyCollection<Expression>(parameters), typeof(object), methodBody, false, null);
 		}
@@ -107,7 +107,7 @@ namespace Dryice.Generators.Objective.Binders
 		{
 			var includeExpressions = new List<Expression>
 			{
-				new IncludeStatementExpression(expression.Name + ".h")
+				DryExpression.Include(expression.Name + ".h")
 			};
 
 			var comment = new CommentExpression("This file is AUTO GENERATED");
@@ -117,11 +117,11 @@ namespace Dryice.Generators.Objective.Binders
 
 			foreach (var referencedType in referencedTypes.Where(ObjectiveBinderHelpers.TypeIsServiceClass))
 			{
-				includeExpressions.Add(new IncludeStatementExpression(referencedType.Name + ".h"));
+				includeExpressions.Add(DryExpression.Include(referencedType.Name + ".h"));
 			}
 
-			var headerGroup = includeExpressions.ToGroupedExpression();
-			var header = new Expression[] { comment, headerGroup }.ToGroupedExpression(GroupedExpressionsExpressionStyle.Wide);
+			var headerGroup = includeExpressions.ToStatementisedGroupedExpression();
+			var header = new Expression[] { comment, headerGroup }.ToStatementisedGroupedExpression(GroupedExpressionsExpressionStyle.Wide);
 
 			var methods = new List<Expression>
 			{
@@ -130,9 +130,9 @@ namespace Dryice.Generators.Objective.Binders
 				this.CreateCopyWithZoneMethod(expression),
 			};
 
-			var body = methods.ToGroupedExpression(GroupedExpressionsExpressionStyle.Wide);
+			var body = methods.ToStatementisedGroupedExpression(GroupedExpressionsExpressionStyle.Wide);
 
-			return new TypeDefinitionExpression(expression.Type, expression.BaseType, header, body, false, null, expression.InterfaceTypes);
+			return new TypeDefinitionExpression(expression.Type, header, body, false, null, expression.InterfaceTypes);
 		}
 	}
 }

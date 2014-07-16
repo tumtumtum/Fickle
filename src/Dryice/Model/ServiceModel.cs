@@ -97,9 +97,23 @@ namespace Dryice.Model
 						type.SetBaseType(new DryType(type.ServiceClass.BaseTypeName));
 					}
 				}
+				else if (type.ServiceEnum != null)
+				{
+					type.SetBaseType(typeof(Enum));
+				}
 				else
 				{
 					type.SetBaseType(typeof(object));
+				}
+			}
+
+			var enums = this.serviceTypesByName.Where(c => c.Value.BaseType == typeof(Enum)).ToList();
+
+			foreach (var kv in enums)
+			{
+				if (kv.Value.BaseType == typeof(Enum))
+				{
+					this.serviceTypesByName[kv.Key + "?"] = new DryNullable(kv.Value);
 				}
 			}
 		}
@@ -118,7 +132,7 @@ namespace Dryice.Model
 				return retval;
 			}
 
-			throw new InvalidOperationException("Type not found: " + name);
+			return null;
 		}
 	}
 }

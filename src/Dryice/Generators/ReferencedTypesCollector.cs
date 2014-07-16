@@ -23,6 +23,11 @@ namespace Dryice.Generators
 
 		private void AddType(Type type)
 		{
+			if (type == null)
+			{
+				return;
+			}
+
 			referencedTypes.Add(type);
 
 			var delegateType = type as DryDelegateType;
@@ -73,7 +78,7 @@ namespace Dryice.Generators
 
 		protected override Expression VisitTypeDefinitionExpression(TypeDefinitionExpression expression)
 		{
-			this.AddType(expression.BaseType);
+			this.AddType(expression.Type.BaseType);
 
 			return base.VisitTypeDefinitionExpression(expression);
 		}
