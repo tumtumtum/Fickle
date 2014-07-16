@@ -65,8 +65,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="TestGenerators.cs" />
-    <Compile Include="TestWebsParser.cs" />
+    <Compile Include="GeneratorTests.cs" />
+    <Compile Include="DryFileParserTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

@@ -6,22 +6,8 @@ namespace Dryice.Expressions
 		: BaseExpression
 	{
 		public Expression Expression { get; private set; }
-
-		public override ExpressionType NodeType
-		{
-			get
-			{
-				return (ExpressionType)ServiceExpressionType.Statement;
-			}
-		}
-
-		public override System.Type Type
-		{
-			get
-			{
-				return this.Expression.Type;
-			}
-		}
+		public override System.Type Type { get { return typeof(void); } }
+		public override ExpressionType NodeType { get { return (ExpressionType)ServiceExpressionType.Statement; } }
 
 		public StatementExpression(Expression expression)
 		{

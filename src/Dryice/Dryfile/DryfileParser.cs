@@ -260,7 +260,8 @@ namespace Dryice.Dryfile
 
 				this.ReadNextToken();
 			}
-			else if (this.tokenizer.CurrentToken == DryfileToken.OpenBracket)
+			
+			if (this.tokenizer.CurrentToken == DryfileToken.OpenBracket)
 			{
 				this.ReadNextToken();
 				this.Expect(DryfileToken.CloseBracket);

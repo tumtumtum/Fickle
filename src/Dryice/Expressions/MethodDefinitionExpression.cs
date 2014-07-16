@@ -16,6 +16,7 @@ namespace Dryice.Expressions
 			}
 		}
 
+		public bool IsCStyleFunction{ get; private set; }
 		public bool IsStatic { get; private set; }
 		public bool IsPredeclatation { get; private set; }
 		public string Name { get; private set; }
@@ -25,7 +26,7 @@ namespace Dryice.Expressions
 		public Expression Body { get; private set; }
 		public ReadOnlyDictionary<string, string> Attributes { get; private set; }
 
-		public MethodDefinitionExpression(string name, ReadOnlyCollection<Expression> parameters, Type returnType, Expression body, bool isPredeclaration, string rawAttributes = "", ReadOnlyDictionary<string, string> attributes = null, bool isStatic = false)
+		public MethodDefinitionExpression(string name, ReadOnlyCollection<Expression> parameters, Type returnType, Expression body, bool isPredeclaration, string rawAttributes = "", ReadOnlyDictionary<string, string> attributes = null, bool isStatic = false, bool isCStyleFunction = false)
 		{
 			this.RawAttributes = rawAttributes;
 			this.IsStatic = isStatic;
@@ -35,6 +36,7 @@ namespace Dryice.Expressions
 			this.Parameters = parameters;
 			this.Body = body;
 			this.IsPredeclatation = isPredeclaration;
+			this.IsCStyleFunction = isCStyleFunction;
 		}
 	}
 }

@@ -5,8 +5,8 @@
 gateway TestService
 	@hostname ws.geronimo.thisisglobal.com
 
-	AddOne(value:int? sex:Sex?)
+	AddOne(value:int? sex:Sex?[])
 		@format json
-		@path /api/Test/AddOne?x={value}
+		@path /api/Test/AddOne?x={value}&{sex}
 		@method get
 		@returns int?

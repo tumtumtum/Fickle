@@ -68,7 +68,7 @@ namespace Dryice.Generators.Objective.Binders
 			var self = Expression.Variable(currentType, "self");
 			var options = DryExpression.Variable("NSMutableDictionary", "localOptions");
 			var url = Expression.Variable(typeof(string), "url");
-			var client = Expression.Variable(DryType.Make(this.CodeGenerationContext.Options.ServiceClientTypeName ?? "PKWebServiceClient"), "client");
+			var client = Expression.Variable(DryType.Define(this.CodeGenerationContext.Options.ServiceClientTypeName ?? "PKWebServiceClient"), "client");
 			var responseType = ObjectiveBinderHelpers.GetWrappedResponseType(this.CodeGenerationContext, method.ReturnType);
 
 			var variables = new [] { url, client, options };
@@ -78,7 +78,8 @@ namespace Dryice.Generators.Objective.Binders
 			var names = new List<string>();
 			var parameters = new List<ParameterExpression>();
 			var args = new List<Expression>();
-
+			var listParameters = new List<ParameterExpression>();
+			
 			var parametersByName = method.Parameters.ToDictionary(c => ((ParameterExpression)c).Name, c => (ParameterExpression)c, StringComparer.InvariantCultureIgnoreCase);
 
 			var objcUrl = urlParameterRegex.Replace(path, delegate(Match match)
@@ -110,6 +111,15 @@ namespace Dryice.Generators.Objective.Binders
 					args.Add(parameter);
 
 					return "%d";
+				}
+				else if (type is DryListType)
+				{
+					parameters.Add(Expression.Parameter(parameter.Type, parameter.Name));
+					args.Add(parameter);
+					//listParameters.Add(Expression.Parameter(typeof(string), "s"));
+					//args.Add(DryExpression.Variable("__list__" + parameter.Name));
+
+					return "%@";
 				}
 				else
 				{

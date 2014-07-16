@@ -3,6 +3,7 @@
 //
 
 using System;
+using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 using Platform;
@@ -163,7 +164,12 @@ namespace Dryice.Generators.Objective
 
 				if (!nameOnly && dryiceType.IsClass)
 				{
-					base.Write("*");
+					this.Write("*");
+				}
+
+				if (!nameOnly && dryiceType.IsEnum && dryiceType.IsByRef)
+				{
+					this.Write("*");
 				}
 			}
 			else
@@ -396,11 +402,6 @@ namespace Dryice.Generators.Objective
 
 		protected override Expression VisitParameter(ParameterExpression node)
 		{
-			if (node.IsByRef)
-			{
-				this.Write('&');
-			}
-
 			this.Write(node.Name);
 
 			return node;
@@ -644,6 +645,10 @@ namespace Dryice.Generators.Objective
 			switch (node.NodeType)
 			{
 				case ExpressionType.Assign:
+					if (node.Left.Type.IsByRef && !node.Right.Type.IsByRef)
+					{
+						this.Write("*");
+					}
 					this.Visit(node.Left);
 					this.Write(" = ");
 					this.Visit(node.Right);
@@ -863,57 +868,103 @@ namespace Dryice.Generators.Objective
 
 		protected override Expression VisitMethodDefinitionExpression(MethodDefinitionExpression method)
 		{
-			if (method.IsStatic)
+			if (method.IsCStyleFunction)
 			{
-				this.Write("+");
-			}
-			else
-			{
-				this.Write("-");
-			}
-
-			this.Write('(');
-			this.Write(method.ReturnType);
-			this.Write(')');
-			this.WriteSpace();
-			this.Write(method.Name);
-
-			for (var i = 0; i < method.Parameters.Count; i++)
-			{
-				var parameter = (ParameterExpression)method.Parameters[i];
-
-				if (i != 0)
+				if (method.IsStatic)
 				{
-					this.Write(parameter.Name);
+					this.Write("static ");
 				}
 
-				this.Write(':');
-				this.Write('(');
-				this.Write(parameter.Type);
-				this.Write(')');
-					
-				this.Write(parameter.Name);
-
-				if (i != method.Parameters.Count - 1)
+				if (method.RawAttributes != null)
 				{
+					this.Write(method.RawAttributes);
+					this.Write(' ');
+				}
+
+				this.Write(method.ReturnType);
+				this.Write(" ");
+				this.Write(method.Name);
+				this.Write("(");
+				for (var i = 0; i < method.Parameters.Count; i++)
+				{
+					var parameter = (ParameterExpression)method.Parameters[i];
+
+					this.Write(parameter.Type);
 					this.Write(" ");
+					this.Write(parameter.Name);
+
+					if (i != method.Parameters.Count - 1)
+					{
+						this.Write(", ");
+					}
 				}
-			}
+				this.Write(")");
 
-			if (!string.IsNullOrEmpty(method.RawAttributes) && method.IsPredeclatation)
-			{
-				this.Write(" __attribute__({0})", method.RawAttributes);
-			}
+				if (method.IsPredeclatation)
+				{
+					this.Write(";");
 
-			if (method.IsPredeclatation)
-			{
-				this.WriteLine(';');
-			}
-			else
-			{
+					return method;
+				}
+
 				this.WriteLine();
 				this.Visit(method.Body);
 				this.WriteLine();
+			}
+			else
+			{
+				if (method.IsStatic)
+				{
+					this.Write("+");
+				}
+				else
+				{
+					this.Write("-");
+				}
+
+				this.Write('(');
+				this.Write(method.ReturnType);
+				this.Write(')');
+				this.WriteSpace();
+				this.Write(method.Name);
+
+				for (var i = 0; i < method.Parameters.Count; i++)
+				{
+					var parameter = (ParameterExpression)method.Parameters[i];
+
+					if (i != 0)
+					{
+						this.Write(parameter.Name);
+					}
+
+					this.Write(':');
+					this.Write('(');
+					this.Write(parameter.Type);
+					this.Write(')');
+
+					this.Write(parameter.Name);
+
+					if (i != method.Parameters.Count - 1)
+					{
+						this.Write(" ");
+					}
+				}
+
+				if (!string.IsNullOrEmpty(method.RawAttributes) && method.IsPredeclatation)
+				{
+					this.Write(" __attribute__({0})", method.RawAttributes);
+				}
+
+				if (method.IsPredeclatation)
+				{
+					this.WriteLine(';');
+				}
+				else
+				{
+					this.WriteLine();
+					this.Visit(method.Body);
+					this.WriteLine();
+				}
 			}
 
 			return method;
@@ -946,6 +997,117 @@ namespace Dryice.Generators.Objective
 			}
 
 			return node;
+		}
+
+		protected override SwitchCase VisitSwitchCase(SwitchCase node)
+		{
+			foreach (var value in node.TestValues)
+			{
+				this.Write("case ");
+				this.Visit(value);
+				this.WriteLine(":");
+			}
+
+			using (this.AcquireIndentationContext(BraceLanguageStyleIndentationOptions.Default))
+			{
+				this.Visit(node.Body);
+				this.WriteLine("break;");
+			}
+
+			return node;
+		}
+
+		protected override Expression VisitSwitch(SwitchExpression node)
+		{
+			if (node.SwitchValue.Type.GetUnwrappedNullableType().IsIntegerType()
+				|| node.SwitchValue.Type.GetUnwrappedNullableType().BaseType == typeof(Enum))
+			{
+				this.Write("switch");
+				this.Write(" (");
+				this.Visit(node.SwitchValue);
+				this.WriteLine(")");
+
+				using (this.AcquireIndentationContext(BraceLanguageStyleIndentationOptions.IncludeBracesNewLineAfter))
+				{
+					foreach (var switchCase in node.Cases)
+					{
+						this.VisitSwitchCase(switchCase);
+					}
+
+					this.WriteLine("default:");
+
+					using (this.AcquireIndentationContext(BraceLanguageStyleIndentationOptions.Default))
+					{
+						this.Visit(node.DefaultBody);
+					}
+				}
+
+				return node;
+			}
+			else
+			{
+				var j = 0;
+
+				foreach (var switchCase in node.Cases)
+				{
+					if (j++ > 0)
+					{
+						this.Write("else ");
+					}
+
+					this.Write("if (");
+
+					var i = 0;
+
+					foreach (var testValue in switchCase.TestValues)
+					{
+						this.Write("([");
+						this.Visit(node.SwitchValue);
+						this.Write(" caseInsensitiveCompare:");
+						this.Visit(testValue);
+						this.Write("] == NSOrderedSame)");
+
+						if (i++ < switchCase.TestValues.Count - 1)
+						{
+							this.Write(" || ");
+						}
+					}
+
+					this.WriteLine(")");
+
+					if (switchCase.Body.NodeType != ExpressionType.Block)
+					{
+						using (this.AcquireIndentationContext(BraceLanguageStyleIndentationOptions.IncludeBraces))
+						{
+							this.Visit(switchCase.Body);
+						}
+
+						this.WriteLine();
+					}
+					else
+					{
+						this.Visit(switchCase.Body);
+						this.WriteLine();
+					}
+				}
+
+				if (node.DefaultBody != null)
+				{
+					if (node.Cases.Count > 0)
+					{
+						this.WriteLine("else");
+					}
+
+					using (this.AcquireIndentationContext(BraceLanguageStyleIndentationOptions.IncludeBracesNewLineAfter))
+					{
+						this.Visit(node.DefaultBody);	
+					}
+				}
+
+
+
+				return node;
+			}
 		}
 	}
 }

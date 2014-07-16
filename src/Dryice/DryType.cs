@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using Dryice.Model;
 
 namespace Dryice
@@ -37,43 +38,52 @@ namespace Dryice
 
 			return retval;
 		}
-		
+
+		public override Type MakeByRefType()
+		{
+			if (this.ServiceClass != null)
+			{
+				return new DryType(this.ServiceClass, this.serviceModel, true);
+			}
+			else if (this.ServiceEnum != null)
+			{
+				return new DryType(this.ServiceEnum, this.serviceModel, this.Nullable, true);
+			}
+			else
+			{
+				return new DryType(this.name, this.baseType, true);
+			}
+		}
+
 		public DryType(string name, bool byRef = false)
 			: this(name, typeof(object))
 		{
 			this.byRef = byRef;
 		}
 
-		public static DryType Make(string name)
-		{
-			return new DryType(name);
-		}
-
-		public static DryType Make(string name, Type baseType)
-		{
-			return new DryType(name, baseType);
-		}
-
-		public DryType(string name, Type baseType)
+		public DryType(string name, Type baseType, bool byRef = false)
 		{
 			this.name = name;
 			this.ServiceClass = null;
 			this.baseType = baseType;
+			this.byRef = byRef;
 		}
 
-		public DryType(ServiceClass serviceClass, ServiceModel serviceModel)
+		public DryType(ServiceClass serviceClass, ServiceModel serviceModel, bool byRef = false)
 		{
 			this.serviceModel = serviceModel;
 			this.name = serviceClass.Name;
 			this.ServiceClass = serviceClass;
+			this.byRef = byRef;
 		}
 
-		public DryType(ServiceEnum serviceEnum, ServiceModel serviceModel, bool nullable = false)
+		public DryType(ServiceEnum serviceEnum, ServiceModel serviceModel, bool nullable = false, bool byRef = false)
 		{
 			this.serviceModel = serviceModel;
 			this.ServiceEnum = serviceEnum;
 			this.Nullable = nullable;
 			this.name = serviceEnum.Name;
+			this.byRef = byRef;
 		}
 
 		protected override bool IsValueTypeImpl()
