@@ -16,27 +16,9 @@ namespace Dryice.Expressions
 			}
 		}
 
-		public override Type Type
-		{
-			get
-			{
-				return type;
-			}
-		}
 		private readonly Type type;
-
-		public string Name
-		{
-			get
-			{
-				return this.type.Name;
-			}
-		}
-
-		public bool IsEnumType
-		{
-			get { return this.type.BaseType == typeof(Enum); }
-		}
+		public override Type Type { get { return this.type; } }
+		public bool IsEnumType { get { return this.Type.BaseType == typeof(Enum); } }
 
 		public bool IsPredeclaration { get; private set; }
 		public ReadOnlyCollection<Type> InterfaceTypes { get; private set; }

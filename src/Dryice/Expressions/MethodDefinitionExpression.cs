@@ -16,15 +16,20 @@ namespace Dryice.Expressions
 			}
 		}
 
-		public bool IsCStyleFunction{ get; private set; }
-		public bool IsStatic { get; private set; }
-		public bool IsPredeclatation { get; private set; }
 		public string Name { get; private set; }
+		public bool IsStatic { get; private set; }
 		public string RawAttributes { get; private set; }
+		public bool IsCStyleFunction { get; private set; }
+		public bool IsPredeclatation { get; private set; }
 		public Type ReturnType { get; private set; }
-		public ReadOnlyCollection<Expression> Parameters { get; private set; }
 		public Expression Body { get; private set; }
+		public ReadOnlyCollection<Expression> Parameters { get; private set; }
 		public ReadOnlyDictionary<string, string> Attributes { get; private set; }
+
+		public MethodDefinitionExpression(string name, IEnumerable<Expression> parameters, Type returnType, Expression body, bool isPredeclaration, string rawAttributes = "", ReadOnlyDictionary<string, string> attributes = null, bool isStatic = false, bool isCStyleFunction = false)
+			: this(name, parameters.ToReadOnlyCollection(), returnType, body, isPredeclaration, rawAttributes, attributes)
+		{	
+		}
 
 		public MethodDefinitionExpression(string name, ReadOnlyCollection<Expression> parameters, Type returnType, Expression body, bool isPredeclaration, string rawAttributes = "", ReadOnlyDictionary<string, string> attributes = null, bool isStatic = false, bool isCStyleFunction = false)
 		{

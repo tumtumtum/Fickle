@@ -53,27 +53,38 @@ namespace Dryice.Generators
 			return new ServiceClass(classPrefix + "ValueResponse", null, properties);
 		}
 
-		private ServiceClass GetOrCreateResponseStatusClass()
+		private ServiceClass AmmendOrCreateResponseStatusClass()
 		{
 			var retval = this.serviceModel.GetServiceClass(options.ResponseStatusTypeName);
+			var properties = new List<ServiceProperty>
+			{
+				new ServiceProperty
+				{
+					Name = "Message",
+					TypeName = "string"
+				},
+				new ServiceProperty
+				{
+					Name = "ErrorCode",
+					TypeName = "string"
+				},
+				new ServiceProperty
+				{
+					Name = "HttpStatus",
+					TypeName = "int"
+				}
+			};
 
 			if (retval == null)
-			{
-				var properties = new List<ServiceProperty>
-				{
-					new ServiceProperty
-					{
-						Name = "Message",
-						TypeName = "string"
-					},
-					new ServiceProperty
-					{
-						Name = "ErrorCode",
-						TypeName = "string"
-					}
-				};
-
+			{	
 				retval = new ServiceClass(this.options.ResponseStatusTypeName, null, properties);
+			}
+			else
+			{
+				foreach (var property in properties.Where(property => !retval.Properties.Exists(c => String.Equals(c.Name, property.Name, StringComparison.InvariantCultureIgnoreCase))))
+				{
+					retval.Properties.Add(property);
+				}
 			}
 
 			return retval;
@@ -86,10 +97,10 @@ namespace Dryice.Generators
 
 			var containsResponseStatus = serviceModel.GetServiceClass(options.ResponseStatusTypeName) != null;
 
+			var responseStatusClass = this.AmmendOrCreateResponseStatusClass();
+
 			if (!containsResponseStatus)
 			{
-				var responseStatusClass = this.GetOrCreateResponseStatusClass();
-
 				additionalClasses.Add(responseStatusClass);
 			} 
 			

@@ -14,6 +14,11 @@ namespace Dryice.Expressions
 			return new CommentExpression(comment);
 		}
 
+		public static GotoExpression Return(Expression expression)
+		{
+			return Expression.Return(Expression.Label(), expression);
+		}
+
 		public static IncludeExpression Include(string fileName)
 		{
 			return new IncludeExpression(fileName);

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Security.Cryptography;
 using System.Text.RegularExpressions;
 using Dryice.Expressions;
 using Dryice.Model;
@@ -14,7 +15,7 @@ namespace Dryice.Generators.Objective.Binders
 		: ServiceExpressionVisitor
 	{
 		private Type currentType;
-		private HashSet<Type> currentReferencedTypes;
+		private HashSet<Type> currentReturnTypes; 
 		private TypeDefinitionExpression currentTypeDefinitionExpression;
 		public CodeGenerationContext CodeGenerationContext { get; set; }
 		
@@ -285,12 +286,10 @@ namespace Dryice.Generators.Objective.Binders
 			
 			var allPropertiesAsDictionary = DryExpression.Call(requestObject, "NSDictionary", "allPropertiesAsDictionary", null);
 
-			var serializedDataObject = DryExpression.StaticCall("NSJSONSerialization", "NSData", "dataWithJSONObject", new
-			{
-				obj = dictionary,
-				options = Expression.Constant(0),
-				error = DryExpression.Parameter(DryType.Define("NSError", true), "error")
-			});
+			var parameters = new[] { new DryParameterInfo(DryType.Define("NSDictionary"), "obj"), new DryParameterInfo(typeof(int), "options"), new DryParameterInfo(DryType.Define("NSError", true), "error") };
+			var methodInfo = new DryMethodInfo(DryType.Define("NSJSONSerialization"), DryType.Define("NSData"), "dataWithJSONObject", parameters, true);
+
+			var serializedDataObject = Expression.Call(methodInfo, dictionary, Expression.Constant(0), error);
 
 			var body = DryExpression.Block
 			(
@@ -322,6 +321,8 @@ namespace Dryice.Generators.Objective.Binders
 			var propertyDictionary = DryExpression.Variable("NSDictionary", "propertyDictionary");
 			var responseClass = DryExpression.Variable("Class", "responseClass");
 			var isBoolNumber = DryExpression.Variable(typeof(bool), "isBoolNumber");
+			var value = DryExpression.Variable(DryType.Define("id"), "value");
+			var response = DryExpression.Variable(DryType.Define("id"), "response");
 
 			var parameters = new Expression[]
 			{
@@ -331,12 +332,10 @@ namespace Dryice.Generators.Objective.Binders
 				statusCode
 			};
 
-			var deserializedDictionary = DryExpression.StaticCall("NSJSONSerialization", "NSData", "JSONObjectWithData", new
-			{
-				dataObject = data,
-				options = Expression.Constant(0),
-				error = DryExpression.Parameter(DryType.Define("NSError", true), "error")
-			});
+			var jsonObjectWithDataParameters = new[] { new DryParameterInfo(DryType.Define("NSDictionary"), "obj"), new DryParameterInfo(typeof(int), "options"), new DryParameterInfo(DryType.Define("NSError", true), "error") };
+			var methodInfo = new DryMethodInfo(DryType.Define("NSJSONSerialization"), DryType.Define("NSData"), "JSONObjectWithData", jsonObjectWithDataParameters, true);
+			
+			var deserializedDictionary = Expression.Call(methodInfo, data, Expression.Constant(0), error);
 
 			var clientOptions = DryExpression.Property(client, DryType.Define("NSDictionary"), "options");
 
@@ -362,20 +361,24 @@ namespace Dryice.Generators.Objective.Binders
 
 			var uuidDeserialization = Expression.IfThen(Expression.Equal(responseClass, DryExpression.StaticCall("PKUUID", "Class", "class", null)), DryExpression.Block
 			(
-				Expression.Return(Expression.Label(), DryExpression.StaticCall("PKUUID", "uuidFromString", DryExpression.New(typeof(string), "initWithData", new
+				Expression.Assign(value, DryExpression.StaticCall("PKUUID", "PKUUD", "uuidFromString", DryExpression.New(typeof(string), "initWithData", new
 				{
 					data,
 					encoding = Expression.Variable(typeof(int), "NSUTF8StringEncoding")
-				})))
+				}))),
+				Expression.Assign(response, DryExpression.New(ObjectiveBinderHelpers.GetValueResponseWrapperTypeName(typeof(Guid)), "init", null)),
+				DryExpression.Call(Expression.Convert(response, DryType.Define(ObjectiveBinderHelpers.GetValueResponseWrapperTypeName(typeof(Guid)))), "setValue" , value)
 			));
 
 			var stringDeserialization = Expression.IfThen(Expression.Equal(responseClass, DryExpression.StaticCall("NSString", "Class", "class", null)), DryExpression.Block
 			(
-				Expression.Return(Expression.Label(), DryExpression.New(typeof(string), "initWithData", new
+				Expression.Assign(value, DryExpression.New(typeof(string), "initWithData", new
 				{
 					data,
 					encoding = Expression.Variable(typeof(int), "NSUTF8StringEncoding")
-				}))
+				})),
+				Expression.Assign(response, DryExpression.New(ObjectiveBinderHelpers.GetValueResponseWrapperTypeName(typeof(string)), "init", null)),
+				DryExpression.Call(Expression.Convert(response, DryType.Define(ObjectiveBinderHelpers.GetValueResponseWrapperTypeName(typeof(string)))), "setValue", value)
 			));
 
 			var stringValue = Expression.Variable(typeof(string), "stringValue");
@@ -385,12 +388,12 @@ namespace Dryice.Generators.Objective.Binders
 			var stringToBool = Expression.IfThenElse
 			(
 				Expression.Equal(DryExpression.Call(stringValue, typeof(int), "compare", new { other=Expression.Constant("True"), options=Expression.Variable(typeof(int), "NSCaseInsensitiveSearch") }), Expression.Parameter(typeof(int), "NSOrderedSame")),
-				Expression.Return(Expression.Label(), DryExpression.StaticCall("NSNumber", "NSNumber", "numberWithBool", Expression.Variable(typeof(string), "YES"))).ToStatement().ToBlock(),
+				Expression.Assign(value, DryExpression.StaticCall("NSNumber", "NSNumber", "numberWithBool", Expression.Variable(typeof(string), "YES"))).ToStatement().ToBlock(),
 				Expression.IfThenElse
 				(
 					Expression.Equal(DryExpression.Call(stringValue, typeof(int), "compare", new { other = Expression.Constant("False"), options = Expression.Variable(typeof(int), "NSCaseInsensitiveSearch") }), Expression.Parameter(typeof(int), "NSOrderedSame")),
-					Expression.Return(Expression.Label(), DryExpression.StaticCall("NSNumber", "NSNumber", "numberWithBool", Expression.Variable(typeof(string), "NO"))).ToStatement().ToBlock(),
-					Expression.Return(Expression.Label(), Expression.Constant(null, DryType.Define("NSNumber"))).ToStatement().ToBlock()
+					Expression.Assign(value, DryExpression.StaticCall("NSNumber", "NSNumber", "numberWithBool", Expression.Variable(typeof(string), "NO"))).ToStatement().ToBlock(),
+					Expression.Assign(value, Expression.Constant(null, DryType.Define("NSNumber"))).ToStatement().ToBlock()
 				)
 			);
 
@@ -414,44 +417,64 @@ namespace Dryice.Generators.Objective.Binders
 					(
 						Expression.Assign(numberFormatter, DryExpression.New(numberFormatter.Type, "init", null)),
 						DryExpression.Call(numberFormatter, "setNumberStyle", DryExpression.Variable(typeof(int), "NSNumberFormatterDecimalStyle")),
-						Expression.Return(Expression.Label(), DryExpression.Call(numberFormatter, "numberFromString", stringValue)))
+						Expression.Assign(value, DryExpression.Call(numberFormatter, "NSNumber", "numberFromString", stringValue))
 					)
+				),
+				Expression.Assign(response, DryExpression.New(ObjectiveBinderHelpers.GetValueResponseWrapperTypeName(typeof(int)), "init", null)),
+				DryExpression.Call(Expression.Convert(response, DryType.Define(ObjectiveBinderHelpers.GetValueResponseWrapperTypeName(typeof(int)))), "setValue", value)
 			));
 
 			var timespanDeserialization = Expression.IfThen(Expression.Equal(responseClass, DryExpression.StaticCall("PKTimeSpan", "Class", "class", null)), DryExpression.Block
 			(
-				Expression.Return(Expression.Label(), DryExpression.StaticCall("PKTimeSpan", "fromIsoString", DryExpression.New(typeof(string), "initWithData", new
+				Expression.Assign(value, DryExpression.StaticCall("PKTimeSpan", "PKTimeSpan", "fromIsoString", DryExpression.New(typeof(string), "initWithData", new
 				{
 					data,
 					encoding = Expression.Variable(typeof(int), "NSUTF8StringEncoding")
-				})))
+				}))),
+				Expression.Assign(response, DryExpression.New(ObjectiveBinderHelpers.GetValueResponseWrapperTypeName(typeof(TimeSpan)), "init", null)),
+				DryExpression.Call(Expression.Convert(response, DryType.Define(ObjectiveBinderHelpers.GetValueResponseWrapperTypeName(typeof(TimeSpan?)))), "setValue", value)
 			));
 
 			var defaultDeserialization = DryExpression.Block
 			(
 				Expression.Assign(propertyDictionary, deserializedDictionary),
 				Expression.IfThen(Expression.IsTrue(Expression.Equal(propertyDictionary, Expression.Constant(null, propertyDictionary.Type))), Expression.Return(Expression.Label(), parseErrorResult).ToStatement().ToBlock()),
-				Expression.Return(Expression.Label(), deserializedObject)
+				Expression.Assign(value, deserializedObject)
 			);
 
 			Expression ifElseExpression = defaultDeserialization;
 
 			ifElseExpression = Expression.IfThenElse(stringDeserialization.Test, stringDeserialization.IfTrue, ifElseExpression);
-			ifElseExpression = Expression.IfThenElse(numberDeserialization.Test, numberDeserialization.IfTrue, ifElseExpression);
-			
-			if (currentReferencedTypes.Contains(typeof(Guid)) || currentReferencedTypes.Contains(typeof(Guid?)))
+
+			if (currentReturnTypes.Any(c => c.GetUnwrappedNullableType().IsIntegerType() || c.GetUnwrappedNullableType() == typeof(bool)))
+			{
+				ifElseExpression = Expression.IfThenElse(numberDeserialization.Test, numberDeserialization.IfTrue, ifElseExpression);
+			}
+
+			if (currentReturnTypes.Contains(typeof(Guid)) || currentReturnTypes.Contains(typeof(Guid?)))
 			{
 				ifElseExpression = Expression.IfThenElse(uuidDeserialization.Test, uuidDeserialization.IfTrue, ifElseExpression);
 			}
 
-			if (currentReferencedTypes.Contains(typeof(TimeSpan)) || currentReferencedTypes.Contains(typeof(TimeSpan?)))
+			if (currentReturnTypes.Contains(typeof(TimeSpan)) || currentReturnTypes.Contains(typeof(TimeSpan?)))
 			{
 				ifElseExpression = Expression.IfThenElse(timespanDeserialization.Test, timespanDeserialization.IfTrue, ifElseExpression);
 			}
 
-			bodyExpressions.Add(ifElseExpression);
+			var setResponseStatus = Expression.IfThen
+			(
+				Expression.Equal(DryExpression.Call(response, "id", "responseStatus", null), Expression.Constant(null, DryType.Define("id"))),
+				DryExpression.Call(response, "setResponseStatus", DryExpression.New("ResponseStatus", "init", null)).ToStatement().ToBlock()
+			);
 
-			var body = DryExpression.Block(new[] { error, responseClass, propertyDictionary  }, bodyExpressions.ToArray());
+			var populateResponseStatus = DryExpression.Call(DryExpression.Call(response, "id", "responseStatus", null), "setHttpStatus", statusCode);
+
+			bodyExpressions.Add(ifElseExpression);
+			bodyExpressions.Add(setResponseStatus);
+			bodyExpressions.Add(populateResponseStatus);
+			bodyExpressions.Add(DryExpression.Return(response));
+
+			var body = DryExpression.Block(new[] { error, value, responseClass, propertyDictionary, response }, bodyExpressions.ToArray());
 
 			return new MethodDefinitionExpression
 			(
@@ -468,11 +491,11 @@ namespace Dryice.Generators.Objective.Binders
 		{
 			currentType = expression.Type;
 			currentTypeDefinitionExpression = expression;
-			currentReferencedTypes = new HashSet<Type>(ReferencedTypesCollector.CollectReferencedTypes(expression));
+			currentReturnTypes = new HashSet<Type>(ReturnTypesCollector.CollectReturnTypes(expression));
 			
 			var includeExpressions = new List<IncludeExpression>
 			{
-				DryExpression.Include(expression.Name + ".h"),
+				DryExpression.Include(expression.Type.Name + ".h"),
 				DryExpression.Include("PKWebServiceClient.h"),
 				DryExpression.Include(this.CodeGenerationContext.Options.ResponseStatusTypeName + ".h")
 			};

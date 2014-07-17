@@ -160,7 +160,9 @@ namespace Dryice
 			{
 				foreach (var expression in serviceModel.Classes.Select(serviceExpressionBuilder.Build).Cast<TypeDefinitionExpression>())
 				{
-					this.GenerateClass(codeGenerationContext, expression);
+					var currentExpression = expression;
+
+					this.GenerateClass(codeGenerationContext, currentExpression);
 				}
 			}
 
@@ -168,7 +170,9 @@ namespace Dryice
 			{
 				foreach (var expression in serviceModel.Gateways.Select(serviceExpressionBuilder.Build).Cast<TypeDefinitionExpression>())
 				{
-					this.GenerateGateway(codeGenerationContext, expression);
+					var currentExpression = expression;
+
+					this.GenerateGateway(codeGenerationContext, currentExpression);
 				}
 			}
 
@@ -176,7 +180,9 @@ namespace Dryice
 			{
 				foreach (var expression in serviceModel.Enums.Select(serviceExpressionBuilder.Build).Cast<TypeDefinitionExpression>())
 				{
-					this.GenerateEnum(codeGenerationContext, expression);
+					var currentExpression = expression;
+
+					this.GenerateEnum(codeGenerationContext, currentExpression);
 				}
 			}
 		}

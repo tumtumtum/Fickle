@@ -6,7 +6,10 @@ namespace Dryice.Model
 	public class ServiceClass
 	{
 		public string Name { get; set; }
+
+		[ServiceAnnotation]
 		public string BaseTypeName { get; set; }
+
 		public List<ServiceProperty> Properties { get; set; }
 
 		public ServiceClass(string name, string baseTypeName, List<ServiceProperty> properties)

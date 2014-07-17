@@ -630,6 +630,10 @@ namespace Dryice.Generators.Objective
 						this.Write(' ');
 						this.Write(node.Method.GetParameters()[i].Name);
 						this.Write(':');
+						if (node.Method.GetParameters()[i].ParameterType.IsByRef)
+						{
+							this.Write("&");
+						}
 						this.Visit(node.Arguments[i]);
 					}
 				}
@@ -789,7 +793,7 @@ namespace Dryice.Generators.Objective
 				if (expression.IsPredeclaration)
 				{
 					this.Write("@interface ");
-					this.Write(expression.Name);
+					this.Write(expression.Type, true);
 					this.Write(" : ");
 					this.Write(expression.Type.BaseType, true);
 
@@ -803,7 +807,7 @@ namespace Dryice.Generators.Objective
 				else
 				{
 					this.Write("@implementation ");
-					this.Write(expression.Name);
+					this.Write(expression.Type, true);
 				}
 
 				this.WriteLine();
@@ -842,8 +846,8 @@ namespace Dryice.Generators.Objective
 						this.WriteLine();
 					}
 				}
-				
-				this.Write(dryType.Name);
+
+				this.Write(expression.Type, true);
 				this.WriteLine(";");
 			}
 

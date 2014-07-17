@@ -11,6 +11,7 @@
 		public string ServiceClientTypeName { get; set; }
 		public string ResponseStatusTypeName { get; set; }
 		public string ResponseStatusPropertyName { get; set; }
+		public string TypeNamePrefix { get; set; }
 
 		public CodeGenerationOptions()
 		{

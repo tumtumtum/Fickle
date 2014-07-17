@@ -67,6 +67,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Dryfile\DryFileWriter.cs" />
     <Compile Include="DryNullable.cs" />
     <Compile Include="Expressions\BaseExpression.cs" />
     <Compile Include="Expressions\GroupedExpressionsExpressionStyle.cs" />
@@ -107,6 +108,7 @@
     <Compile Include="Generators\ReservedKeywordNormalizer.cs" />
     <Compile Include="Generators\ReturnTypesCollector.cs" />
     <Compile Include="Generators\ServiceModelResponseStatusAmmender.cs" />
+    <Compile Include="Model\ServiceAnnotationAttribute.cs" />
     <Compile Include="Model\ServiceEnum.cs" />
     <Compile Include="Model\ServiceEnumValue.cs" />
     <Compile Include="Generators\ReferencedTypesCollector.cs" />

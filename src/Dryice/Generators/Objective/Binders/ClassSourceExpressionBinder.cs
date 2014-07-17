@@ -80,12 +80,11 @@ namespace Dryice.Generators.Objective.Binders
 
 		private Expression CreateCopyWithZoneMethod(TypeDefinitionExpression expression)
 		{
+			var currentType = (DryType)expression.Type; 
 			var zone = DryExpression.Parameter("NSZone", "zone");
+			var self = Expression.Parameter(currentType, "self"); 
 			var theCopy = Expression.Variable(expression.Type, "theCopy");
-			var currentType = (DryType)expression.Type;
-			var self = Expression.Parameter(currentType, "self");
 
-			// [[[self class] allocWithZone:zone] init]]
 			var newExpression = DryExpression.Call(DryExpression.Call(DryExpression.Call(self, "Class", "class", null), "allocWithZone", zone), expression.Type, "init", null);
 
 			var initTheCopy = Expression.Assign(theCopy, newExpression).ToStatement();
@@ -96,8 +95,11 @@ namespace Dryice.Generators.Objective.Binders
 			(
 				new[] { theCopy },
 				initTheCopy,
-				copyStatements,
-				returnStatement
+				DryExpression.GroupedWide
+				(
+					copyStatements,
+					returnStatement
+				)
 			);
 
 			return new MethodDefinitionExpression("copyWithZone", new Expression[] { zone }.ToReadOnlyCollection(), typeof(object), methodBody, false, null);
@@ -107,7 +109,7 @@ namespace Dryice.Generators.Objective.Binders
 		{
 			var includeExpressions = new List<Expression>
 			{
-				DryExpression.Include(expression.Name + ".h")
+				DryExpression.Include(expression.Type.Name + ".h")
 			};
 
 			var comment = new CommentExpression("This file is AUTO GENERATED");

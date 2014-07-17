@@ -5,6 +5,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using Dryice.Model;
+using Platform.Reflection;
 
 namespace Dryice.Dryfile
 {
@@ -309,11 +310,11 @@ namespace Dryice.Dryfile
 
 						if (annotation.Key == "content")
 						{
-							var contentTypeName = annotation.Value.Trim();
+							var contentParameterName = annotation.Value.Trim();
 
-							var serviceParameter = retval.Parameters.FirstOrDefault(c => c.Name == contentTypeName);
+							var serviceParameter = retval.Parameters.FirstOrDefault(c => c.Name == contentParameterName);
 
-							retval.Content = serviceParameter;
+							retval.ContentServiceParameter = serviceParameter;
 						}
 						else
 						{
@@ -353,6 +354,11 @@ namespace Dryice.Dryfile
 
 			if (property != null)
 			{
+				if (property.GetFirstCustomAttribute<ServiceAnnotationAttribute>(true) == null)
+				{
+					return false;
+				}
+
 				property.SetValue(target, Convert.ChangeType(annotation.Value.Trim(), property.PropertyType), null);
 
 				return true;

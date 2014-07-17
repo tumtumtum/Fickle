@@ -36,7 +36,7 @@ namespace Dryice.Generators.Objective
 
 		protected override void GenerateClass(CodeGenerationContext codeGenerationContext, TypeDefinitionExpression expression)
 		{
-			using (var writer = this.GetTextWriterForFile(expression.Name + ".h"))
+			using (var writer = this.GetTextWriterForFile(expression.Type.Name + ".h"))
 			{
 				var headerFileExpression = ClassHeaderExpressionBinder.Bind(expression);
 
@@ -45,7 +45,7 @@ namespace Dryice.Generators.Objective
 				codeGenerator.Generate(headerFileExpression);
 			}
 
-			using (var writer = this.GetTextWriterForFile(expression.Name + ".m"))
+			using (var writer = this.GetTextWriterForFile(expression.Type.Name + ".m"))
 			{
 				var classFileExpression = ClassSourceExpressionBinder.Bind(codeGenerationContext, expression);
 
@@ -57,7 +57,7 @@ namespace Dryice.Generators.Objective
 
 		protected override void GenerateGateway(CodeGenerationContext codeGenerationContext, TypeDefinitionExpression expression)
 		{
-			using (var writer = this.GetTextWriterForFile(expression.Name + ".h"))
+			using (var writer = this.GetTextWriterForFile(expression.Type.Name + ".h"))
 			{
 				var headerFileExpression = GatewayHeaderExpressionBinder.Bind(codeGenerationContext, expression);
 
@@ -66,7 +66,7 @@ namespace Dryice.Generators.Objective
 				codeGenerator.Generate(headerFileExpression);
 			}
 
-			using (var writer = this.GetTextWriterForFile(expression.Name + ".m"))
+			using (var writer = this.GetTextWriterForFile(expression.Type.Name + ".m"))
 			{
 				var classFileExpression = GatewaySourceExpressionBinder.Bind(codeGenerationContext, expression);
 
@@ -78,7 +78,7 @@ namespace Dryice.Generators.Objective
 
 		protected override void GenerateEnum(CodeGenerationContext codeGenerationContext, TypeDefinitionExpression expression)
 		{
-			using (var writer = this.GetTextWriterForFile(expression.Name + ".h"))
+			using (var writer = this.GetTextWriterForFile(expression.Type.Name + ".h"))
 			{
 				var enumFileExpression = EnumHeaderExpressionBinder.Bind(codeGenerationContext, expression);
 

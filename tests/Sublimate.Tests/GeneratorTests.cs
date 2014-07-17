@@ -13,7 +13,8 @@ namespace Dryice.Tests
 		{
 			var options = new CodeGenerationOptions
 			{
-				GenerateClasses = true
+				GenerateClasses = true,
+				TypeNamePrefix = "TN"
 			};
 
 			var outputDir = FileSystemManager.Default.ResolveDirectory("./" + new StackTrace().GetFrame(0).GetMethod().Name);
@@ -31,7 +32,8 @@ namespace Dryice.Tests
 		{
 			var options = new CodeGenerationOptions
 			{
-				GenerateClasses = false
+				GenerateClasses = false,
+				TypeNamePrefix = "TN"
 			};
 
 			var serviceModel = DryFileParserTests.GetTestServiceModel();

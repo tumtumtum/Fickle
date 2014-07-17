@@ -6,31 +6,28 @@ using System.Linq.Expressions;
 namespace Dryice.Generators
 {
 	public class ReturnTypesCollector
+		: ServiceExpressionVisitor
 	{
-		public class ReferencedTypesCollector
-		   : ServiceExpressionVisitor
+		private readonly HashSet<Type> returnTypes = new HashSet<Type>();
+
+		private ReturnTypesCollector()
 		{
-			private readonly HashSet<Type> returnTypes = new HashSet<Type>();
+		}
 
-			private ReferencedTypesCollector()
-			{
-			}
+		public static List<Type> CollectReturnTypes(Expression expression)
+		{
+			var collector = new ReturnTypesCollector();
 
-			public static List<Type> CollectReferencedTypes(Expression expression)
-			{
-				var collector = new ReferencedTypesCollector();
+			collector.Visit(expression);
 
-				collector.Visit(expression);
+			return collector.returnTypes.ToList();
+		}
 
-				return collector.returnTypes.ToList();
-			}
+		protected override Expression VisitMethodDefinitionExpression(Expressions.MethodDefinitionExpression method)
+		{
+			this.returnTypes.Add(method.ReturnType);
 
-			protected override Expression VisitMethodDefinitionExpression(Expressions.MethodDefinitionExpression method)
-			{
-				this.returnTypes.Add(method.ReturnType);
-
-				return base.VisitMethodDefinitionExpression(method);
-			}
+			return base.VisitMethodDefinitionExpression(method);
 		}
 	}
 }

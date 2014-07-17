@@ -1,12 +1,48 @@
 ﻿enum Sex
-	male : 1
-	female : 2
+	Male : 1
+	Female : 2
 
-gateway TestService
-	@hostname ws.geronimo.thisisglobal.com
+class ResponseStatus
+	Message : string
+	ErrorCode : string
+	StackTrace : string
 
-	AddOne(value:int? sex:Sex?[])
+class Response
+	ResponseStatus : ResponseStatus
+
+class UserResponse
+	@extends Response
+	User : User
+
+class User
+	Id : uuid
+	CashBalance : double
+	Birthdate : datetime
+	Name : string
+	Password : string
+	Age : int
+	TimeSinceLastLogin : timespan[]
+	Friends : User[]
+	FollowerUserIds : uuid[]
+
+gateway UserService
+	@hostname dryice.kingstreetapps.com
+
+	GetUser(id:uuid fromDate:datetime)
 		@format json
-		@path /api/Test/AddOne?x={value}&{sex}
+		@path /api/UserService/User/{id}/{fromDate}
+		@method get
+		@returns Response
+
+	GetUserNoResponse(id:uuid fromDate:datetime)
+		@format json
+		@path /api/UserService/User/{id}/{fromDate}
+		@method get
+		@returns User
+
+	SetPassword(id:uuid password:String)
+		@secure true
+		@format json
+		@path /api/UserService/SetPassword?id={id}&password={password}
 		@method get
 		@returns int?

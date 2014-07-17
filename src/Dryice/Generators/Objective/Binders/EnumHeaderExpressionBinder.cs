@@ -22,13 +22,13 @@ namespace Dryice.Generators.Objective.Binders
 
 		protected override Expression VisitParameter(ParameterExpression node)
 		{
-			return Expression.Parameter(node.Type, currentTypeDefinition.Name.Capitalize() +  node.Name.Capitalize());
+			return Expression.Parameter(node.Type, currentTypeDefinition.Type.Name.Capitalize() +  node.Name.Capitalize());
 		}
 
 		protected virtual Expression CreateToStringMethod()
 		{
 			var value = Expression.Parameter(currentTypeDefinition.Type, "value");
-			var methodName = currentTypeDefinition.Name.Capitalize() + "ToString";
+			var methodName = currentTypeDefinition.Type.Name.Capitalize() + "ToString";
 
 			var parameters = new Expression[]
 			{
@@ -54,7 +54,7 @@ namespace Dryice.Generators.Objective.Binders
 		protected virtual Expression CreateTryParseMethod()
 		{
 			var value = Expression.Parameter(typeof(string), "value");
-			var methodName = currentTypeDefinition.Name.Capitalize() + "TryParse";
+			var methodName = currentTypeDefinition.Type.Name.Capitalize() + "TryParse";
 			var result = Expression.Parameter(currentTypeDefinition.Type.MakeByRefType(), "result");
 
 			var parameters = new Expression[]

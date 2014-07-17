@@ -3,7 +3,6 @@ using System.IO;
 using System.Reflection;
 using Dryice.Dryfile;
 using NUnit.Framework;
-using Platform.Xml.Serialization;
 using Dryice.Model;
 
 namespace Dryice.Tests
