@@ -65,18 +65,28 @@ namespace Dryice.Generators.Objective.Binders
 
 			includeExpressions.Add(DryExpression.Include("PKDictionarySerializable.h"));
 
-			var referencedTypeExpressions = referencedTypes
-				.Where(ObjectiveBinderHelpers.TypeIsServiceClass)
-				.Where(c => c != expression.Type.BaseType)
-				.Select(c => (Expression)new ReferencedTypeExpression(c));
-
 			var comment = new CommentExpression("This file is AUTO GENERATED");
 
 			var commentGroup = new [] { comment }.ToStatementisedGroupedExpression();
 			var headerGroup = includeExpressions.ToStatementisedGroupedExpression();
-			var referencedGroup =referencedTypeExpressions.ToStatementisedGroupedExpression();
 
-			var header = new[] { commentGroup, headerGroup, referencedGroup }.ToStatementisedGroupedExpression(GroupedExpressionsExpressionStyle.Wide);
+			var headerExpressions = new List<Expression>
+			{
+				commentGroup,
+				headerGroup
+			};
+
+			var referencedTypeExpressions = referencedTypes
+				.Where(ObjectiveBinderHelpers.TypeIsServiceClass)
+				.Where(c => c != expression.Type.BaseType)
+				.Select(c => (Expression)new ReferencedTypeExpression(c)).ToList();
+
+			if (referencedTypeExpressions.Count > 0)
+			{
+				headerExpressions.Add(referencedTypeExpressions.ToStatementisedGroupedExpression());
+			}
+
+			var header = headerExpressions.ToStatementisedGroupedExpression(GroupedExpressionsExpressionStyle.Wide);
 
 			var propertyBody = this.Visit(expression.Body);
 

@@ -16,6 +16,8 @@ namespace Dryice.Expressions
 			}
 		}
 
+		public override Type Type { get { return typeof(void); } }
+
 		public string Name { get; private set; }
 		public bool IsStatic { get; private set; }
 		public string RawAttributes { get; private set; }

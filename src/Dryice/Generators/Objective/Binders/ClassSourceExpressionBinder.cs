@@ -40,7 +40,7 @@ namespace Dryice.Generators.Objective.Binders
 				retvalExpression
 			};
 
-			var newDictionaryExpression = Expression.Assign(retvalExpression, Expression.New(dictionaryType.GetConstructor("initWithCapacity", typeof(int)), Expression.Constant(16))).ToStatement();
+			var newDictionaryExpression = Expression.Assign(retvalExpression, DryExpression.New("NSMutableDictionary", "initWithCapacity", ExpressionTypeCounter.Count(expression, (ExpressionType)ServiceExpressionType.PropertyDefinition))).ToStatement();
 			var makeDictionaryExpression = PropertiesToDictionaryExpressionBinder.Build(expression);
 			var returnDictionaryExpression = Expression.Return(Expression.Label(), Expression.Parameter(dictionaryType, "retval")).ToStatement();
 

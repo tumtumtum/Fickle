@@ -76,6 +76,7 @@
     <Compile Include="CodeGenerationContext.cs" />
     <Compile Include="CodeGenerationOptions.cs" />
     <Compile Include="DryDelegateType.cs" />
+    <Compile Include="Generators\ExpressionTypeCounter.cs" />
     <Compile Include="Generators\Objective\Binders\EnumHeaderExpressionBinder.cs" />
     <Compile Include="InternalEnumerableExtensions.cs" />
     <Compile Include="Expressions\CodeLiteralExpression.cs" />

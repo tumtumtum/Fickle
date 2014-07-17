@@ -14,6 +14,8 @@ namespace Dryice.Expressions
 			}
 		}
 
+		public override Type Type { get { return typeof(void); } }
+
 		public PropertyDefinitionExpression(string propertyName, Type propertyType)
 			: this(propertyName, propertyType, false)
 		{	

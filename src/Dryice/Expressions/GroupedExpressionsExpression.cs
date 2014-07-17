@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Linq.Expressions;
@@ -16,11 +17,16 @@ namespace Dryice.Expressions
 			}
 		}
 
-		public override System.Type Type
+		public override Type Type
 		{
 			get
 			{
-				return this.Expressions[this.Expressions.Count - 1].Type;
+				if (this.Expressions.Count > 0)
+				{
+					return this.Expressions[this.Expressions.Count - 1].Type;
+				}
+
+				return typeof(void);
 			}
 		}
 
