@@ -77,7 +77,7 @@ namespace Dryice.Generators
 
 			if (retval == null)
 			{	
-				retval = new ServiceClass(this.options.ResponseStatusTypeName, null, properties);
+				retval = new ServiceClass(this.options.ResponseStatusTypeName,  null, properties);
 			}
 			else
 			{

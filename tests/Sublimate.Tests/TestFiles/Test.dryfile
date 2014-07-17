@@ -45,4 +45,4 @@ gateway UserService
 		@format json
 		@path /api/UserService/SetPassword?id={id}&password={password}
 		@method get
-		@returns int?
+		@returns string

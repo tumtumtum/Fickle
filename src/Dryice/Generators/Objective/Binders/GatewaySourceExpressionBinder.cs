@@ -444,7 +444,10 @@ namespace Dryice.Generators.Objective.Binders
 
 			Expression ifElseExpression = defaultDeserialization;
 
-			ifElseExpression = Expression.IfThenElse(stringDeserialization.Test, stringDeserialization.IfTrue, ifElseExpression);
+			if (currentReturnTypes.Contains(typeof(string)))
+			{
+				ifElseExpression = Expression.IfThenElse(stringDeserialization.Test, stringDeserialization.IfTrue, ifElseExpression);
+			}
 
 			if (currentReturnTypes.Any(c => c.GetUnwrappedNullableType().IsIntegerType() || c.GetUnwrappedNullableType() == typeof(bool)))
 			{
@@ -513,7 +516,9 @@ namespace Dryice.Generators.Objective.Binders
 				this.Visit(expression.Body)
 			);
 
-			var referencedTypes = ReferencedTypesCollector.CollectReferencedTypes(body);
+			var singleValueResponseTypes = currentReturnTypes.Where(c => c.GetUnwrappedNullableType().IsPrimitive).Select(c => DryType.Define(ObjectiveBinderHelpers.GetValueResponseWrapperTypeName(c))).ToList();
+
+			var referencedTypes = ReferencedTypesCollector.CollectReferencedTypes(body).Append(singleValueResponseTypes).Distinct().ToList();
 			referencedTypes.Sort((x, y) => String.Compare(x.Name, y.Name, StringComparison.InvariantCultureIgnoreCase));
 
 			foreach (var referencedType in referencedTypes.Where(c => c is DryType && ((DryType)c).ServiceClass != null))
