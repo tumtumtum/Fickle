@@ -121,6 +121,9 @@
     <Compile Include="Model\ServiceParameter.cs" />
     <Compile Include="Model\ServiceProperty.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Reflectors\ServiceModelReflectionOptions.cs" />
+    <Compile Include="Reflectors\ServiceModelReflector.cs" />
+    <Compile Include="Reflectors\WebApi\WebApiServiceModelReflector.cs" />
     <Compile Include="ServiceExpressionVisitor.cs" />
     <Compile Include="ServiceModelCodeGenerator.cs" />
     <Compile Include="ServiceModelCodeGeneratorAttribute.cs" />
