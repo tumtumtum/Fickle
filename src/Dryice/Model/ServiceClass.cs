@@ -12,6 +12,10 @@ namespace Dryice.Model
 
 		public List<ServiceProperty> Properties { get; set; }
 
+		public ServiceClass()
+		{
+		}
+		
 		public ServiceClass(string name, string baseTypeName, List<ServiceProperty> properties)
 		{
 			this.Name = name;

@@ -85,7 +85,18 @@ namespace Dryice.Generators.Objective.Binders
 			var self = Expression.Parameter(currentType, "self"); 
 			var theCopy = Expression.Variable(expression.Type, "theCopy");
 
-			var newExpression = DryExpression.Call(DryExpression.Call(DryExpression.Call(self, "Class", "class", null), "allocWithZone", zone), expression.Type, "init", null);
+			Expression newExpression;
+
+			if (expression.Type.BaseType == typeof(object))
+			{
+				newExpression = DryExpression.Call(DryExpression.Call(DryExpression.Call(self, "Class", "class", null), "allocWithZone", zone), expression.Type, "init", null);
+			}
+			else
+			{
+				var super = DryExpression.Variable(expression.Type.BaseType.Name, "super");
+
+				newExpression = DryExpression.Call(super, DryType.Define("id"), "copyWithZone", zone);
+			}
 
 			var initTheCopy = Expression.Assign(theCopy, newExpression).ToStatement();
 			var returnStatement = Expression.Return(Expression.Label(), theCopy).ToStatement();

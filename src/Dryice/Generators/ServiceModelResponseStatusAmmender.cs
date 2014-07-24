@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using Dryice.Model;
-using Platform;
 
 namespace Dryice.Generators
 {
@@ -81,7 +80,11 @@ namespace Dryice.Generators
 			}
 			else
 			{
-				foreach (var property in properties.Where(property => !retval.Properties.Exists(c => String.Equals(c.Name, property.Name, StringComparison.InvariantCultureIgnoreCase))))
+				foreach (var property in properties.Where(property => 
+					!this.serviceModel
+					.GetServiceClassHiearchy(retval)
+					.SelectMany(c => c.Properties)
+					.Any(c => String.Equals(c.Name, property.Name, StringComparison.InvariantCultureIgnoreCase))))
 				{
 					retval.Properties.Add(property);
 				}
@@ -113,7 +116,7 @@ namespace Dryice.Generators
 
 			foreach (var returnTypeClass in returnServiceClasses)
 			{
-				if (!returnTypeClass.Properties.Exists(c => string.Equals(c.Name, options.ResponseStatusPropertyName, StringComparison.CurrentCultureIgnoreCase)))
+				if (!serviceModel.GetServiceClassHiearchy(returnTypeClass).SelectMany(c => c.Properties).Any(c => string.Equals(c.Name, options.ResponseStatusPropertyName, StringComparison.CurrentCultureIgnoreCase)))
 				{
 					returnTypeClass.Properties.Add(new ServiceProperty
 					{

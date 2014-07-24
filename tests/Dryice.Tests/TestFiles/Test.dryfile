@@ -14,11 +14,14 @@ class UserResponse
 	@extends Response
 	User : User
 
-class User
+class Person
 	Id : uuid
+	Name : string
+	
+class User
+	@extends Person
 	CashBalance : double
 	Birthdate : datetime
-	Name : string
 	Password : string
 	Age : int
 	TimeSinceLastLogin : timespan[]

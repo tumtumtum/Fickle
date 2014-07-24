@@ -53,10 +53,15 @@ namespace Dryice.Dryfile
 
 		protected virtual void Write(ServiceClass serviceClass)
 		{
-			this.Write("class {0}", serviceClass.Name);
+			this.WriteLine("class {0}", serviceClass.Name);
 
 			using (this.AcquireIndentationContext())
 			{
+				if (serviceClass.BaseTypeName != null)
+				{
+					this.WriteLine("@extends " + serviceClass.BaseTypeName);
+				}
+
 				foreach (var value in serviceClass.Properties)
 				{
 					this.WriteLine("{0} : {1}", value.Name, value.TypeName);
@@ -99,6 +104,28 @@ namespace Dryice.Dryfile
 			using (this.AcquireIndentationContext())
 			{
 				this.WriteAnnotations(serviceGateway);
+
+				foreach (var method in serviceGateway.Methods)
+				{
+					this.Write(method.Name);
+					this.Write("(");
+
+					var i = 0;
+
+					foreach (var parameter in method.Parameters)
+					{
+						this.Write(parameter.Name);	
+						this.Write(":");
+						this.Write(parameter.TypeName);
+
+						if (i <  method.Parameters.Count - 1)
+						{
+							this.Write(" ");
+						}
+					}
+
+					this.Write(")");
+				}
 			}
 		}
 

@@ -36,7 +36,7 @@ namespace Dryice.Generators
 
 		public virtual Expression Build(ServiceEnum serviceEnum)
 		{
-			var expressions = serviceEnum.Values.Select(value => Expression.Assign(Expression.Variable(typeof(int), value.Name), Expression.Constant(value.Value))).Cast<Expression>().ToList();
+			var expressions = serviceEnum.Values.Select(value => Expression.Assign(Expression.Variable(typeof(long), value.Name), Expression.Constant(value.Value))).Cast<Expression>().ToList();
 
 			return new TypeDefinitionExpression(this.GetTypeFromName(serviceEnum.Name), null, expressions.ToGroupedExpression(), true, null, null);
 		}

@@ -12,6 +12,9 @@ using Platform;
 
 namespace Dryice.Generators
 {
+	/// <summary>
+	/// Collects and returns a distinct list of all types referenced by the expression tree
+	/// </summary>
 	public class ReferencedTypesCollector
 		: ServiceExpressionVisitor
 	{
@@ -69,7 +72,7 @@ namespace Dryice.Generators
 			return node;
 		}
 
-		protected override Expression VisitMethodDefinitionExpression(Expressions.MethodDefinitionExpression method)
+		protected override Expression VisitMethodDefinitionExpression(MethodDefinitionExpression method)
 		{
 			AddType(method.ReturnType);
 

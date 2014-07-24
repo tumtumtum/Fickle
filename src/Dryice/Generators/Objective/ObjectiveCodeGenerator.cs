@@ -1108,8 +1108,6 @@ namespace Dryice.Generators.Objective
 					}
 				}
 
-
-
 				return node;
 			}
 		}

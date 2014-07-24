@@ -1,4 +1,5 @@
-﻿using System.Linq.Expressions;
+﻿using System;
+using System.Linq.Expressions;
 
 namespace Dryice.Expressions
 {
@@ -9,7 +10,7 @@ namespace Dryice.Expressions
 		public Expression Target { get; private set; }
 		public ParameterExpression VariableExpression { get; private set; }
 		
-		public override System.Type Type
+		public override Type Type
 		{
 			get
 			{

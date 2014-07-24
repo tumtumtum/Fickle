@@ -13,8 +13,7 @@ namespace DryIce.WebApi.TestWebService
 			config.Routes.MapHttpRoute
 			(
 				name: "DefaultApi",
-				routeTemplate: "api/{controller}/{action}",
-				defaults: new { id = RouteParameter.Optional }
+				routeTemplate: "api/{controller}/{action}"
 			);
 		}
 	}

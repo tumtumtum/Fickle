@@ -1,13 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
 using System.Linq.Expressions;
-using System.Text;
-using System.Threading.Tasks;
 using Dryice.Expressions;
 
 namespace Dryice.Generators
 {
+	/// <summary>
+	/// Normalizes all user-defined names that conflict with keywords by prefixing them with a prefix string
+	/// </summary>
 	public class ReservedKeywordNormalizer
 		: ServiceExpressionVisitor
 	{

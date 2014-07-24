@@ -79,6 +79,8 @@ namespace Dryice.Generators.Objective.Binders
 			var referencedTypeExpressions = referencedTypes
 				.Where(ObjectiveBinderHelpers.TypeIsServiceClass)
 				.Where(c => c != expression.Type.BaseType)
+				.OrderBy(x => x.Name.Length)
+				.ThenBy(x => x.Name)
 				.Select(c => (Expression)new ReferencedTypeExpression(c)).ToList();
 
 			if (referencedTypeExpressions.Count > 0)

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Collections.Generic;
@@ -18,6 +19,21 @@ namespace Dryice.Model
 			this.Enums = enums.ToReadOnlyCollection();
 			this.Classes = classes.ToReadOnlyCollection();
 			this.Gateways = gateways.ToReadOnlyCollection();
+		}
+
+		public IEnumerable<ServiceClass> GetServiceClassHiearchy(ServiceClass serviceClass)
+		{
+			yield return serviceClass;
+
+			if (!string.IsNullOrEmpty(serviceClass.BaseTypeName))
+			{
+				serviceClass = this.GetServiceClass(serviceClass.BaseTypeName);
+
+				foreach (var value in this.GetServiceClassHiearchy(serviceClass))
+				{
+					yield return value;
+				}
+			}
 		}
 
 		public virtual Type GetTypeFromName(string name)
