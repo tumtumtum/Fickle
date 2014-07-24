@@ -225,14 +225,14 @@
     <Content Include="Scripts\jquery-2.1.1.min.map" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Dryice\Dryice.csproj">
-      <Project>{AA0ED558-3BF6-4CED-8897-415B4D0C858D}</Project>
-      <Name>Dryice</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
     <Content Include="packages.config" />
     <None Include="Project_Readme.html" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Dryice\Dryice.csproj">
+      <Project>{aa0ed558-3bf6-4ced-8897-415b4d0c858d}</Project>
+      <Name>Dryice</Name>
+    </ProjectReference>
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

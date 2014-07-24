@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using Dryice.Generators;
 using Dryice.Model;
+using Platform.Reflection;
 
 namespace Dryice.Dryfile
 {
@@ -26,6 +27,11 @@ namespace Dryice.Dryfile
 
 			foreach (var property in properties)
 			{
+				if (property.GetFirstCustomAttribute<ServiceAnnotationAttribute>(true) == null)
+				{
+					continue;
+				}
+
 				var value = property.GetValue(obj);
 
 				if (value != null)
@@ -33,7 +39,7 @@ namespace Dryice.Dryfile
 					this.Write("@");
 					this.Write(property.Name.ToLower());
 					this.Write(" ");
-					this.Write(value.ToString().ToLower());
+					this.WriteLine(value.ToString().ToLower());
 				}
 			}
 		}
@@ -99,7 +105,7 @@ namespace Dryice.Dryfile
 
 		protected virtual void Write(ServiceGateway serviceGateway)
 		{
-			this.Write("gateway {0}", serviceGateway.Name);
+			this.WriteLine("gateway {0}", serviceGateway.Name);
 
 			using (this.AcquireIndentationContext())
 			{
@@ -108,46 +114,50 @@ namespace Dryice.Dryfile
 				foreach (var method in serviceGateway.Methods)
 				{
 					this.Write(method.Name);
+
 					this.Write("(");
 
 					var i = 0;
 
 					foreach (var parameter in method.Parameters)
 					{
-						this.Write(parameter.Name);	
+						this.Write(parameter.Name);
 						this.Write(":");
 						this.Write(parameter.TypeName);
 
-						if (i <  method.Parameters.Count - 1)
+						if (i++ < method.Parameters.Count - 1)
 						{
 							this.Write(" ");
 						}
 					}
 
-					this.Write(")");
+					this.WriteLine(")");
+
+					using (this.AcquireIndentationContext())
+					{
+						this.WriteAnnotations(method);
+					}
 				}
 			}
 		}
 
 		public virtual void Write(ServiceModel serviceModel)
 		{
-			foreach (var serviceEnum in serviceModel.Enums)
+			this.ListAction(serviceModel.Enums, this.Write);
+			
+			if (serviceModel.Enums.Count > 0)
 			{
-				this.Write(serviceEnum);
 				this.WriteLine();
 			}
 
-			foreach (var serviceClass in serviceModel.Classes)
+			this.ListAction(serviceModel.Classes, this.Write);
+
+			if (serviceModel.Classes.Count > 0)
 			{
-				this.Write(serviceClass);
 				this.WriteLine();
 			}
 
-			foreach (var serviceGateway in serviceModel.Gateways)
-			{
-				this.Write(serviceGateway);
-				this.WriteLine();
-			}
+			this.ListAction(serviceModel.Gateways, this.Write);
 		}
 	}
 }

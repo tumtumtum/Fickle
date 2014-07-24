@@ -1,11 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
 using System.Reflection;
+using System.Security.Cryptography;
+using System.Web.Http.Controllers;
 using System.Web.Http.Description;
 using Dryice.Model;
 using System.Web.Http;
 using Platform;
+using Platform.Validation;
 
 namespace Dryice.Reflectors.WebApiRuntime
 {
@@ -92,6 +96,7 @@ namespace Dryice.Reflectors.WebApiRuntime
 			var gateways = new List<ServiceGateway>();
 
 			var referencedTypes = GetReferencedTypes(descriptions).ToList();
+			var controllers = descriptions.Select(c => c.ActionDescriptor.ControllerDescriptor).ToHashSet();
 
 			foreach (var enumType in referencedTypes.Where(c => c.BaseType == typeof(Enum)))
 			{
@@ -127,7 +132,49 @@ namespace Dryice.Reflectors.WebApiRuntime
 
 				classes.Add(serviceClass);
 			}
-			
+
+			foreach (var controller in controllers)
+			{
+				var methods = new List<ServiceMethod>();
+
+				foreach (var api in descriptions.Where(c => c.ActionDescriptor.ControllerDescriptor == controller))
+				{
+					var serviceMethod = new ServiceMethod
+					{
+						Authenticated = api.ActionDescriptor.GetCustomAttributes<AuthorizeAttribute>(true).Count > 0,
+						Name = api.ActionDescriptor.ActionName,
+						Path = api.RelativePath,
+						Returns = GetTypeName(api.ActionDescriptor.ReturnType),
+						Format = "json",
+						Method = api.HttpMethod.Method,
+						Parameters = api.ActionDescriptor.GetParameters().Select(d => new ServiceParameter
+						{
+							Name = d.ParameterName,
+							TypeName = GetTypeName(d.ParameterType)
+						}).ToList()
+					};
+
+					var bodyParameter = api.ParameterDescriptions.FirstOrDefault(c => c.ParameterDescriptor.GetCustomAttributes<FromBodyAttribute>().Count > 0);
+
+					if (bodyParameter != null)
+					{
+						serviceMethod.Content = bodyParameter.Name;
+						serviceMethod.ContentServiceParameter = serviceMethod.Parameters.FirstOrDefault(c => c.Name == bodyParameter.Name);
+					}
+
+					methods.Add(serviceMethod);
+				}
+
+				var serviceGateway = new ServiceGateway
+				{
+					BaseTypeName = null,
+					Hostname = "localhost",
+					Methods = methods
+				};
+
+				gateways.Add(serviceGateway);
+			}
+
 			return new ServiceModel(enums, classes, gateways);
 		}
 	}

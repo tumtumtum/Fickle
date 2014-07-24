@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq.Expressions;
 using Dryice.Expressions;
+using Platform.VirtualFileSystem.Providers.View;
 
 namespace Dryice.Generators
 {
@@ -217,6 +218,21 @@ namespace Dryice.Generators
 			expression.Action(this);
 
 			return expression;
+		}
+
+		protected virtual void ListAction<T>(IList<T> items, Action<T> action, bool insertLinesInbetween = true)
+		{
+			var i = 0;
+
+			foreach (var item in items)
+			{
+				action(item);
+
+				if (insertLinesInbetween && i++ < items.Count - 1)
+				{
+					this.WriteLine();
+				}
+			}
 		}
 	}
 }

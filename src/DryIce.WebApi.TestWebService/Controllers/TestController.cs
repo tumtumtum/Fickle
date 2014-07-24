@@ -16,6 +16,7 @@ namespace DryIce.WebApi.TestWebService.Controllers
 	    }
 
 
+		[Authorize]
 		[AcceptVerbs("GET")]
 		public int Random()
 		{

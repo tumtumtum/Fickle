@@ -28,6 +28,8 @@ namespace DryIce.WebApi.TestWebService.Areas.HelpPage.Controllers
         public ActionResult Index()
         {
             ViewBag.DocumentationProvider = Configuration.Services.GetDocumentationProvider();
+	        var v = Configuration.Services.GetApiExplorer().ApiDescriptions;
+
             return View(Configuration.Services.GetApiExplorer().ApiDescriptions);
         }
 

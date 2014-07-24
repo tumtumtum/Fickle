@@ -282,20 +282,21 @@ namespace Dryice.Dryfile
 
 			this.ReadNextToken();
 
-			this.Expect(DryfileToken.OpenParen);
-
-			this.ReadNextToken();
-
-			var parameters = new List<ServiceParameter>();
-
-			while (this.tokenizer.CurrentToken != DryfileToken.CloseParen && this.tokenizer.CurrentToken != DryfileToken.EndOfFile)
+			if (this.tokenizer.CurrentToken == DryfileToken.OpenParen)
 			{
-				parameters.Add(this.ProcessParameter());
+				this.ReadNextToken();
+
+				var parameters = new List<ServiceParameter>();
+
+				while (this.tokenizer.CurrentToken != DryfileToken.CloseParen && this.tokenizer.CurrentToken != DryfileToken.EndOfFile)
+				{
+					parameters.Add(this.ProcessParameter());
+				}
+
+				retval.Parameters = parameters;
+
+				this.ReadNextToken();
 			}
-
-			retval.Parameters = parameters;
-
-			this.ReadNextToken();
 
 			if (this.tokenizer.CurrentToken == DryfileToken.Indent)
 			{

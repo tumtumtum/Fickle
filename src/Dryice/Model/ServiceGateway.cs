@@ -10,7 +10,7 @@ namespace Dryice.Model
 		[ServiceAnnotation] 
 		public string Hostname { get; set; }
 
-		[ServiceAnnotation] 
+		[ServiceAnnotation]
 		public string BaseTypeName { get; set; }
 
 		public List<ServiceMethod> Methods { get; set; }
