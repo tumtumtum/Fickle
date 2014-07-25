@@ -101,10 +101,6 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\src\DryIce.WebApi.TestWebService\DryIce.WebApi.TestWebService.csproj">
-      <Project>{5db140f8-4899-4482-bc03-02cbef67670e}</Project>
-      <Name>DryIce.WebApi.TestWebService</Name>
-    </ProjectReference>
     <ProjectReference Include="..\..\src\Dryice\Dryice.csproj">
       <Project>{aa0ed558-3bf6-4ced-8897-415b4d0c858d}</Project>
       <Name>Dryice</Name>

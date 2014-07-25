@@ -53,7 +53,7 @@ namespace Dryice.Generators.Objective
 
 				var newBody = Expression.Block(variables, expressions);
 
-				return new MethodDefinitionExpression(retval.Name, retval.Parameters, retval.ReturnType, newBody, retval.IsPredeclatation, retval.RawAttributes);
+				return new MethodDefinitionExpression(retval.Name, retval.Parameters, retval.ReturnType, newBody, retval.IsPredeclaration, retval.RawAttributes);
 			}
 
 			return retval;
