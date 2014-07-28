@@ -38,6 +38,12 @@ gateway UserService
 		@content user
 		@returns void
 
+	GetPerson(id:uuid)
+		@format json
+		@path /api/UserService/Person/{id}
+		@method get
+		@returns Person
+
 	GetUser(id:uuid fromDate:datetime)
 		@format json
 		@path /api/UserService/User/{id}/{fromDate}

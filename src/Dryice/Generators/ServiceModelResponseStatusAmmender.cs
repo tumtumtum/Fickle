@@ -121,7 +121,7 @@ namespace Dryice.Generators
 				additionalClasses.Add(valueResponse);
 			}
 
-			foreach (var returnTypeClass in returnServiceClasses)
+			foreach (var returnTypeClass in returnServiceClasses.OrderBy(c => serviceModel.GetDepth(c)))
 			{
 				if (!serviceModel.GetServiceClassHiearchy(returnTypeClass).SelectMany(c => c.Properties).Any(c => string.Equals(c.Name, options.ResponseStatusPropertyName, StringComparison.CurrentCultureIgnoreCase)))
 				{

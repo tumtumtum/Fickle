@@ -20,6 +20,16 @@ namespace Dryice.Model
 			this.Gateways = gateways.ToReadOnlyCollection();
 		}
 
+		public int GetDepth(ServiceClass serviceClass)
+		{
+			if (serviceClass.BaseTypeName == null)
+			{
+				return 1;
+			}
+
+			return 1 + this.GetDepth(this.GetServiceClass(serviceClass.BaseTypeName));
+		}
+
 		public IEnumerable<ServiceClass> GetServiceClassHiearchy(ServiceClass serviceClass)
 		{
 			yield return serviceClass;
@@ -147,7 +157,7 @@ namespace Dryice.Model
 				return retval;
 			}
 
-			return null;
+			throw new InvalidOperationException("Can't find service type: " + name);
 		}
 	}
 }
