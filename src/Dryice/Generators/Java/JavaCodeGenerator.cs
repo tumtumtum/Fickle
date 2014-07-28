@@ -315,7 +315,15 @@ namespace Dryice.Generators.Java
 				return node;
 			}
 
-			this.Visit(node.Object);
+			if (node.Object == null)
+			{
+				this.Write(node.Method.DeclaringType);
+			}
+			else
+			{
+				this.Visit(node.Object);
+			}
+
 			this.Write('.');
 			this.Write(node.Method.Name);
 			this.Write('(');

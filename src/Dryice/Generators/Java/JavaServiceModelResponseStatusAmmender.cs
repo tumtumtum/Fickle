@@ -22,7 +22,7 @@ namespace Dryice.Generators.Java
 				type = DryNullable.GetUnderlyingType(type);
 			}
 
-			var typeName = TypeSystem.GetPrimitiveName(type);
+			var typeName = TypeSystem.GetPrimitiveName(type, true);
 
 			var properties = new List<ServiceProperty>
 			{

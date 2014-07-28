@@ -15,12 +15,9 @@ namespace Dryice.Generators.Java.Binders
 	public class GatewayExpressionBinder
 		: ServiceExpressionVisitor
 	{
-		private Type currentType;
 		private HashSet<Type> currentReturnTypes; 
 		private TypeDefinitionExpression currentTypeDefinitionExpression;
 		public CodeGenerationContext CodeGenerationContext { get; set; }
-
-		private static readonly Regex urlParameterRegex = new Regex(@"\{([^\}]+)\}", RegexOptions.Compiled);
 
 		private DryType webServiceClientType; 
 
@@ -41,25 +38,68 @@ namespace Dryice.Generators.Java.Binders
 		protected override Expression VisitMethodDefinitionExpression(MethodDefinitionExpression method)
 		{
 			var methodName = method.Name.Uncapitalize();
-			
-			var url = Expression.Variable(typeof(string), "url");
+			var methodParameters = new List<Expression>(method.Parameters);
+			var methodVariables = new List<ParameterExpression>();
+			var methodStatements = new List<Expression>();
 
-			var responseType = JavaBinderHelpers.GetWrappedResponseType(this.CodeGenerationContext, method.ReturnType);
+			var requestParameters = new List<Expression>(method.Parameters);
 
-			var variables = new [] { url };
-
+			var httpMethod = method.Attributes["Method"];
 			var hostname = currentTypeDefinitionExpression.Attributes["Hostname"];
 			var path = "http://" + hostname + method.Attributes["Path"];
-
-			var newParameters = new List<Expression>(method.Parameters);
+			
+			var client = Expression.Variable(webServiceClientType, "webServiceClient");
+			var responseType = JavaBinderHelpers.GetWrappedResponseType(this.CodeGenerationContext, method.ReturnType);
+			var responseTypeArgument = Expression.Variable(typeof(String), responseType.Name + ".class");
 			var callback = Expression.Parameter(new DryType("RequestCallback<" + responseType.Name + ">"), "callback");
-			newParameters.Add(callback);
+			
+			methodParameters.Add(callback);
 
-			var statements = new List<Expression>();
+			var url = Expression.Variable(typeof(string), "url");
 
-			statements.Add(Expression.Assign(url, Expression.Constant(path)));
+			methodVariables.Add(url);
+			methodStatements.Add(Expression.Assign(url, Expression.Constant(path)));
 
-			foreach (var parameter in method.Parameters)
+			Object serviceCallArguments;
+
+			if (httpMethod.Equals("post", StringComparison.InvariantCultureIgnoreCase) 
+				|| httpMethod.Equals("put", StringComparison.InvariantCultureIgnoreCase))
+			{
+				var contentParameterName = method.Attributes["Content"];
+
+				var contentParam = requestParameters.FirstOrDefault(x => ((ParameterExpression)x).Name.Equals(contentParameterName, StringComparison.InvariantCultureIgnoreCase));
+
+				requestParameters = requestParameters.Where(x => x != contentParam).ToList();
+
+				var payloadVar = Expression.Variable(typeof(string), "requestPayload");
+
+				methodVariables.Add(payloadVar);
+
+				var payloadAssign = Expression.Assign(payloadVar, DryExpression.StaticCall(contentParam.Type, typeof(String), "serialize", contentParam));
+
+				methodStatements.Add(payloadAssign);
+
+				//statements.Add(Expression.Assign(requestPayload, DryExpression.Call(url, typeof(String), "replace", replaceArgs)));	
+
+				serviceCallArguments = new
+				{
+					url,
+					responseTypeArgument,
+					payloadVar,
+					callback
+				};
+			}
+			else
+			{
+				serviceCallArguments = new
+				{
+					url,
+					responseTypeArgument,
+					callback
+				};
+			}
+
+			foreach (var parameter in requestParameters)
 			{
 				var param = (ParameterExpression) parameter;
 				var valueToReplace = Expression.Constant("{" + param.Name + "}", typeof (String));
@@ -71,32 +111,18 @@ namespace Dryice.Generators.Java.Binders
 					valueAsString
 				};
 
-				statements.Add(Expression.Assign(url, DryExpression.Call(url, typeof(String), "replace", replaceArgs)));	
+				methodStatements.Add(Expression.Assign(url, DryExpression.Call(url, typeof(String), "replace", replaceArgs)));	
 			}
 
-			var client = Expression.Variable(webServiceClientType, "webServiceClient");
+			methodStatements.Add(DryExpression.Call(client, httpMethod, serviceCallArguments));
 
-			var responseTypeArgument = Expression.Variable(typeof (String), responseType.Name + ".class"); 
-
-			var serviceCallArguments = new
-				{
-					url, 
-					responseTypeArgument,
-					callback
-				};
-
-			var callMethod = method.Attributes["Method"];
-
-			statements.Add(DryExpression.Call(client, callMethod, serviceCallArguments));
-
-
-			var block = DryExpression.Block
+			var methodBody = DryExpression.Block
 			(
-				variables,
-				statements.ToArray()
+				methodVariables.ToArray(),
+				methodStatements.ToArray()
 			);
 
-			return new MethodDefinitionExpression(methodName, newParameters.ToReadOnlyCollection(), typeof(void), block, false, null);
+			return new MethodDefinitionExpression(methodName, methodParameters.ToReadOnlyCollection(), typeof(void), methodBody, false, null);
 		}
 
 		private Expression CreateDefaultConstructor()
@@ -128,7 +154,6 @@ namespace Dryice.Generators.Java.Binders
 
 		protected override Expression VisitTypeDefinitionExpression(TypeDefinitionExpression expression)
 		{
-			currentType = expression.Type;
 			currentTypeDefinitionExpression = expression;
 			currentReturnTypes = new HashSet<Type>(ReturnTypesCollector.CollectReturnTypes(expression));
 			
@@ -166,8 +191,6 @@ namespace Dryice.Generators.Java.Binders
 
 			var headerGroup = includeExpressions.Sorted(IncludeExpression.Compare).ToGroupedExpression();
 			var header = new Expression[] { comment, headerGroup }.ToGroupedExpression(GroupedExpressionsExpressionStyle.Wide);
-
-			currentType = null;
 
 			return new TypeDefinitionExpression(expression.Type, header, body, false, null);
 		}

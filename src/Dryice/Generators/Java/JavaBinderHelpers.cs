@@ -12,7 +12,7 @@ namespace Dryice.Generators.Java
 	{
 		public static string GetValueResponseWrapperTypeName(Type type)
 		{
-			return TypeSystem.GetPrimitiveName(type) + "ValueResponse";
+			return TypeSystem.GetPrimitiveName(type, true) + "ValueResponse";
 		}
 
 		public static Type GetWrappedResponseType(CodeGenerationContext context, Type type)
