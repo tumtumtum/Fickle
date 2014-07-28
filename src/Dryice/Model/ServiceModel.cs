@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Collections.Generic;
@@ -19,6 +18,16 @@ namespace Dryice.Model
 			this.Enums = enums.ToReadOnlyCollection();
 			this.Classes = classes.ToReadOnlyCollection();
 			this.Gateways = gateways.ToReadOnlyCollection();
+		}
+
+		public int GetDepth(ServiceClass serviceClass)
+		{
+			if (serviceClass.BaseTypeName == null)
+			{
+				return 1;
+			}
+
+			return 1 + this.GetDepth(this.GetServiceClass(serviceClass.BaseTypeName));
 		}
 
 		public IEnumerable<ServiceClass> GetServiceClassHiearchy(ServiceClass serviceClass)
@@ -148,7 +157,7 @@ namespace Dryice.Model
 				return retval;
 			}
 
-			return null;
+			throw new InvalidOperationException("Can't find service type: " + name);
 		}
 	}
 }

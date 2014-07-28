@@ -34,13 +34,20 @@ namespace Dryice.Generators.Objective
 				{
 					Name = options.ResponseStatusPropertyName,
 					TypeName = options.ResponseStatusTypeName
-				},
-				new ServiceProperty()
-				{
-					Name = "Value",
-					TypeName = typeName
-				},
+				}
 			};
+
+			if (type != typeof(void))
+			{
+				properties.Add
+				(
+					new ServiceProperty()
+					{
+						Name = "Value",
+						TypeName = typeName
+					}
+				);
+			}
 
 			return new ServiceClass(ObjectiveBinderHelpers.GetValueResponseWrapperTypeName(type), null, properties);
 		}

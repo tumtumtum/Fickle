@@ -40,13 +40,20 @@ namespace Dryice.Generators
 				{
 					Name = options.ResponseStatusPropertyName,
 					TypeName = options.ResponseStatusTypeName
-				},
-				new ServiceProperty()
-				{
-					Name = "Value",
-					TypeName = typeName
-				},
+				}
 			};
+
+			if (type != typeof(void))
+			{
+				properties.Add
+				(
+					new ServiceProperty()
+					{
+						Name = "Value",
+						TypeName = typeName
+					}
+				);
+			}
 
 			return new ServiceClass(classPrefix + "ValueResponse", null, properties);
 		}
@@ -114,7 +121,7 @@ namespace Dryice.Generators
 				additionalClasses.Add(valueResponse);
 			}
 
-			foreach (var returnTypeClass in returnServiceClasses)
+			foreach (var returnTypeClass in returnServiceClasses.OrderBy(c => serviceModel.GetDepth(c)))
 			{
 				if (!serviceModel.GetServiceClassHiearchy(returnTypeClass).SelectMany(c => c.Properties).Any(c => string.Equals(c.Name, options.ResponseStatusPropertyName, StringComparison.CurrentCultureIgnoreCase)))
 				{
