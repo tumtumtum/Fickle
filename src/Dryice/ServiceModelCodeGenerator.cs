@@ -2,10 +2,13 @@
 using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
+using Dryice.Dryfile;
 using Dryice.Expressions;
 using Dryice.Generators;
+using Platform.IO;
 using Platform.Reflection;
 using Platform.VirtualFileSystem;
 using Dryice.Model;
@@ -183,6 +186,25 @@ namespace Dryice
 					var currentExpression = expression;
 
 					this.GenerateEnum(codeGenerationContext, currentExpression);
+				}
+			}
+
+			var assembly = Assembly.GetExecutingAssembly();
+			var prefix = this.GetType().Namespace + ".Prelude.";
+
+			foreach (var resourceName in assembly.GetManifestResourceNames().Where(resourceName => resourceName.StartsWith(prefix)))
+			{
+				using (var input = new StreamReader(assembly.GetManifestResourceStream(resourceName)))
+				{
+					using (var output = this.GetTextWriterForFile(resourceName.Substring(prefix.Length)))
+					{
+						int x;
+
+						while ((x = input.Read()) != -1)
+						{
+							output.Write((char)x);
+						}
+					}
 				}
 			}
 		}
