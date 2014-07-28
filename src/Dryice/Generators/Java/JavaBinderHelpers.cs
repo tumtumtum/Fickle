@@ -12,14 +12,7 @@ namespace Dryice.Generators.Java
 	{
 		public static string GetValueResponseWrapperTypeName(Type type)
 		{
-			if (type.IsNumericType(true) || type.GetUnwrappedNullableType() == typeof(bool))
-			{
-				return "NumberValueResponse";
-			}
-			else
-			{
-				return TypeSystem.GetPrimitiveName(type) + "ValueResponse";
-			}
+			return TypeSystem.GetPrimitiveName(type) + "ValueResponse";
 		}
 
 		public static Type GetWrappedResponseType(CodeGenerationContext context, Type type)

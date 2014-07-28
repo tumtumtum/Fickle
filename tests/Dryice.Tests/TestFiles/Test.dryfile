@@ -49,3 +49,21 @@ gateway UserService
 		@path /api/UserService/SetPassword?id={id}&password={password}
 		@method get
 		@returns string
+
+	DeleteUser(id:uuid)
+		@format json
+		@path /api/UserService/DeleteUser/{id}
+		@method delete
+		@returns Response
+
+	PutUser(id:uuid user:User)
+		@format json
+		@path /api/UserService/DeleteUser/{id}
+		@method put
+		@returns Response
+
+	PostUser(id:uuid user:User)
+		@format json
+		@path /api/UserService/DeleteUser/{id}
+		@method post
+		@returns Response

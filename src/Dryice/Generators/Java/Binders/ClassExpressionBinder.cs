@@ -19,6 +19,7 @@ namespace Dryice.Generators.Java.Binders
 		: ServiceExpressionVisitor
 	{
 		private readonly CodeGenerationContext codeGenerationContext;
+		private Type currentType;
 		
 		private ClassExpressionBinder(CodeGenerationContext codeGenerationContext)
 		{
@@ -32,101 +33,45 @@ namespace Dryice.Generators.Java.Binders
 			return binder.Visit(expression);
 		}
 
-		private Expression CreateAllPropertiesAsDictionaryMethod(TypeDefinitionExpression expression)
-		{
-			var dictionaryType = new DryType("NSMutableDictionary");
-			var retvalExpression = Expression.Parameter(dictionaryType, "retval");
-			
-			IEnumerable<ParameterExpression> variables = new ParameterExpression[]
-			{
-				retvalExpression
-			};
-
-			var newDictionaryExpression = Expression.Assign(retvalExpression, DryExpression.New("NSMutableDictionary", "initWithCapacity", ExpressionTypeCounter.Count(expression, (ExpressionType)ServiceExpressionType.PropertyDefinition))).ToStatement();
-			var makeDictionaryExpression = PropertiesToDictionaryExpressionBinder.Build(expression);
-			var returnDictionaryExpression = Expression.Return(Expression.Label(), Expression.Parameter(dictionaryType, "retval")).ToStatement();
-
-			var methodBody = Expression.Block(variables, (Expression)GroupedExpressionsExpression.FlatConcat(GroupedExpressionsExpressionStyle.Wide, newDictionaryExpression, makeDictionaryExpression, returnDictionaryExpression));
-
-			return new MethodDefinitionExpression("allPropertiesAsDictionary", new ReadOnlyCollection<Expression>(new List<Expression>()), dictionaryType, methodBody, false, null);
-		}
-
-		private MethodDefinitionExpression CreateInitMethod(TypeDefinitionExpression expression)
-		{
-			var type = expression.Type;
-
-			var parameters = new List<Expression>
-			{
-				Expression.Parameter(new DryType("NSDictionary"), "properties")
-			};
-
-			var methodBodyExpressions = new List<Expression>();
-			var superInitExpression = Expression.Call(Expression.Parameter(type.BaseType, "super"), new DryMethodInfo(type.BaseType, type, "init", new ParameterInfo[0]));
-
-			var assignExpression = Expression.Assign(Expression.Parameter(type, "self"), superInitExpression);
-			var compareToNullExpression = Expression.ReferenceEqual(assignExpression, Expression.Constant(null, type));
-
-			methodBodyExpressions.Add(Expression.IfThen(compareToNullExpression, Expression.Block(Expression.Return(Expression.Label(), Expression.Constant(null)).ToStatement())));
-			methodBodyExpressions.Add(PropertiesFromDictionaryExpressonBinder.Bind(expression));
-			methodBodyExpressions.Add(Expression.Return(Expression.Label(), Expression.Parameter(type, "self")).ToStatement());
-
-			IEnumerable<ParameterExpression> variables = new ParameterExpression[]
-			{
-				Expression.Parameter(DryType.Define("id"), "currentValueFromDictionary")
-			};
-
-			var methodBody = Expression.Block(variables, (Expression)methodBodyExpressions.ToStatementisedGroupedExpression(GroupedExpressionsExpressionStyle.Wide));
-
-			return new MethodDefinitionExpression("initWithPropertyDictionary", new ReadOnlyCollection<Expression>(parameters), typeof(object), methodBody, false, null);
-		}
-
-		private Expression CreateCopyWithZoneMethod(TypeDefinitionExpression expression)
-		{
-			var currentType = (DryType)expression.Type; 
-			var zone = DryExpression.Parameter("NSZone", "zone");
-			var self = Expression.Parameter(currentType, "self"); 
-			var theCopy = Expression.Variable(expression.Type, "theCopy");
-
-			var newExpression = DryExpression.Call(DryExpression.Call(DryExpression.Call(self, "Class", "class", null), "allocWithZone", zone), expression.Type, "init", null);
-
-			var initTheCopy = Expression.Assign(theCopy, newExpression).ToStatement();
-			var returnStatement = Expression.Return(Expression.Label(), theCopy).ToStatement();
-			var copyStatements = PropertiesToCopyExpressionBinder.Bind(codeGenerationContext, expression, zone, theCopy);
-
-			Expression methodBody = Expression.Block
-			(
-				new[] { theCopy },
-				initTheCopy,
-				DryExpression.GroupedWide
-				(
-					copyStatements,
-					returnStatement
-				)
-			);
-
-			return new MethodDefinitionExpression("copyWithZone", new Expression[] { zone }.ToReadOnlyCollection(), typeof(object), methodBody, false, null);
-		}
-
 		protected override Expression VisitPropertyDefinitionExpression(PropertyDefinitionExpression property)
 		{
 			var name = property.PropertyName.Uncapitalize();
 
-			var propertyDefinition = new PropertyDefinitionExpression(name, property.PropertyType, true);
+			return new PropertyDefinitionExpression(name, property.PropertyType, true);
+		}
 
-			if (name.StartsWith("new"))
-			{
-				var attributedPropertyGetter = new MethodDefinitionExpression(name, null, property.PropertyType, null, true, "(objc_method_family(none))", null);
+		protected virtual MethodDefinitionExpression CreateCreateErrorResponseMethod()
+		{
+			var errorCode = Expression.Parameter(typeof(string), "errorCode");
+			var message = Expression.Parameter(typeof(string), "errorMessage");
+			var stackTrace = Expression.Parameter(typeof(string), "stackTrace");
 
-				return new Expression[] { propertyDefinition, attributedPropertyGetter }.ToStatementisedGroupedExpression();
-			}
-			else
+			var parameters = new Expression[]
 			{
-				return propertyDefinition;
-			}
+				errorCode,
+				message,
+				stackTrace
+			};
+
+			var response = DryExpression.Variable(DryType.Define("id"), "response");
+			var responseStatus = DryExpression.Call(response, "ResponseStatus", "responseStatus", null);
+			var newResponseStatus = DryExpression.New("ResponseStatus", "init", null);
+
+			var body = DryExpression.Block
+			(
+				new[] { response },
+				Expression.IfThen(Expression.IsTrue(Expression.Equal(responseStatus, Expression.Constant(null, responseStatus.Type))), DryExpression.Block(DryExpression.Call(response, "setResponseStatus", newResponseStatus))),
+				DryExpression.Call(responseStatus, typeof(string), "setErrorCode", errorCode),
+				DryExpression.Call(responseStatus, typeof(string), "setMessage", message),
+				Expression.Return(Expression.Label(), response)
+			);
+
+			return new MethodDefinitionExpression("createErrorResponse", new ReadOnlyCollection<Expression>(parameters), AccessModifiers.Public | AccessModifiers.Static, currentType, body, false, null);
 		}
 
 		protected override Expression VisitTypeDefinitionExpression(TypeDefinitionExpression expression)
 		{
+			currentType = expression.Type;
 			var referencedTypes = ReferencedTypesCollector.CollectReferencedTypes(expression);
 			referencedTypes.Sort((x, y) => String.Compare(x.Name, y.Name, StringComparison.InvariantCultureIgnoreCase));
 
@@ -167,22 +112,12 @@ namespace Dryice.Generators.Java.Binders
 			var methods = new List<Expression>
 			{
 				this.Visit(expression.Body),
-				this.CreateInitMethod(expression),
-				this.CreateAllPropertiesAsDictionaryMethod(expression),
-				this.CreateCopyWithZoneMethod(expression),
+				CreateCreateErrorResponseMethod()
 			};
 
 			var body = methods.ToStatementisedGroupedExpression(GroupedExpressionsExpressionStyle.Wide);
 
-			var interfaceTypes = new List<Type>
-			{
-				DryType.Define("NSCopying"),
-				DryType.Define("PKDictionarySerializable")
-			};
-
-			var interfaces = interfaceTypes.Append(expression.InterfaceTypes);
-
-			return new TypeDefinitionExpression(expression.Type, header, body, false, null, interfaceTypes.ToReadOnlyCollection());
+			return new TypeDefinitionExpression(expression.Type, header, body, false, null, null);
 		}
 	}
 }

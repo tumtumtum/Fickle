@@ -94,13 +94,8 @@
     <Compile Include="Generators\Java\Binders\ClassExpressionBinder.cs" />
     <Compile Include="Generators\Java\Binders\EnumExpressionBinder.cs" />
     <Compile Include="Generators\Java\Binders\GatewayExpressionBinder.cs" />
-    <Compile Include="Generators\Java\Binders\PropertiesFromDictionaryExpressonBinder.cs" />
-    <Compile Include="Generators\Java\Binders\PropertiesToCopyExpressionBinder.cs" />
-    <Compile Include="Generators\Java\Binders\PropertiesToDictionaryExpressionBinder.cs" />
-    <Compile Include="Generators\Java\DateFormatterInserter.cs" />
     <Compile Include="Generators\Java\JavaBinderHelpers.cs" />
     <Compile Include="Generators\Java\JavaCodeGenerator.cs" />
-    <Compile Include="Generators\Java\JavaParameterInfo.cs" />
     <Compile Include="Generators\Java\JavaServiceModelCodeGenerator.cs" />
     <Compile Include="Generators\Java\JavaServiceModelResponseStatusAmmender.cs" />
     <Compile Include="Generators\Objective\Binders\EnumHeaderExpressionBinder.cs" />

@@ -123,146 +123,26 @@ namespace Dryice.Generators.Java
 			{
 				if (node.Type == typeof(Guid) || node.Type == typeof(Guid?))
 				{
-					this.Write("[");
 					this.Write(typeof(Guid), true);
-					this.Write(" uuidFromString:");
-					if (node.Operand.Type != typeof(string))
-					{
-						this.Write("(NSString*)");
-					}
+					this.Write(".uuidFromString");
 					this.Visit(node.Operand);
-					this.Write("]");
 				}
 				else if ((node.Type.GetUnwrappedNullableType().IsNumericType() || node.Type.GetUnwrappedNullableType() == typeof(bool))
-						 && (node.Operand.Type == typeof(object)
-					|| DryNullable.GetUnderlyingType(node.Operand.Type) != null
-					|| node.Operand.Type.Name == "NSNumber"
-					|| node.Operand.Type.Name == "id"))
+						 && (node.Operand.Type == typeof(object) || DryNullable.GetUnderlyingType(node.Operand.Type) != null))
 				{
-					var type = node.Type;
-
-					if (type == typeof(bool))
-					{
-						this.Write("(BOOL)((NSNumber*)");
-						this.Visit(node.Operand);
-						this.Write(").boolValue");
-					}
-					else if (type == typeof(bool?))
-					{
-						this.Write("((NSNumber*)");
-						this.Visit(node.Operand);
-						this.Write(")");
-					}
-					else if (type == typeof(byte))
-					{
-						this.Write("(uint8_t)((NSNumber*)");
-						this.Visit(node.Operand);
-						this.Write(").intValue");
-					}
-					else if (type == typeof(byte?))
-					{
-						this.Write("((NSNumber*)");
-						this.Visit(node.Operand);
-						this.Write(")");
-					}
-					else if (type == typeof(short))
-					{
-						this.Write("((NSNumber*)");
-						this.Visit(node.Operand);
-						this.Write(").shortValue");
-					}
-					else if (type == typeof(short?))
-					{
-						this.Write("((NSNumber*)");
-						this.Visit(node.Operand);
-						this.Write(")");
-					}
-					else if (type == typeof(int))
-					{
-						this.Write("((NSNumber*)");
-						this.Visit(node.Operand);
-						this.Write(").intValue");
-					}
-					else if (type == typeof(int?))
-					{
-						this.Write("((NSNumber*)");
-						this.Visit(node.Operand);
-						this.Write(")");
-					}
-					else if (type == typeof(long))
-					{
-						this.Write("(int64_t)((NSNumber*)");
-						this.Visit(node.Operand);
-						this.Write(").longLongValue");
-					}
-					else if (type == typeof(long?))
-					{
-						this.Write("((NSNumber*)");
-						this.Visit(node.Operand);
-						this.Write(")");
-					}
-					else if (type == typeof(float))
-					{
-						this.Write("(float)((NSNumber*)");
-						this.Visit(node.Operand);
-						this.Write(").floatValue");
-					}
-					else if (type == typeof(float?))
-					{
-						this.Write("((NSNumber*)");
-						this.Visit(node.Operand);
-						this.Write(")");
-					}
-					else if (type == typeof(double))
-					{
-						this.Write("(double)((NSNumber*)");
-						this.Visit(node.Operand);
-						this.Write(").doubleValue");
-					}
-					else if (type == typeof(double?))
-					{
-						this.Write("((NSNumber*)");
-						this.Visit(node.Operand);
-						this.Write(")");
-					}
-					else
-					{
-						throw new Exception("Unexpected type: " + node.Type.Name);
-					}
+					this.Write("TODO OBJECT FROM STRING");
 				}
 				else if (node.Type == typeof(DateTime?) || node.Type == typeof(DateTime))
 				{
-					this.Write("((NSString*)currentValueFromDictionary).length >= 16 ? [NSDate dateWithTimeIntervalSince1970:[[(NSString*)");
-					this.Visit(node.Operand);
-					this.Write(" substringWithRange:NSMakeRange(6, 10)] intValue]] : null");
+					this.Write("TODO DATETIME FROM STRING");
 				}
 				else if (node.Type == typeof(TimeSpan?) || node.Type == typeof(TimeSpan))
 				{
-					this.Write("[");
-					this.Write(typeof(TimeSpan), true);
-					this.Write(" fromIsoString:");
-
-					if (node.Operand.Type != typeof(string))
-					{
-						this.Write("(NSString*)");
-					}
-
-					this.Visit(node.Operand);
-					this.Write("]");
+					this.Write("TODO TIMESPAN FROM STRING");
 				}
 				else if (node.Type == typeof(object))
 				{
-					if (node.Operand.Type.IsNumericType(false)
-						|| node.Operand.Type.GetUnwrappedNullableType() == typeof(bool))
-					{
-						this.Write("@(");
-						this.Visit(node.Operand);
-						this.Write(")");
-					}
-					else
-					{
-						this.Visit(node.Operand);
-					}
+					this.Visit(node.Operand);
 				}
 				else
 				{
@@ -387,7 +267,7 @@ namespace Dryice.Generators.Java
 		protected override Expression VisitTypeBinary(TypeBinaryExpression node)
 		{
 			this.Visit(node.Expression);
-			this.Write(" instanceof");
+			this.Write(" instanceof ");
 			this.Write(node.TypeOperand, true);
 
 			return node;
@@ -412,96 +292,44 @@ namespace Dryice.Generators.Java
 			return node;
 		}
 
-		public override void Generate(Expression expression)
-		{
-			//var normalized = ReservedKeywordNormalizer.Normalize(expression, "$", reservedKeywords);
-
-			base.Generate(DateFormatterInserter.Insert(expression));
-		}
-
 		public override void ConvertToString(Expression expression)
 		{
 			if (expression.Type == typeof(string))
 			{
 				this.Visit(expression);
 			}
-			else if (expression.Type == typeof(Guid) || expression.Type == typeof(Guid?))
+			else 
 			{
+				this.Write("ConvertUtils.toString(");
 				this.Visit(expression);
-				this.Write(".toString()");
-			}
-			else if (expression.Type == typeof(TimeSpan) || expression.Type == typeof(TimeSpan?))
-			{
-				this.Visit(expression);
-				this.Write(".toString()");
-			}
-			else if (expression.Type == typeof(DateTime) || expression.Type == typeof(DateTime?))
-			{
-				this.Visit(expression);
-				this.Write(".toString()");
-			}
-			else if (expression.Type == typeof(bool))
-			{
-				this.Write("(");
-				this.Visit(expression);
-				this.Write(") ? @\"true\" : @\"false\"");
-			}
-			else if (expression.Type == typeof(bool?))
-			{
-				this.Write("(");
-				this.Visit(expression);
-				this.Write(") ? @\"true\" : @\"false\"");
-			}
-			else if (expression.Type.GetUnwrappedNullableType().IsNumericType())
-			{
-				this.Visit(expression);
-				this.Write(".toString()");
-			}
-			else
-			{
-				this.Visit(expression);
-				this.Write(".toString()");
+				this.Write(")");  
 			}
 		}
 
 		protected override Expression VisitMethodCall(MethodCallExpression node)
 		{
-			if (node.Method.Name == "ToString")
+			if (node.Method.Name == "toString")
 			{
 				ConvertToString(node.Object);
 
 				return node;
 			}
 
-			if (node.Method.Name == "Invoke" && node.Object.Type is DryDelegateType)
-			{
-				this.Visit(node.Object);
-				this.Write('(');
-
-				for (var i = 0; i < node.Arguments.Count; i++)
-				{
-					var arg = node.Arguments[i];
-
-					this.Visit(arg);
-
-					if (i != node.Arguments.Count - 1)
-					{
-						this.Write(", ");
-					}
-				}
-
-				this.Write(')');
-
-				return node;
-			}
-
+			this.Visit(node.Object);
+			this.Write('.');
 			this.Write(node.Method.Name);
 			this.Write('(');
 
-			foreach (Expression expression in node.Arguments)
+			for (var i = 0; i < node.Arguments.Count; i++)
 			{
-				this.Visit(expression);
-				this.Write(", ");
+				var arg = node.Arguments[i];
+
+				this.Visit(arg);
+
+				if (i != node.Arguments.Count - 1)
+				{
+					this.Write(", ");
+				}
 			}
 
 			this.Write(')');

@@ -22,20 +22,7 @@ namespace Dryice.Generators.Java
 				type = DryNullable.GetUnderlyingType(type);
 			}
 
-			string typeName;
-
-			if (type.IsNumericType())
-			{
-				typeName = "int?";
-			}
-			else if (isNullable)
-			{
-				typeName = TypeSystem.GetPrimitiveName(type) + "?";
-			}
-			else
-			{
-				typeName = TypeSystem.GetPrimitiveName(type);
-			}
+			var typeName = TypeSystem.GetPrimitiveName(type);
 
 			var properties = new List<ServiceProperty>
 			{
