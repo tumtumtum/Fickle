@@ -2,10 +2,13 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
+using System.Net.Http.Formatting;
 using System.Reflection;
 using System.Security.Cryptography;
+using System.Web;
 using System.Web.Http.Controllers;
 using System.Web.Http.Description;
+using System.Web.Http.Hosting;
 using Dryice.Model;
 using System.Web.Http;
 using Platform;
@@ -71,7 +74,14 @@ namespace Dryice.Reflectors.WebApiRuntime
 
 			if (TypeSystem.IsPrimitiveType(type))
 			{
-				return TypeSystem.GetPrimitiveName(type).ToLower();
+				if (type.GetUnwrappedNullableType().IsEnum)
+				{
+					return TypeSystem.GetPrimitiveName(type);
+				}
+				else
+				{
+					return TypeSystem.GetPrimitiveName(type).ToLower();
+				}
 			}
 
 			if (type == typeof(object))
@@ -90,6 +100,14 @@ namespace Dryice.Reflectors.WebApiRuntime
 		public override ServiceModel Reflect()
 		{
 			var descriptions = Configuration.Services.GetApiExplorer().ApiDescriptions;
+
+			var httpRequestMessage = HttpContext.Current.Items["MS_HttpRequestMessage"] as HttpRequestMessage;
+			var httpRequestContext = httpRequestMessage.Properties[HttpPropertyKeys.RequestContextKey] as HttpRequestContext;
+
+			var url = HttpContext.Current.Request.Url;
+
+			var hostname = url.Host;
+			var applicationRoot = httpRequestContext.Configuration.VirtualPathRoot;
 
 			var enums = new List<ServiceEnum>();
 			var classes = new List<ServiceClass>();
@@ -139,14 +157,21 @@ namespace Dryice.Reflectors.WebApiRuntime
 
 				foreach (var api in descriptions.Where(c => c.ActionDescriptor.ControllerDescriptor == controller))
 				{
+					var formatters = api.ActionDescriptor.ControllerDescriptor.Configuration.Formatters;
+
+					if (!formatters.Any(c => c is JsonMediaTypeFormatter))
+					{
+						continue;
+					}
+
 					var serviceMethod = new ServiceMethod
 					{
 						Authenticated = api.ActionDescriptor.GetCustomAttributes<AuthorizeAttribute>(true).Count > 0,
 						Name = api.ActionDescriptor.ActionName,
-						Path = api.RelativePath,
+						Path = StringUriUtils.Combine(applicationRoot, api.RelativePath),
 						Returns = GetTypeName(api.ActionDescriptor.ReturnType),
 						Format = "json",
-						Method = api.HttpMethod.Method,
+						Method = api.HttpMethod.Method.ToLower(),
 						Parameters = api.ActionDescriptor.GetParameters().Select(d => new ServiceParameter
 						{
 							Name = d.ParameterName,
@@ -154,7 +179,7 @@ namespace Dryice.Reflectors.WebApiRuntime
 						}).ToList()
 					};
 
-					var bodyParameter = api.ParameterDescriptions.FirstOrDefault(c => c.ParameterDescriptor.GetCustomAttributes<FromBodyAttribute>().Count > 0);
+					var bodyParameter = api.ParameterDescriptions.FirstOrDefault(c => c.ParameterDescriptor.ParameterBinderAttribute is FromBodyAttribute);
 
 					if (bodyParameter != null)
 					{
@@ -168,7 +193,7 @@ namespace Dryice.Reflectors.WebApiRuntime
 				var serviceGateway = new ServiceGateway
 				{
 					BaseTypeName = null,
-					Hostname = "localhost",
+					Hostname = hostname,
 					Methods = methods
 				};
 

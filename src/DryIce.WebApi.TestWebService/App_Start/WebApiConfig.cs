@@ -9,7 +9,7 @@ namespace DryIce.WebApi.TestWebService
 		{
 			config.MapHttpAttributeRoutes();
 			config.Formatters.JsonFormatter.SupportedMediaTypes.Add(new MediaTypeHeaderValue("text/html"));
-
+			
 			config.Routes.MapHttpRoute
 			(
 				name: "DefaultApi",

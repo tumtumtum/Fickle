@@ -117,9 +117,7 @@ namespace Dryice.Generators.Objective.Binders
 				{
 					parameters.Add(Expression.Parameter(parameter.Type, parameter.Name));
 					args.Add(parameter);
-					//listParameters.Add(Expression.Parameter(typeof(string), "s"));
-					//args.Add(DryExpression.Variable("__list__" + parameter.Name));
-
+					
 					return "%@";
 				}
 				else
@@ -148,7 +146,7 @@ namespace Dryice.Generators.Objective.Binders
 
 			newParameters.Add(callback);
 
-			var blockArg = Expression.Parameter(DryType.Define("id"), "arg1");
+			Expression blockArg = Expression.Parameter(DryType.Define("id"), "arg1");
 
 			Expression body;
 
@@ -158,11 +156,18 @@ namespace Dryice.Generators.Objective.Binders
 
 				var valueResponse = (DryExpression.Variable(typeName, "valueResponse"));
 
+				var blockArgValue = blockArg;
+
+				if (method.ReturnType.IsEnum)
+				{
+					blockArgValue = DryExpression.Call(blockArg, typeof(int), "intValue", null);
+				}
+
 				body = DryExpression.Block
 				(
 					new [] { valueResponse },
 					Expression.Assign(valueResponse, DryExpression.New(typeName, "init", null)),
-					Expression.Assign(DryExpression.Property(valueResponse, blockArg.Type, "value"), blockArg),
+					Expression.Assign(DryExpression.Property(valueResponse, blockArgValue.Type, "value"), blockArgValue),
 					DryExpression.Call(callback, "Invoke", valueResponse)
 				);
 			}
@@ -177,7 +182,11 @@ namespace Dryice.Generators.Objective.Binders
 
 			var responseClassType = method.ReturnType;
 
-			if ((DryNullable.GetUnderlyingType(method.ReturnType) ?? method.ReturnType).IsNumericType())
+			var unwrappedReturnType = method.ReturnType.GetUnwrappedNullableType();
+
+			if (unwrappedReturnType.IsNumericType()
+				|| unwrappedReturnType == typeof(bool)
+				|| (unwrappedReturnType.IsEnum))
 			{
 				responseClassType = DryType.Define("NSNumber");
 			}
@@ -286,7 +295,7 @@ namespace Dryice.Generators.Objective.Binders
 			
 			var allPropertiesAsDictionary = DryExpression.Call(requestObject, "NSDictionary", "allPropertiesAsDictionary", null);
 
-			var parameters = new[] { new DryParameterInfo(DryType.Define("NSDictionary"), "obj"), new DryParameterInfo(typeof(int), "options"), new DryParameterInfo(DryType.Define("NSError", true), "error") };
+			var parameters = new[] { new DryParameterInfo(DryType.Define("NSDictionary"), "obj"), new DryParameterInfo(typeof(int), "options"), new DryParameterInfo(DryType.Define("NSError"), "error", true) };
 			var methodInfo = new DryMethodInfo(DryType.Define("NSJSONSerialization"), DryType.Define("NSData"), "dataWithJSONObject", parameters, true);
 
 			var serializedDataObject = Expression.Call(methodInfo, dictionary, Expression.Constant(0), error);
@@ -332,7 +341,7 @@ namespace Dryice.Generators.Objective.Binders
 				statusCode
 			};
 
-			var jsonObjectWithDataParameters = new[] { new DryParameterInfo(DryType.Define("NSDictionary"), "obj"), new DryParameterInfo(typeof(int), "options"), new DryParameterInfo(DryType.Define("NSError", true), "error") };
+			var jsonObjectWithDataParameters = new[] { new DryParameterInfo(DryType.Define("NSDictionary"), "obj"), new DryParameterInfo(typeof(int), "options"), new DryParameterInfo(DryType.Define("NSError", true), "error", true) };
 			var methodInfo = new DryMethodInfo(DryType.Define("NSJSONSerialization"), DryType.Define("NSData"), "JSONObjectWithData", jsonObjectWithDataParameters, true);
 			
 			var deserializedDictionary = Expression.Call(methodInfo, data, Expression.Constant(0), error);

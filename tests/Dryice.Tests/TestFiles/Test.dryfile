@@ -17,7 +17,8 @@ class UserResponse
 class Person
 	Id : uuid
 	Name : string
-	
+	Sexes : Sex?[]
+
 class User
 	@extends Person
 	CashBalance : double
@@ -36,6 +37,36 @@ gateway UserService
 		@path /api/UserService/User/{id}/{fromDate}
 		@method get
 		@returns Response
+
+	GetUserSex(id:uuid)
+		@formta json
+		@path /api/UserService/GetUserSex?UserId={id}
+		@method get
+		@returns Sex
+
+	GetUserNullableSex(id:uuid)
+		@formta json
+		@path /api/UserService/GetUserSex?UserId={id}
+		@method get
+		@returns Sex?
+
+	SetUserSex(id:uuid value:Sex)
+		@formta json
+		@path /api/UserService/SetUserSex?UserId={id}&Sex=value
+		@method get
+		@returns User
+
+	SetUserNullableSex(id:uuid value:Sex?)
+		@formta json
+		@path /api/UserService/SetUserSex?UserId={id}&Sex=value
+		@method get
+		@returns User
+
+	GetUserAge(id:uuid)
+		@formta json
+		@path /api/UserService/GetUserSex?UserId={id}
+		@method get
+		@returns int?
 
 	GetUserNoResponse(id:uuid fromDate:datetime)
 		@format json

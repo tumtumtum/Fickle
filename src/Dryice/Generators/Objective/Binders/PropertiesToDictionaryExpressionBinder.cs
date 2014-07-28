@@ -44,7 +44,8 @@ namespace Dryice.Generators.Objective.Binders
 
 			Expression setExpression = setObjectForKeyMethodCall.ToStatement();
 
-			if (!property.PropertyType.IsPrimitive)
+			if (!TypeSystem.IsPrimitiveType(property.PropertyType)
+				|| (TypeSystem.IsPrimitiveType(property.PropertyType) && Nullable.GetUnderlyingType(property.PropertyType) != null))
 			{
 				setExpression = Expression.IfThen(Expression.ReferenceNotEqual(Expression.Convert(propertyExpression, typeof(object)), Expression.Constant(null)), Expression.Block(setExpression));
 			}

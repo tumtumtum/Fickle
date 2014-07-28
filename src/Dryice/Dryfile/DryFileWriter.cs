@@ -39,20 +39,28 @@ namespace Dryice.Dryfile
 					this.Write("@");
 					this.Write(property.Name.ToLower());
 					this.Write(" ");
-					this.WriteLine(value.ToString().ToLower());
+
+					if (value is bool)
+					{
+						this.WriteLine(value.ToString().ToLower());
+					}
+					else
+					{
+						this.WriteLine(value.ToString());
+					}
 				}
 			}
 		}
 
 		protected virtual void Write(ServiceEnum serviceEnum)
 		{
-			this.Write("enum {0}", serviceEnum.Name);
+			this.WriteLine("enum {0}", serviceEnum.Name);
 
 			using (this.AcquireIndentationContext())
 			{
 				foreach (var value in serviceEnum.Values)
 				{
-					this.WriteLine("{0} : {1}", value.Name, value.Value);
+					this.WriteLine("{0}:{1}", value.Name, value.Value);
 				}
 			}
 		}
@@ -70,7 +78,7 @@ namespace Dryice.Dryfile
 
 				foreach (var value in serviceClass.Properties)
 				{
-					this.WriteLine("{0} : {1}", value.Name, value.TypeName);
+					this.WriteLine("{0}:{1}", value.Name, value.TypeName);
 				}
 			}
 		}
