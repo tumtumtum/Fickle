@@ -309,6 +309,8 @@ namespace Dryice.Dryfile
 					{
 						var annotation = this.ProcessAnnotation();
 
+						this.SetAnnotation(retval, annotation);
+
 						if (annotation.Key == "content")
 						{
 							var contentParameterName = annotation.Value.Trim();
@@ -316,10 +318,6 @@ namespace Dryice.Dryfile
 							var serviceParameter = retval.Parameters.FirstOrDefault(c => c.Name == contentParameterName);
 
 							retval.ContentServiceParameter = serviceParameter;
-						}
-						else
-						{
-							this.SetAnnotation(retval, annotation);
 						}
 					}
 					else

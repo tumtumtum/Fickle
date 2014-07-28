@@ -32,6 +32,12 @@ class User
 gateway UserService
 	@hostname dryice.kingstreetapps.com
 
+	StoreUser(user:User)
+		@format json
+		@method post
+		@content user
+		@returns Response
+
 	GetUser(id:uuid fromDate:datetime)
 		@format json
 		@path /api/UserService/User/{id}/{fromDate}

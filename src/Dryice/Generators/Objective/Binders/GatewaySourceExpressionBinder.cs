@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Net;
 using System.Security.Cryptography;
 using System.Text.RegularExpressions;
 using Dryice.Expressions;
@@ -54,12 +55,9 @@ namespace Dryice.Generators.Objective.Binders
 
 		private static readonly Regex urlParameterRegex = new Regex(@"\{([^\}]+)\}", RegexOptions.Compiled);
 
-		public static bool IsNumericType( Type type)
+		public static bool IsNumericType(Type type)
 		{
-			if (!TypeUtils.IsIntegerType(type))
-				return TypeUtils.IsRealType(type);
-			else
-				return true;
+			return type.IsIntegerType() || type.IsRealType();
 		}
 
 		protected override Expression VisitMethodDefinitionExpression(MethodDefinitionExpression method)
@@ -76,6 +74,7 @@ namespace Dryice.Generators.Objective.Binders
 
 			var hostname = currentTypeDefinitionExpression.Attributes["Hostname"];
 			var path = "http://" + hostname + method.Attributes["Path"];
+			var httpMethod = method.Attributes["Method"];
 			var names = new List<string>();
 			var parameters = new List<ParameterExpression>();
 			var args = new List<Expression>();
@@ -191,6 +190,24 @@ namespace Dryice.Generators.Objective.Binders
 				responseClassType = DryType.Define("NSNumber");
 			}
 
+			Expression clientCallExpression;
+
+			if (httpMethod.Equals("get", StringComparison.InvariantCultureIgnoreCase))
+			{
+				clientCallExpression = DryExpression.Call(client, "getWithCallback", conversionBlock);
+			}
+			else
+			{
+				var contentParameterName = method.Attributes["Content"];
+				var content = parametersByName[contentParameterName];
+
+				clientCallExpression = DryExpression.Call(client, "postWithRequestObject", new
+				{
+					requestObject = content,
+					andCallback = conversionBlock
+				});
+			}
+
 			var block = DryExpression.Block
 			(
 				variables,
@@ -220,7 +237,7 @@ namespace Dryice.Generators.Objective.Binders
 					options
 				})),
 				Expression.Assign(DryExpression.Property(client, currentType, "delegate"), self),
-				DryExpression.Call(client, "getWithCallback", conversionBlock)
+				clientCallExpression
 			);
 
 			return new MethodDefinitionExpression(methodName, newParameters.ToReadOnlyCollection(), typeof(void), block, false, null);
