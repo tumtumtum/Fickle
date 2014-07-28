@@ -64,6 +64,9 @@ namespace Dryice.Generators.Objective.Binders
 			}
 
 			includeExpressions.Add(DryExpression.Include("PKDictionarySerializable.h"));
+			includeExpressions.AddRange(referencedTypes.Where(c => c.IsEnum).Select(c => (Expression)DryExpression.Include(c.Name + ".h")));
+
+			includeExpressions = includeExpressions.Select(c => (IncludeExpression)c).OrderBy(c => c.FileName.Length).Select(c => (Expression)c).ToList();
 
 			var comment = new CommentExpression("This file is AUTO GENERATED");
 

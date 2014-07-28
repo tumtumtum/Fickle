@@ -15,6 +15,17 @@ namespace DryIce.WebApi.TestWebService.Controllers
 		    return x + 1;
 	    }
 
+		[AcceptVerbs("GET")]
+		public Sex? GetUserSex(Guid userId)
+		{
+			return Sex.Female;
+		}
+
+		[AcceptVerbs("GET")]
+		public string GetUserName(Guid? id)
+		{
+			return "Bob";
+		}
 
 		[Authorize]
 		[AcceptVerbs("GET")]
@@ -24,11 +35,11 @@ namespace DryIce.WebApi.TestWebService.Controllers
 		}
 
 		[AcceptVerbs("GET")]
-		public User GetUser(Guid id)
+		public User GetUser(Guid? id)
 		{
 			return new User
 			{
-				Id = id
+				Id = Guid.NewGuid()
 			};
 		}
 

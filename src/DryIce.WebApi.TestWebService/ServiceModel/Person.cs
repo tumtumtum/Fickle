@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Permissions;
-using System.Web;
 
 namespace DryIce.WebApi.TestWebService.ServiceModel
 {
@@ -10,5 +6,6 @@ namespace DryIce.WebApi.TestWebService.ServiceModel
 	{
 		public Guid Id { get; set; }
 		public string Name { get; set; }
+		public Sex? Sex { get; set; }
 	}
 }

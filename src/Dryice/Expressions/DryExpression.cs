@@ -115,7 +115,7 @@ namespace Dryice.Expressions
 
 		public static MethodCallExpression Call(Expression instance, Type returnType, string methodName, object arguments)
 		{
-			return Call(instance, instance.Type, returnType, methodName, arguments, false);
+			return Call(instance, instance == null ? null : instance.Type, returnType, methodName, arguments, false);
 		}
 
 		private static Tuple<ParameterInfo[], Expression[]> GetParametersAndArguments(object arguments)
@@ -194,7 +194,12 @@ namespace Dryice.Expressions
 
 			var types = result.Item1.Select(c => c.ParameterType).ToArray();
 
-			var methodInfo = type.GetMethod(methodName, types);
+			MethodInfo methodInfo = null;
+
+			if (type != null)
+			{
+				methodInfo = type.GetMethod(methodName, types);
+			}
 
 			if (methodInfo == null || methodInfo is DryMethodInfo)
 			{

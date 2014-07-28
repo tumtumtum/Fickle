@@ -25,7 +25,7 @@ namespace Dryice.Expressions
 		{
 			if (left.FileName.Length == right.FileName.Length)
 			{
-				return StringComparer.InvariantCulture.Compare(left, right);
+				return StringComparer.InvariantCulture.Compare(left.FileName, right.FileName);
 			}
 			else
 			{

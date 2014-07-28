@@ -1,9 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Dryice.Model;
 using Platform;
 
 namespace Dryice.Generators.Objective
@@ -12,13 +7,15 @@ namespace Dryice.Generators.Objective
 	{
 		public static string GetValueResponseWrapperTypeName(Type type)
 		{
-			if (type.IsNumericType(true) || type.GetUnwrappedNullableType() == typeof(bool))
+			var unwrappedType = type.GetUnwrappedNullableType();
+
+			if (unwrappedType.IsNumericType(true) || unwrappedType == typeof(bool) || (unwrappedType.IsEnum && type.IsNullable()))
 			{
 				return "NumberValueResponse";
 			}
-			else
+			else 
 			{
-				return TypeSystem.GetPrimitiveName(type) + "ValueResponse";
+				return TypeSystem.GetPrimitiveName(unwrappedType, true) + "ValueResponse";
 			}
 		}
 

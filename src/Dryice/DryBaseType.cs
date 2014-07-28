@@ -80,7 +80,7 @@ namespace Dryice
 
 		public override MethodInfo[] GetMethods(BindingFlags bindingAttr)
 		{
-			throw new NotImplementedException();
+			return new MethodInfo[0];
 		}
 
 		public override FieldInfo GetField(string name, BindingFlags bindingAttr)

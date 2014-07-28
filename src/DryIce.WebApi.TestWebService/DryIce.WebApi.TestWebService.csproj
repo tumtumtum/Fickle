@@ -162,6 +162,7 @@
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ServiceModel\Person.cs" />
+    <Compile Include="ServiceModel\Sex.cs" />
     <Compile Include="ServiceModel\User.cs" />
   </ItemGroup>
   <ItemGroup>

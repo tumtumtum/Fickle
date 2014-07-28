@@ -61,11 +61,11 @@ namespace Dryice.Generators.Objective
 			{
 				if (nameOnly)
 				{
-					this.WriteLine("NSNumber");
+					this.Write("NSNumber");
 				}
 				else
 				{
-					this.WriteLine("NSNumber*");
+					this.Write("NSNumber*");
 				}
 
 				return;
@@ -199,8 +199,9 @@ namespace Dryice.Generators.Objective
 					this.Visit(node.Operand);
 					this.Write("]");
 				}
-				else if ((node.Type.GetUnwrappedNullableType().IsNumericType() || node.Type.GetUnwrappedNullableType() == typeof(bool))
-				         && (node.Operand.Type == typeof(object)
+				else if ((node.Type.GetUnwrappedNullableType().IsNumericType()
+					|| node.Type.GetUnwrappedNullableType() == typeof(bool))
+					&& (node.Operand.Type == typeof(object)
 					|| DryNullable.GetUnderlyingType(node.Operand.Type) != null 
 					|| node.Operand.Type.Name == "NSNumber"
 					|| node.Operand.Type.Name == "id"))
@@ -316,10 +317,18 @@ namespace Dryice.Generators.Objective
 					this.Visit(node.Operand);
 					this.Write("]");
 				}
+				else if ((node.Type.IsNullable() && node.Type.GetUnwrappedNullableType().IsEnum)
+					&& node.Operand.Type.IsEnum)
+				{
+					this.Write("@(");
+					this.Visit(node.Operand);
+					this.Write(")");
+				}
 				else if (node.Type == typeof(object))
 				{
 					if (node.Operand.Type.IsNumericType(false)
-					    || node.Operand.Type.GetUnwrappedNullableType() == typeof(bool))
+					    || node.Operand.Type == typeof(bool)
+						|| node.Operand.Type.IsEnum)
 					{
 						this.Write("@(");
 						this.Visit(node.Operand);
@@ -335,7 +344,9 @@ namespace Dryice.Generators.Objective
 					this.Write("((");
 					this.Write(node.Type);
 					this.Write(')');
+					this.Write('(');
 					this.Visit(node.Operand);
+					this.Write(')');
 					this.Write(')');
 				}
 			}
@@ -394,7 +405,7 @@ namespace Dryice.Generators.Objective
 			this.Visit(expression.VariableExpression);
 			this.Write(" in ");
 			this.Visit(expression.Target);
-			this.Write(")");
+			this.WriteLine(")");
 			this.Visit(expression.Body);
 
 			return expression;
@@ -597,6 +608,33 @@ namespace Dryice.Generators.Objective
 
 				return node;
 			}
+			else if (node.Method.DeclaringType == null)
+			{
+				this.Write(node.Method.Name);
+				this.Write('(');
+
+				for (var i = 0; i < node.Arguments.Count; i++)
+				{
+					var arg = node.Arguments[i];
+
+					if (node.Method.GetParameters()[i].IsIn)
+					{
+						this.Write("&");
+					}
+
+					this.Visit(arg);
+
+					if (i != node.Arguments.Count - 1)
+					{
+						this.Write(", ");
+					}
+				}
+
+				this.Write(')');
+
+				return node;
+			}
+
 
 			this.Write('[');
 			if (node.Object == null)
@@ -630,7 +668,7 @@ namespace Dryice.Generators.Objective
 						this.Write(' ');
 						this.Write(node.Method.GetParameters()[i].Name);
 						this.Write(':');
-						if (node.Method.GetParameters()[i].ParameterType.IsByRef)
+						if (node.Method.GetParameters()[i].IsIn)
 						{
 							this.Write("&");
 						}

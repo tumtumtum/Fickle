@@ -9,8 +9,7 @@ namespace Dryice.Generators
 	{
 		private readonly ServiceModel serviceModel;
 		protected readonly CodeGenerationOptions options;
-		private readonly List<ServiceClass> additionalClasses = new List<ServiceClass>();
-
+		
 		public ServiceModelResponseStatusAmmender(ServiceModel serviceModel, CodeGenerationOptions options)
 		{
 			this.serviceModel = serviceModel;
@@ -97,6 +96,7 @@ namespace Dryice.Generators
 		{
 			var returnTypes = serviceModel.Gateways.SelectMany(c => c.Methods).Select(c => serviceModel.GetTypeFromName(c.Returns)).ToHashSet();
 			var returnServiceClasses = returnTypes.Where(TypeSystem.IsNotPrimitiveType).Select(serviceModel.GetServiceClass);
+			var additionalClasses = new HashSet<ServiceClass>();
 
 			var containsResponseStatus = serviceModel.GetServiceClass(options.ResponseStatusTypeName) != null;
 
@@ -107,7 +107,7 @@ namespace Dryice.Generators
 				additionalClasses.Add(responseStatusClass);
 			} 
 			
-			foreach (var type in returnTypes.Where(TypeSystem.IsPrimitiveType))
+			foreach (var type in returnTypes.Where(TypeSystem.IsPrimitiveType).ToHashSet())
 			{ 
 				var valueResponse = CreateValueResponseServiceClass(type);
 

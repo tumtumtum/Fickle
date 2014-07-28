@@ -31,22 +31,35 @@ namespace Dryice.Generators
 				return;
 			}
 
-			referencedTypes.Add(type);
-
 			var delegateType = type as DryDelegateType;
 
 			if (delegateType != null)
 			{
 				this.AddType(delegateType.ReturnType);
 				delegateType.Parameters.Select(c => c.ParameterType).ForEach(this.AddType);
+
+				return;
 			}
 
+			var nullableType = type as DryNullable;
+
+			if (nullableType != null)
+			{
+				this.AddType(nullableType.UnderlyingType);
+
+				return;
+			}
+			
 			var listType = type as DryListType;
 
 			if (listType != null)
 			{
 				this.AddType(listType.ListElementType);
+
+				return;
 			}
+
+			referencedTypes.Add(type);
 		}
 
 		public static List<Type> CollectReferencedTypes(Expression expression)

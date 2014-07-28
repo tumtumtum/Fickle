@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Platform;
 
 namespace Dryice
 {
@@ -38,19 +39,38 @@ namespace Dryice
 			AddPrimitiveType(typeof(Guid), "UUID");
 		}
 
-		public static string GetPrimitiveName(Type type)
+		public static string GetPrimitiveName(Type type, bool naked = false)
 		{
-			return primitiveTypeByName.FirstOrDefault(c => c.Value == type).Key;
+			if (type.GetUnwrappedNullableType().IsEnum)
+			{
+				if (type.GetUnderlyingType() == null || naked)
+				{
+					return type.GetUnwrappedNullableType().Name;
+				}
+				else
+				{
+					return type.GetUnwrappedNullableType().Name + "?";
+				}
+			}
+
+			if (naked)
+			{
+				return primitiveTypeByName.FirstOrDefault(c => c.Value == type.GetUnwrappedNullableType()).Key;
+			}
+			else
+			{
+				return primitiveTypeByName.FirstOrDefault(c => c.Value == type).Key;
+			}
 		}
 
 		public static bool IsPrimitiveType(Type type)
 		{
-			return primitiveTypes.Contains(type);
+			return primitiveTypes.Contains(type) || type.GetUnwrappedNullableType().IsEnum;
 		}
 
 		public static bool IsNotPrimitiveType(Type type)
 		{
-			return !primitiveTypes.Contains(type);
+			return !IsPrimitiveType(type);
 		}
 
 		public static Type GetPrimitiveType(string name)
