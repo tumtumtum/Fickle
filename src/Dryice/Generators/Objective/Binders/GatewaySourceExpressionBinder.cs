@@ -162,12 +162,21 @@ namespace Dryice.Generators.Objective.Binders
 					blockArgValue = DryExpression.Call(blockArg, typeof(int), "intValue", null);
 				}
 
+				var blockExpressions = new List<Expression>();
+
+				blockExpressions.Add(Expression.Assign(valueResponse, DryExpression.New(typeName, "init", null)));
+
+				if (method.ReturnType != typeof(void))
+				{
+					blockExpressions.Add(Expression.Assign(DryExpression.Property(valueResponse, blockArgValue.Type, "value"), blockArgValue));
+				}
+
+				blockExpressions.Add(DryExpression.Call(callback, "Invoke", valueResponse));
+
 				body = DryExpression.Block
 				(
 					new [] { valueResponse },
-					Expression.Assign(valueResponse, DryExpression.New(typeName, "init", null)),
-					Expression.Assign(DryExpression.Property(valueResponse, blockArgValue.Type, "value"), blockArgValue),
-					DryExpression.Call(callback, "Invoke", valueResponse)
+					blockExpressions.ToArray()
 				);
 			}
 			else
@@ -220,7 +229,7 @@ namespace Dryice.Generators.Objective.Binders
 				(
 					DryExpression.Call(options, "setObject", new
 					{
-						obj = DryExpression.StaticCall(responseClassType, "class", null),
+						obj = responseClassType == typeof(void) ? (Expression)DryExpression.StaticCall(DryType.Define("NSNull"), DryType.Define("id"), "null", null) : (Expression)DryExpression.StaticCall(responseClassType, "class", null),
 						forKey = "dryice.ResponseClass"
 					}).ToStatement(),
 					method.ReturnType.GetUnwrappedNullableType() == typeof(bool) ?
@@ -423,6 +432,11 @@ namespace Dryice.Generators.Objective.Binders
 				)
 			);
 
+			var voidDeserialization = Expression.IfThen(Expression.Equal(Expression.Convert(responseClass, DryType.Define("id")), DryExpression.StaticCall("NSNull", "id", "null", null)), Expression.Block
+			(
+				Expression.Return(Expression.Label(), Expression.Constant(null)).ToStatement()
+			));
+
 			var numberDeserialization = Expression.IfThen(Expression.Equal(responseClass, DryExpression.StaticCall("NSNumber", "Class", "class", null)), DryExpression.Block
 			(
 				new [] { numberFormatter, stringValue, isBoolNumber },
@@ -488,6 +502,11 @@ namespace Dryice.Generators.Objective.Binders
 			if (currentReturnTypes.Contains(typeof(TimeSpan)) || currentReturnTypes.Contains(typeof(TimeSpan?)))
 			{
 				ifElseExpression = Expression.IfThenElse(timespanDeserialization.Test, timespanDeserialization.IfTrue, ifElseExpression);
+			}
+
+			if (currentReturnTypes.Contains(typeof(void)))
+			{
+				ifElseExpression = Expression.IfThenElse(voidDeserialization.Test, voidDeserialization.IfTrue, ifElseExpression);
 			}
 
 			var setResponseStatus = Expression.IfThen

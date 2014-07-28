@@ -15,7 +15,7 @@ namespace Dryice
 			primitiveTypes.Add(type);
 			primitiveTypeByName[name] = type;
 
-			if (type.IsValueType)
+			if (type.IsValueType && type != typeof(void))
 			{
 				type = typeof(Nullable<>).MakeGenericType(type);
 
@@ -26,6 +26,7 @@ namespace Dryice
 
 		static TypeSystem()
 		{
+			AddPrimitiveType(typeof(void), "Void");
 			AddPrimitiveType(typeof(bool), "Bool");
 			AddPrimitiveType(typeof(byte), "Byte");
 			AddPrimitiveType(typeof(char), "Char");

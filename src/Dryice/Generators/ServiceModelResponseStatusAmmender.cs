@@ -40,13 +40,20 @@ namespace Dryice.Generators
 				{
 					Name = options.ResponseStatusPropertyName,
 					TypeName = options.ResponseStatusTypeName
-				},
-				new ServiceProperty()
-				{
-					Name = "Value",
-					TypeName = typeName
-				},
+				}
 			};
+
+			if (type != typeof(void))
+			{
+				properties.Add
+				(
+					new ServiceProperty()
+					{
+						Name = "Value",
+						TypeName = typeName
+					}
+				);
+			}
 
 			return new ServiceClass(classPrefix + "ValueResponse", null, properties);
 		}

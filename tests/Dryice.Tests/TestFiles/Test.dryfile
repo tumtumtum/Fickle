@@ -36,7 +36,7 @@ gateway UserService
 		@format json
 		@method post
 		@content user
-		@returns Response
+		@returns void
 
 	GetUser(id:uuid fromDate:datetime)
 		@format json
@@ -51,7 +51,7 @@ gateway UserService
 		@returns Sex
 
 	GetUserNullableSex(id:uuid)
-		@formta json
+		@formta json	
 		@path /api/UserService/GetUserSex?UserId={id}
 		@method get
 		@returns Sex?
