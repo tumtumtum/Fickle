@@ -507,7 +507,7 @@ namespace Dryice.Generators.Objective
 					this.Write(' ');
 					this.Write(node.Constructor.GetParameters()[i].Name);
 					this.Write(':');
-					this.Visit(node.Arguments[1]);
+					this.Visit(node.Arguments[i]);
 				}
 			}
 
@@ -912,7 +912,7 @@ namespace Dryice.Generators.Objective
 		{
 			if (method.IsCStyleFunction)
 			{
-				if (method.IsStatic)
+				if ((method.AccessModifiers | AccessModifiers.Static) == AccessModifiers.Static)
 				{
 					this.Write("static ");
 				}
@@ -942,7 +942,7 @@ namespace Dryice.Generators.Objective
 				}
 				this.Write(")");
 
-				if (method.IsPredeclatation)
+				if (method.IsPredeclaration)
 				{
 					this.Write(";");
 
@@ -955,7 +955,7 @@ namespace Dryice.Generators.Objective
 			}
 			else
 			{
-				if (method.IsStatic)
+				if ((method.AccessModifiers | AccessModifiers.Static) == AccessModifiers.Static)
 				{
 					this.Write("+");
 				}
@@ -992,12 +992,12 @@ namespace Dryice.Generators.Objective
 					}
 				}
 
-				if (!string.IsNullOrEmpty(method.RawAttributes) && method.IsPredeclatation)
+				if (!string.IsNullOrEmpty(method.RawAttributes) && method.IsPredeclaration)
 				{
 					this.Write(" __attribute__({0})", method.RawAttributes);
 				}
 
-				if (method.IsPredeclatation)
+				if (method.IsPredeclaration)
 				{
 					this.WriteLine(';');
 				}

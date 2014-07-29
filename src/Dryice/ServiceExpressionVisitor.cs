@@ -37,6 +37,8 @@ namespace Dryice
 					return this.VisitCodeLiteralExpression((CodeLiteralExpression)expression);
 				case (int)ServiceExpressionType.SimpleLambdaExpression:
 					return this.VisitSimpleLambdaExpression((SimpleLambdaExpression)expression);
+				case (int)ServiceExpressionType.FieldDefinition:
+					return this.VisitFieldDefinitionExpression((FieldDefinitionExpression)expression);
 			}
 
 			return base.Visit(expression);
@@ -78,7 +80,7 @@ namespace Dryice
 
 			if (expressions != method.Parameters || body != method.Body)
 			{
-				return new MethodDefinitionExpression(method.Name, expressions, method.ReturnType, body, method.IsPredeclatation, method.RawAttributes);
+				return new MethodDefinitionExpression(method.Name, expressions, method.ReturnType, body, method.IsPredeclaration, method.RawAttributes);
 			}
 
 			return method;
@@ -87,6 +89,11 @@ namespace Dryice
 		protected virtual Expression VisitPropertyDefinitionExpression(PropertyDefinitionExpression property)
 		{
 			return property;
+		}
+
+		protected virtual Expression VisitFieldDefinitionExpression(FieldDefinitionExpression field)
+		{
+			return field;
 		}
 
 		protected virtual Expression VisitTypeDefinitionExpression(TypeDefinitionExpression expression)

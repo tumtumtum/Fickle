@@ -12,6 +12,7 @@
 		Comment = GroupedExpressions + 8,
 		ForEach = GroupedExpressions + 9,
 		CodeLiteral = GroupedExpressions + 10,
-		SimpleLambdaExpression = GroupedExpressions + 11
+		SimpleLambdaExpression = GroupedExpressions + 11,
+		FieldDefinition = GroupedExpressions + 12
 	}
 }

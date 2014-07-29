@@ -87,7 +87,6 @@ namespace Dryice.Expressions
 			return Call(null, new DryType(type), typeof(void), methodName, arguments, true);
 		}
 
-
 		public static MethodCallExpression StaticCall(string type, Type returnType, string methodName, object arguments)
 		{
 			return Call(null, DryType.Define(type), returnType, methodName, arguments, true);
@@ -116,6 +115,11 @@ namespace Dryice.Expressions
 		public static MethodCallExpression Call(Expression instance, Type returnType, string methodName, object arguments)
 		{
 			return Call(instance, instance == null ? null : instance.Type, returnType, methodName, arguments, false);
+		}
+
+		public static MethodCallExpression Call(Expression instance, Type type, Type returnType, string methodName, object arguments)
+		{
+			return Call(instance, type, returnType, methodName, arguments, false);
 		}
 
 		private static Tuple<ParameterInfo[], Expression[]> GetParametersAndArguments(object arguments)

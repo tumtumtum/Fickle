@@ -22,7 +22,7 @@ namespace Dryice.Expressions
 		}
 
 		public PropertyDefinitionExpression(string propertyName, Type propertyType, bool isPredeclatation)
-		{	
+		{
 			this.PropertyType = propertyType;
 			this.PropertyName = propertyName;
 			this.IsPredeclatation = isPredeclatation;

@@ -45,7 +45,7 @@ namespace Dryice.Generators.Objective.Binders
 
 			var body = DryExpression.Block(switchStatement);
 
-			return new MethodDefinitionExpression(methodName, parameters.ToReadOnlyCollection(), typeof(string), body, false, "__unused", null, true, true);
+			return new MethodDefinitionExpression(methodName, parameters.ToReadOnlyCollection(), typeof(string), body, false, "__unused", null, true);
 		}
 
 		protected virtual Expression CreateTryParseMethod()
@@ -72,7 +72,7 @@ namespace Dryice.Generators.Objective.Binders
 
 			var body = DryExpression.Block(switchStatement, Expression.Return(Expression.Label(), Expression.Constant(true)));
 
-			return new MethodDefinitionExpression(methodName, parameters.ToReadOnlyCollection(), typeof(bool), body, false, "__unused", null, true, true);
+			return new MethodDefinitionExpression(methodName, parameters.ToReadOnlyCollection(), typeof(bool), body, false, "__unused", null, true);
 		}
 
 		protected override Expression VisitTypeDefinitionExpression(TypeDefinitionExpression expression)
@@ -83,9 +83,11 @@ namespace Dryice.Generators.Objective.Binders
 
 				var body = this.Visit(expression.Body);
 
+				var header = new CommentExpression("This file is AUTO GENERATED");
+
 				return DryExpression.GroupedWide
 				(
-					new TypeDefinitionExpression(expression.Type, null, body, false, null, null),
+					new TypeDefinitionExpression(expression.Type, header, body, false, null, null),
 					this.CreateTryParseMethod(),
 					this.CreateToStringMethod()
 				);
