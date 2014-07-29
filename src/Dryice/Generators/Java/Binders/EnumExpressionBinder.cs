@@ -30,11 +30,6 @@ namespace Dryice.Generators.Java.Binders
 		{
 			var value = Expression.Parameter(currentTypeDefinition.Type, "value");
 
-			var parameters = new Expression[]
-			{
-				value
-			};
-
 			var defaultBody = Expression.Return(Expression.Label(), Expression.Constant(null, typeof(string))).ToStatement();
 
 			var cases = new List<SwitchCase>();
@@ -48,17 +43,12 @@ namespace Dryice.Generators.Java.Binders
 
 			var body = DryExpression.Block(switchStatement);
 
-			return new MethodDefinitionExpression("toString", parameters.ToReadOnlyCollection(), AccessModifiers.Public | AccessModifiers.Static, typeof(string), body, false, null, null);
+			return new MethodDefinitionExpression("toString", new List<Expression>(), AccessModifiers.Public, typeof(string), body, false, null, null);
 		}
 
 		protected virtual Expression CreateTryParseMethod()
 		{
 			var value = Expression.Parameter(typeof(string), "value");
-
-			var parameters = new Expression[]
-			{
-				value
-			};
 
 			var cases = new List<SwitchCase>();
 
@@ -71,7 +61,7 @@ namespace Dryice.Generators.Java.Binders
 
 			var body = DryExpression.Block(switchStatement, Expression.Return(Expression.Label(), Expression.Constant(null)));
 
-			return new MethodDefinitionExpression("tryParse", parameters.ToReadOnlyCollection(), AccessModifiers.Public | AccessModifiers.Static, currentTypeDefinition.Type, body, false, null, null, true);
+			return new MethodDefinitionExpression("tryParse", new List<Expression>(), AccessModifiers.Public, currentTypeDefinition.Type, body, false, null, null, true);
 		}
 
 		protected virtual Expression CreateConstructor(FieldDefinitionExpression value)
@@ -116,7 +106,7 @@ namespace Dryice.Generators.Java.Binders
 					expression.Body,
 					valueProperty,
 					CreateConstructor(valueProperty),
-					CreateTryParseMethod(),
+					//CreateTryParseMethod(),
 					CreateToStringMethod()
 				};
 

@@ -16,8 +16,8 @@ namespace Dryice.Generators.Java.Binders
 	{
 		private readonly CodeGenerationContext codeGenerationContext;
 		private Type currentType;
-		private List<FieldDefinitionExpression> fieldDefinitionsForProperties = new List<FieldDefinitionExpression>(); 
-		
+		private List<FieldDefinitionExpression> fieldDefinitionsForProperties = new List<FieldDefinitionExpression>();
+
 		private ClassExpressionBinder(CodeGenerationContext codeGenerationContext)
 		{
 			this.codeGenerationContext = codeGenerationContext;
@@ -54,6 +54,66 @@ namespace Dryice.Generators.Java.Binders
 			var propertySetter = new MethodDefinitionExpression("set" + property.PropertyName, new List<Expression> { setterParam }, typeof(void), setterBody, false);
 
 			return new Expression[] { propertyGetter, propertySetter }.ToStatementisedGroupedExpression();
+		}
+
+		private Expression CreateDeserialiseStreamMethod()
+		{
+			var inputStream = Expression.Parameter(DryType.Define("InputStream"), "in");
+
+			var jsonReaderType = DryType.Define("JsonReader");
+			var jsonReader = Expression.Variable(jsonReaderType, "reader");
+			var result = Expression.Variable(jsonReaderType, "reader");
+
+			var jsonReaderNew = Expression.Assign(jsonReader, Expression.New(jsonReaderType)).ToStatement();
+
+			var value = Expression.Parameter(currentType, "value");
+
+			var defaultBody = Expression.Return(Expression.Label(), Expression.Constant(null, typeof(string))).ToStatement();
+
+			var body = DryExpression.Block(defaultBody);
+
+			return new MethodDefinitionExpression("deserialize", new List<Expression>() { inputStream }, AccessModifiers.Public | AccessModifiers.Static, currentType, body, false, null, null);
+		}
+
+		private Expression CreateDeserialiseReaderMethod()
+		{
+			var value = Expression.Parameter(currentType, "value");
+
+			var defaultBody = Expression.Return(Expression.Label(), Expression.Constant(null, typeof(string))).ToStatement();
+
+			var body = DryExpression.Block(defaultBody);
+
+			return new MethodDefinitionExpression("deserialize", new List<Expression>(), AccessModifiers.Public | AccessModifiers.Static, typeof(string), body, false, null, null);
+
+		}
+
+		private Expression CreateDeserialiseArrayMethod()
+		{
+			var value = Expression.Parameter(currentType, "value");
+
+			var defaultBody = Expression.Return(Expression.Label(), Expression.Constant(null, typeof(string))).ToStatement();
+
+			var body = DryExpression.Block(defaultBody);
+
+			return new MethodDefinitionExpression("deserializeArray", new List<Expression>(), AccessModifiers.Public | AccessModifiers.Static, typeof(string), body, false, null, null);
+
+		}
+
+		private Expression CreateSerialiseMethod()
+		{
+			var value = Expression.Parameter(currentType, "value");
+
+			var jsonBuilder = DryType.Define("DefaultJsonBuilder");
+
+			var jsonBuilderInstance = DryExpression.StaticCall(jsonBuilder, "instance");
+
+			var toJsonCall = DryExpression.Call(jsonBuilderInstance, "toJson", value);
+
+			var defaultBody = Expression.Return(Expression.Label(), toJsonCall).ToStatement();
+
+			var body = DryExpression.Block(defaultBody);
+
+			return new MethodDefinitionExpression("serialize", new List<Expression>() {value}, AccessModifiers.Public | AccessModifiers.Static, typeof(string), body, false, null);
 		}
 
 		protected override Expression VisitTypeDefinitionExpression(TypeDefinitionExpression expression)
@@ -98,7 +158,11 @@ namespace Dryice.Generators.Java.Binders
 
 			var members = new List<Expression>
 			{
-				this.Visit(expression.Body)
+				this.Visit(expression.Body),
+				CreateDeserialiseStreamMethod(),
+				CreateDeserialiseReaderMethod(),
+				CreateDeserialiseArrayMethod(),
+				CreateSerialiseMethod()
 			};
 
 			var body = fieldDefinitionsForProperties.Concat(members).ToStatementisedGroupedExpression(GroupedExpressionsExpressionStyle.Wide);

@@ -298,11 +298,18 @@ namespace Dryice.Generators.Java
 			{
 				this.Visit(expression);
 			}
-			else 
+			else if (expression.Type == typeof (TimeSpan)
+				|| expression.Type == typeof(DateTime)
+				|| expression.Type.IsPrimitive)
 			{
 				this.Write("ConvertUtils.toString(");
 				this.Visit(expression);
-				this.Write(")");  
+				this.Write(")");
+			}
+			else 
+			{
+				this.Visit(expression);
+				this.Write(".toString()");  
 			}
 		}
 
@@ -571,7 +578,15 @@ namespace Dryice.Generators.Java
 			{
 				var parameter = (ParameterExpression)method.Parameters[i];
 
-				this.Write(parameter.Type);
+				if (parameter.Type is DryNullable)
+				{
+					this.Write(parameter.Type.GetUnwrappedNullableType());
+				}
+				else
+				{
+					this.Write(parameter.Type);	
+				}
+				
 				this.Write(" ");
 				this.Write(parameter.Name);
 

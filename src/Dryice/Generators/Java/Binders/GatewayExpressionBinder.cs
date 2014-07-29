@@ -15,11 +15,11 @@ namespace Dryice.Generators.Java.Binders
 	public class GatewayExpressionBinder
 		: ServiceExpressionVisitor
 	{
-		private HashSet<Type> currentReturnTypes; 
+		private HashSet<Type> currentReturnTypes;
 		private TypeDefinitionExpression currentTypeDefinitionExpression;
 		public CodeGenerationContext CodeGenerationContext { get; set; }
 
-		private DryType webServiceClientType; 
+		private DryType webServiceClientType;
 
 		private GatewayExpressionBinder(CodeGenerationContext codeGenerationContext)
 		{
@@ -47,12 +47,12 @@ namespace Dryice.Generators.Java.Binders
 			var httpMethod = method.Attributes["Method"];
 			var hostname = currentTypeDefinitionExpression.Attributes["Hostname"];
 			var path = "http://" + hostname + method.Attributes["Path"];
-			
+
 			var client = Expression.Variable(webServiceClientType, "webServiceClient");
 			var responseType = JavaBinderHelpers.GetWrappedResponseType(this.CodeGenerationContext, method.ReturnType);
 			var responseTypeArgument = Expression.Variable(typeof(String), responseType.Name + ".class");
 			var callback = Expression.Parameter(new DryType("RequestCallback<" + responseType.Name + ">"), "callback");
-			
+
 			methodParameters.Add(callback);
 
 			var url = Expression.Variable(typeof(string), "url");
@@ -62,7 +62,7 @@ namespace Dryice.Generators.Java.Binders
 
 			Object serviceCallArguments;
 
-			if (httpMethod.Equals("post", StringComparison.InvariantCultureIgnoreCase) 
+			if (httpMethod.Equals("post", StringComparison.InvariantCultureIgnoreCase)
 				|| httpMethod.Equals("put", StringComparison.InvariantCultureIgnoreCase))
 			{
 				var contentParameterName = method.Attributes["Content"];
@@ -104,9 +104,15 @@ namespace Dryice.Generators.Java.Binders
 
 			foreach (var parameter in requestParameters)
 			{
-				var param = (ParameterExpression) parameter;
-				var valueToReplace = Expression.Constant("{" + param.Name + "}", typeof (String));
-				var valueAsString = DryExpression.Call(param, typeof(String), "toString", parameter);
+				var param = (ParameterExpression)parameter;
+
+				if (param.Type is DryNullable)
+				{
+					param = DryExpression.Parameter(param.Type.GetUnwrappedNullableType(), param.Name);
+				}
+
+				var valueToReplace = Expression.Constant("{" + param.Name + "}", typeof(String));
+				var valueAsString = DryExpression.Call(param, param.Type, typeof(String), "toString", parameter);
 
 				var replaceArgs = new
 				{
@@ -114,7 +120,7 @@ namespace Dryice.Generators.Java.Binders
 					valueAsString
 				};
 
-				methodStatements.Add(Expression.Assign(url, DryExpression.Call(url, typeof(String), "replace", replaceArgs)));	
+				methodStatements.Add(Expression.Assign(url, DryExpression.Call(url, typeof(String), "replace", replaceArgs)));
 			}
 
 			methodStatements.Add(DryExpression.Call(client, httpMethod, serviceCallArguments));
@@ -136,7 +142,7 @@ namespace Dryice.Generators.Java.Binders
 
 			var body = DryExpression.Block(Expression.Assign(client, valParam).ToStatement());
 
-			return new MethodDefinitionExpression(currentTypeDefinitionExpression.Type.Name, new Expression [] {}.ToReadOnlyCollection(), null, body, false, null, null, true);
+			return new MethodDefinitionExpression(currentTypeDefinitionExpression.Type.Name, new Expression[] { }.ToReadOnlyCollection(), null, body, false, null, null, true);
 		}
 
 		private Expression CreateParameterisedConstructor()
@@ -159,7 +165,7 @@ namespace Dryice.Generators.Java.Binders
 		{
 			currentTypeDefinitionExpression = expression;
 			currentReturnTypes = new HashSet<Type>(ReturnTypesCollector.CollectReturnTypes(expression));
-			
+
 			var includeExpressions = new List<IncludeExpression>
 			{
 				DryExpression.Include(expression.Type.Name),
@@ -172,13 +178,13 @@ namespace Dryice.Generators.Java.Binders
 			var comment = new CommentExpression("This file is AUTO GENERATED");
 
 			var client = new FieldDefinitionExpression("webServiceClient", webServiceClientType, AccessModifiers.Private | AccessModifiers.Constant);
-			
+
 			var body = GroupedExpressionsExpression.FlatConcat
 			(
-				GroupedExpressionsExpressionStyle.Wide, 
+				GroupedExpressionsExpressionStyle.Wide,
 				client,
 				CreateDefaultConstructor(),
-				CreateParameterisedConstructor(), 
+				CreateParameterisedConstructor(),
 				this.Visit(expression.Body)
 			);
 
