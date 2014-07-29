@@ -635,8 +635,8 @@ namespace Dryice.Generators.Objective
 				return node;
 			}
 
-
 			this.Write('[');
+
 			if (node.Object == null)
 			{
 				this.Write(node.Method.DeclaringType, true);

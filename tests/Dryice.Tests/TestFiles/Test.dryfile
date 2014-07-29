@@ -25,15 +25,27 @@ class User
 	Birthdate : datetime
 	Password : string
 	Age : int
-	TimeSinceLastLogin : timespan[]
+	TimeSinceLastLogin : timespan
+	LoginTimes : timespan[]
 	Friends : User[]
 	FollowerUserIds : uuid[]
+
+
+gateway TestService
+	@hostname dryice.kingstreetapps.com
+
+	AddOne(value:int)
+		@format json
+		@path /api/Test/AddOne?x={value}
+		@method get
+		@returns int
 
 gateway UserService
 	@hostname dryice.kingstreetapps.com
 
 	StoreUser(user:User)
 		@format json
+		@path /api/UserService/StoreUser
 		@method post
 		@content user
 		@returns void

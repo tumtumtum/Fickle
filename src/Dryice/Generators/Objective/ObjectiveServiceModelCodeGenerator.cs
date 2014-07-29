@@ -27,6 +27,22 @@ namespace Dryice.Generators.Objective
 		{
 		}
 
+		public override void Generate(ServiceModel serviceModel)
+		{
+			base.Generate(serviceModel);
+			this.GeneratePodspec(serviceModel);
+		}
+
+		protected virtual void GeneratePodspec(ServiceModel serviceModel)
+		{
+			using (var writer = this.GetTextWriterForFile(this.Options.ServiceModelInfo.Name + ".podspec"))
+			{
+				var podspecWriter = new PodspecWriter(writer);
+
+				podspecWriter.Write(this.Options.ServiceModelInfo);
+			}
+		}
+
 		protected override ServiceModel ProcessPregeneration(ServiceModel serviceModel)
 		{
 			serviceModel = new ObjectiveServiceModelResponseStatusAmmender(serviceModel, this.Options).Ammend();

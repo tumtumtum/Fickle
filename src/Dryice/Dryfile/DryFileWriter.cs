@@ -1,6 +1,4 @@
-﻿using System;
-using System.IO;
-using System.Linq;
+﻿using System.IO;
 using System.Reflection;
 using Dryice.Generators;
 using Dryice.Model;
@@ -15,12 +13,7 @@ namespace Dryice.Dryfile
 			: base(writer)
 		{
 		}
-
-		public virtual void Generate(ServiceModel serviceModel)
-		{
-			this.Write(serviceModel);
-		}
-
+		
 		protected virtual void WriteAnnotations<T>(T obj)
 		{
 			var properties = obj.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance);

@@ -91,6 +91,7 @@
     <Compile Include="DryDelegateType.cs" />
     <Compile Include="Generators\ExpressionTypeCounter.cs" />
     <Compile Include="Generators\Objective\Binders\EnumHeaderExpressionBinder.cs" />
+    <Compile Include="Generators\Objective\PodspecWriter.cs" />
     <Compile Include="InternalEnumerableExtensions.cs" />
     <Compile Include="Expressions\CodeLiteralExpression.cs" />
     <Compile Include="Expressions\SimpleLambdaExpression.cs" />
@@ -150,6 +151,7 @@
     <Compile Include="DryPropertyInfo.cs" />
     <Compile Include="DryType.cs" />
     <Compile Include="InternalTypeExtensions.cs" />
+    <Compile Include="ServiceModelInfo.cs" />
     <Compile Include="TypeSystem.cs" />
     <Compile Include="Dryfile\UnexpectedDryfileTokenException.cs" />
     <Compile Include="Dryfile\DryfileKeyword.cs" />
@@ -163,13 +165,19 @@
     <EmbeddedResource Include="Generators\Objective\Prelude\PKTimeSpan.m" />
     <EmbeddedResource Include="Generators\Objective\Prelude\PKUUID.m" />
     <EmbeddedResource Include="Generators\Objective\Prelude\PKWebServiceClient.m" />
+    <EmbeddedResource Include="Generators\Objective\Prelude\NSString+PKExtensions.m" />
     <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <EmbeddedResource Include="Generators\Objective\Prelude\PKDictionarySerializable.h" />
+  </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Generators\Objective\Prelude\PKTimeSpan.h" />
     <EmbeddedResource Include="Generators\Objective\Prelude\PKUUID.h" />
     <EmbeddedResource Include="Generators\Objective\Prelude\PKWebServiceClient.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Generators\Objective\Prelude\NSString+PKExtensions.h" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
