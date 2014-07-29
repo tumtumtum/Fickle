@@ -1,14 +1,22 @@
-﻿using System.Collections.Generic;
-using CommandLine;
+﻿using CommandLine;
 
 namespace Dryice.Tool
 {
 	internal class CommandLineOptions
 	{
-		[Option("i")]
-		public string InputDryFile { get; set; }
+		[Option('i', "input")]
+		public string InputFile { get; set; }
+
+		[Option('n', "name")]
+		public string Name { get; set; }
 		
-		[OptionList('r', "referenceassemblies", Separator = ':', HelpText = "Specify the paths of the assemblies to reflect")]
-		public List<string> ReferenceAssemblies { get; set; }
+		[Option('s', "summary")]
+		public string Summary { get; set; }
+
+		[Option('a', "author")]
+		public string Author { get; set; }
+
+		[Option("podspec-platforms")]
+		public string PodspecPlatforms { get; set; }
 	}
 }

@@ -215,7 +215,7 @@ namespace Dryice.Generators.Objective.Binders
 
 				statements.Add(Expression.Assign(propertyExpression, outputValue).ToStatement());
 
-				expressions.Add(Expression.IfThen(Expression.TypeIs(currentValueFromDictionary, typeToCompare), Expression.Block(variables, new GroupedExpressionsExpression(statements, GroupedExpressionsExpressionStyle.Wide))));
+				expressions.Add(Expression.IfThen(Expression.TypeIs(currentValueFromDictionary, typeToCompare), Expression.Block(variables, GroupedExpressionsExpression.FlatConcat(GroupedExpressionsExpressionStyle.Wide, statements.ToArray()))));
 
 				this.propertyGetterExpressions.Add(expressions.ToStatementisedGroupedExpression(GroupedExpressionsExpressionStyle.Wide));
 			}

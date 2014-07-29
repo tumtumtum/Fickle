@@ -24,7 +24,7 @@
 
 @property(readonly) NSDictionary* options;
 @property(readonly) NSOperation* operationQueue;
-@property(readonly, weak) id<PKWebServiceClientDelegate> delegate;
+@property(readwrite, weak) id<PKWebServiceClientDelegate> delegate;
 
 +(PKWebServiceClient*)clientWithURL:(NSURL*)url options : (NSDictionary*)optionsIn operationQueue : (NSOperationQueue*)operationQueueIn;
 
