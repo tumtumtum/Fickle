@@ -31,6 +31,7 @@ namespace Dryice.Generators.Java
 	[PrimitiveTypeName(typeof(DateTime?), "DateTime", true)]
 	[PrimitiveTypeName(typeof(TimeSpan), "TimeSpan", true)]
 	[PrimitiveTypeName(typeof(TimeSpan?), "TimeSpan", true)]
+	[PrimitiveTypeName(typeof(Exception), "Exception", true)]
 	[PrimitiveTypeName(typeof(string), "String", true)]
 	public class JavaCodeGenerator
 		: BraceLanguageStyleSourceCodeGenerator
@@ -275,16 +276,19 @@ namespace Dryice.Generators.Java
 
 		protected override Expression VisitNew(NewExpression node)
 		{
-			var constructorName = node.Constructor.Name;
-
 			this.Write("new ");
 			this.Write(node.Type, true);
 			this.Write("(");
 
-			foreach (var expression in node.Arguments)
+			for (int i = 0; i < node.Arguments.Count; i++)
 			{
+				var expression = node.Arguments[i];
 				this.Visit(expression);
-				Write(", ");
+
+				if (i + 1 != node.Arguments.Count)
+				{
+					Write(", ");
+				}
 			}
 
 			this.Write(')');
@@ -294,6 +298,11 @@ namespace Dryice.Generators.Java
 
 		public override void ConvertToString(Expression expression)
 		{
+			if (expression == null || expression.Type == null)
+			{
+				expression = null;
+			}
+
 			if (expression.Type == typeof(string))
 			{
 				this.Visit(expression);
@@ -615,6 +624,43 @@ namespace Dryice.Generators.Java
 				this.Visit(node.Body);
 				this.WriteLine("break;");
 			}
+
+			return node;
+		}
+
+		protected override Expression VisitTry(TryExpression node)
+		{
+			this.WriteLine("try");
+			using (this.AcquireIndentationContext(BraceLanguageStyleIndentationOptions.IncludeBraces))
+			{
+				this.Visit(node.Body);
+			}
+
+			foreach (var handler in node.Handlers)
+			{
+				this.WriteLine();
+				this.Write("catch (");
+				this.Write(handler.Test.Name);
+				this.WriteLine(" exception)");
+
+				using (this.AcquireIndentationContext(BraceLanguageStyleIndentationOptions.IncludeBraces))
+				{
+					this.Visit(handler.Body);
+				}
+			}
+
+			if (node.Finally != null)
+			{
+				this.WriteLine();
+				this.WriteLine("finally");
+				using (this.AcquireIndentationContext(BraceLanguageStyleIndentationOptions.IncludeBraces))
+				{
+					this.Visit(node.Finally);
+				}
+			}
+
+
+			this.WriteLine();
 
 			return node;
 		}
