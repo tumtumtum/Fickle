@@ -69,6 +69,11 @@ namespace Dryice.Generators.Java.Binders
 
 				var contentParam = requestParameters.FirstOrDefault(x => ((ParameterExpression)x).Name.Equals(contentParameterName, StringComparison.InvariantCultureIgnoreCase));
 
+				if (contentParam == null)
+				{
+					throw new Exception("Post or Put method defined with null Content. You must define a @content field in your DryFile");
+				}
+
 				requestParameters = requestParameters.Where(x => x != contentParam).ToList();
 
 				var payloadVar = Expression.Variable(typeof(string), "requestPayload");
@@ -78,8 +83,6 @@ namespace Dryice.Generators.Java.Binders
 				var payloadAssign = Expression.Assign(payloadVar, DryExpression.StaticCall(contentParam.Type, typeof(String), "serialize", contentParam));
 
 				methodStatements.Add(payloadAssign);
-
-				//statements.Add(Expression.Assign(requestPayload, DryExpression.Call(url, typeof(String), "replace", replaceArgs)));	
 
 				serviceCallArguments = new
 				{

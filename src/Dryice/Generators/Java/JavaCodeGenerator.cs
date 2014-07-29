@@ -541,23 +541,6 @@ namespace Dryice.Generators.Java
 			return expression;
 		}
 
-		protected override Expression VisitPropertyDefinitionExpression(PropertyDefinitionExpression property)
-		{
-			if (!property.IsPredeclatation)
-			{
-				return property;
-			}
-
-			this.Write(AccessModifiersToString(AccessModifiers.Public));
-			this.Write(' ');
-			this.Write(property.PropertyType);
-			this.Write(' ');
-			this.Write(property.PropertyName);
-			this.WriteLine(';');
-
-			return property;
-		}
-
 		protected override Expression VisitFieldDefinitionExpression(FieldDefinitionExpression field)
 		{
 			this.Write(AccessModifiersToString(field.AccessModifiers));
@@ -573,10 +556,10 @@ namespace Dryice.Generators.Java
 		{
 			this.Write(AccessModifiersToString(method.AccessModifiers));
 
-			if (method.RawAttributes != null)
+			//if (method.RawAttributes != null)
 			{
-				this.Write(method.RawAttributes);
-				this.Write(' ');
+				//this.Write(method.RawAttributes);
+				//this.Write(' ');
 			}
 
 			if (method.ReturnType != null) //null for constructors

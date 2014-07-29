@@ -60,7 +60,6 @@ namespace Dryice.Generators.Java.Binders
 				value
 			};
 
-			var defaultBody = Expression.Return(Expression.Label(), Expression.Constant(null)).ToStatement();
 			var cases = new List<SwitchCase>();
 
 			foreach (var enumValue in ((DryType)currentTypeDefinition.Type).ServiceEnum.Values)

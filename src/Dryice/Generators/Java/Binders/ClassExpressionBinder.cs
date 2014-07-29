@@ -1,8 +1,4 @@
-﻿//
-// Copyright (c) 2013-2014 Thong Nguyen (tumtumtum@gmail.com)
-//
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -20,6 +16,7 @@ namespace Dryice.Generators.Java.Binders
 	{
 		private readonly CodeGenerationContext codeGenerationContext;
 		private Type currentType;
+		private List<FieldDefinitionExpression> fieldDefinitionsForProperties = new List<FieldDefinitionExpression>(); 
 		
 		private ClassExpressionBinder(CodeGenerationContext codeGenerationContext)
 		{
@@ -37,36 +34,26 @@ namespace Dryice.Generators.Java.Binders
 		{
 			var name = property.PropertyName.Uncapitalize();
 
-			return new PropertyDefinitionExpression(name, property.PropertyType, true);
-		}
+			fieldDefinitionsForProperties.Add(new FieldDefinitionExpression(name, property.PropertyType, AccessModifiers.Protected));
 
-		protected virtual MethodDefinitionExpression CreateCreateErrorResponseMethod()
-		{
-			var errorCode = Expression.Parameter(typeof(string), "errorCode");
-			var message = Expression.Parameter(typeof(string), "errorMessage");
-			var stackTrace = Expression.Parameter(typeof(string), "stackTrace");
+			var thisProperty = DryExpression.Variable(property.PropertyType, "this." + name);
 
-			var parameters = new Expression[]
-			{
-				errorCode,
-				message,
-				stackTrace
-			};
-
-			var response = DryExpression.Variable(DryType.Define("id"), "response");
-			var responseStatus = DryExpression.Call(response, "ResponseStatus", "responseStatus", null);
-			var newResponseStatus = DryExpression.New("ResponseStatus", "init", null);
-
-			var body = DryExpression.Block
+			var getterBody = DryExpression.Block
 			(
-				new[] { response },
-				Expression.IfThen(Expression.IsTrue(Expression.Equal(responseStatus, Expression.Constant(null, responseStatus.Type))), DryExpression.Block(DryExpression.Call(response, "setResponseStatus", newResponseStatus))),
-				DryExpression.Call(responseStatus, typeof(string), "setErrorCode", errorCode),
-				DryExpression.Call(responseStatus, typeof(string), "setMessage", message),
-				Expression.Return(Expression.Label(), response)
+				new Expression[] { DryExpression.Return(thisProperty) }
 			);
 
-			return new MethodDefinitionExpression("createErrorResponse", new ReadOnlyCollection<Expression>(parameters), AccessModifiers.Public | AccessModifiers.Static, currentType, body, false, null);
+			var setterParam = DryExpression.Parameter(property.PropertyType, name);
+
+			var setterBody = DryExpression.Block
+			(
+				new Expression[] { Expression.Assign(thisProperty, setterParam) }
+			);
+
+			var propertyGetter = new MethodDefinitionExpression("get" + property.PropertyName, new List<Expression>(), property.PropertyType, getterBody, false);
+			var propertySetter = new MethodDefinitionExpression("set" + property.PropertyName, new List<Expression> { setterParam }, typeof(void), setterBody, false);
+
+			return new Expression[] { propertyGetter, propertySetter }.ToStatementisedGroupedExpression();
 		}
 
 		protected override Expression VisitTypeDefinitionExpression(TypeDefinitionExpression expression)
@@ -109,13 +96,12 @@ namespace Dryice.Generators.Java.Binders
 			var headerGroup = includeExpressions.ToStatementisedGroupedExpression();
 			var header = new Expression[] { comment, headerGroup }.ToStatementisedGroupedExpression(GroupedExpressionsExpressionStyle.Wide);
 
-			var methods = new List<Expression>
+			var members = new List<Expression>
 			{
-				this.Visit(expression.Body),
-				CreateCreateErrorResponseMethod()
+				this.Visit(expression.Body)
 			};
 
-			var body = methods.ToStatementisedGroupedExpression(GroupedExpressionsExpressionStyle.Wide);
+			var body = fieldDefinitionsForProperties.Concat(members).ToStatementisedGroupedExpression(GroupedExpressionsExpressionStyle.Wide);
 
 			return new TypeDefinitionExpression(expression.Type, header, body, false, null, null);
 		}

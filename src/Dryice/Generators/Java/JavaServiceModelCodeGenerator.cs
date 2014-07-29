@@ -29,7 +29,7 @@ namespace Dryice.Generators.Java
 
 		protected override ServiceModel ProcessPregeneration(ServiceModel serviceModel)
 		{
-			serviceModel = new JavaServiceModelResponseStatusAmmender(serviceModel, this.Options).Ammend();
+			serviceModel = new JavaServiceModelResponseAmmender(serviceModel, this.Options).Ammend();
 
 			return serviceModel;
 		}

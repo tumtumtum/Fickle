@@ -29,7 +29,7 @@ namespace Dryice.Generators.Objective
 
 		protected override ServiceModel ProcessPregeneration(ServiceModel serviceModel)
 		{
-			serviceModel = new ObjectiveServiceModelResponseStatusAmmender(serviceModel, this.Options).Ammend();
+			serviceModel = new ObjectiveServiceModelResponseAmender(serviceModel, this.Options).Ammend();
 
 			return serviceModel;
 		}
