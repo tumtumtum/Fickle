@@ -547,20 +547,16 @@ namespace Dryice.Generators.Java
 			this.Write(field.PropertyType);
 			this.Write(' ');
 			this.Write(field.PropertyName);
-			this.WriteLine(';');
+			this.Write(';');
 
 			return field;
 		}
 
 		protected override Expression VisitMethodDefinitionExpression(MethodDefinitionExpression method)
 		{
-			this.Write(AccessModifiersToString(method.AccessModifiers));
+			WriteLine();
 
-			//if (method.RawAttributes != null)
-			{
-				//this.Write(method.RawAttributes);
-				//this.Write(' ');
-			}
+			this.Write(AccessModifiersToString(method.AccessModifiers));
 
 			if (method.ReturnType != null) //null for constructors
 			{
@@ -584,18 +580,8 @@ namespace Dryice.Generators.Java
 					this.Write(", ");
 				}
 			}
-			this.Write(")");
-
-			if (method.IsPredeclaration)
-			{
-				this.Write(";");
-
-				return method;
-			}
-
-			this.WriteLine();
+			this.WriteLine(")");
 			this.Visit(method.Body);
-			this.WriteLine();
 
 			return method;
 		}

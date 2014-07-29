@@ -103,7 +103,7 @@ namespace Dryice.Generators.Java.Binders
 
 			var body = fieldDefinitionsForProperties.Concat(members).ToStatementisedGroupedExpression(GroupedExpressionsExpressionStyle.Wide);
 
-			return new TypeDefinitionExpression(expression.Type, header, body, false, null, null);
+			return new TypeDefinitionExpression(expression.Type, header, body, false);
 		}
 	}
 }

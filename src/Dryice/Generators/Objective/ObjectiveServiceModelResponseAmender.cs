@@ -5,10 +5,10 @@ using Platform;
 
 namespace Dryice.Generators.Objective
 {
-	public class ObjectiveServiceModelResponseAmmender
-		: ServiceModelResponseAmmender
+	public class ObjectiveServiceModelResponseAmender
+		: ServiceModelResponseAmender
 	{
-		public ObjectiveServiceModelResponseAmmender(ServiceModel serviceModel, CodeGenerationOptions options)
+		public ObjectiveServiceModelResponseAmender(ServiceModel serviceModel, CodeGenerationOptions options)
 			: base(serviceModel, options)
 		{
 		}

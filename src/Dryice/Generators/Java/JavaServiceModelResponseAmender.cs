@@ -8,10 +8,10 @@ using Platform;
 
 namespace Dryice.Generators.Java
 {
-	public class JavaServiceModelResponseAmmender
-		: ServiceModelResponseAmmender
+	public class JavaServiceModelResponseAmender
+		: ServiceModelResponseAmender
 	{
-		public JavaServiceModelResponseAmmender(ServiceModel serviceModel, CodeGenerationOptions options)
+		public JavaServiceModelResponseAmender(ServiceModel serviceModel, CodeGenerationOptions options)
 			: base(serviceModel, options)
 		{
 		}

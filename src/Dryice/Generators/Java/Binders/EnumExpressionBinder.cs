@@ -28,7 +28,7 @@ namespace Dryice.Generators.Java.Binders
 
 		protected virtual Expression CreateToStringMethod()
 		{
-			var value = Expression.Parameter(currentTypeDefinition.Type, "val");
+			var value = Expression.Parameter(currentTypeDefinition.Type, "value");
 
 			var parameters = new Expression[]
 			{
@@ -53,7 +53,7 @@ namespace Dryice.Generators.Java.Binders
 
 		protected virtual Expression CreateTryParseMethod()
 		{
-			var value = Expression.Parameter(typeof(string), "val");
+			var value = Expression.Parameter(typeof(string), "value");
 
 			var parameters = new Expression[]
 			{
@@ -76,14 +76,14 @@ namespace Dryice.Generators.Java.Binders
 
 		protected virtual Expression CreateConstructor(FieldDefinitionExpression value)
 		{
-			var valParam = Expression.Parameter(typeof(int), "val");
+			var valParam = Expression.Parameter(typeof(int), "value");
 
 			var parameters = new Expression[]
 			{
 				valParam
 			};
 
-			var valueMember = Expression.Variable(value.PropertyType, value.PropertyName);
+			var valueMember = Expression.Variable(value.PropertyType, "this." + value.PropertyName);
 
 			var body = DryExpression.Block(Expression.Assign(valueMember, valParam).ToStatement());
 

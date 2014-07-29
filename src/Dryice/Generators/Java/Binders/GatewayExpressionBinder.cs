@@ -195,7 +195,7 @@ namespace Dryice.Generators.Java.Binders
 			var headerGroup = includeExpressions.Sorted(IncludeExpression.Compare).ToGroupedExpression();
 			var header = new Expression[] { comment, headerGroup }.ToGroupedExpression(GroupedExpressionsExpressionStyle.Wide);
 
-			return new TypeDefinitionExpression(expression.Type, header, body, false, null);
+			return new TypeDefinitionExpression(expression.Type, header, body, false);
 		}
 	}
 }
