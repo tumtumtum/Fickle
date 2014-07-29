@@ -98,7 +98,7 @@
     <Compile Include="Generators\Java\JavaBinderHelpers.cs" />
     <Compile Include="Generators\Java\JavaCodeGenerator.cs" />
     <Compile Include="Generators\Java\JavaServiceModelCodeGenerator.cs" />
-    <Compile Include="Generators\Java\JavaServiceModelResponseStatusAmmender.cs" />
+    <Compile Include="Generators\Java\JavaServiceModelResponseAmmender.cs" />
     <Compile Include="Generators\Objective\Binders\EnumHeaderExpressionBinder.cs" />
     <Compile Include="InternalEnumerableExtensions.cs" />
     <Compile Include="Expressions\CodeLiteralExpression.cs" />
@@ -126,11 +126,11 @@
     <Compile Include="Generators\Objective\ObjectiveCodeGenerator.cs" />
     <Compile Include="Generators\Objective\Binders\ClassHeaderExpressionBinder.cs" />
     <Compile Include="Generators\Objective\Binders\PropertiesToDictionaryExpressionBinder.cs" />
-    <Compile Include="Generators\Objective\ObjectiveServiceModelResponseStatusAmmender.cs" />
+    <Compile Include="Generators\Objective\ObjectiveServiceModelResponseAmmender.cs" />
     <Compile Include="Generators\PropertyTypeChanger.cs" />
     <Compile Include="Generators\ReservedKeywordNormalizer.cs" />
     <Compile Include="Generators\ReturnTypesCollector.cs" />
-    <Compile Include="Generators\ServiceModelResponseStatusAmmender.cs" />
+    <Compile Include="Generators\ServiceModelResponseAmmender.cs" />
     <Compile Include="Model\ServiceAnnotationAttribute.cs" />
     <Compile Include="Model\ServiceEnum.cs" />
     <Compile Include="Model\ServiceEnumValue.cs" />
