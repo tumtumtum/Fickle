@@ -17,17 +17,18 @@ class UserResponse
 class Person
 	Id : uuid
 	Name : string
-	Sexes : Sex?[]
-
+	Sexes : Sex[]
+	SexesNullable : Sex?[]
+	
 class User
 	@extends Person
 	CashBalance : double
 	Birthdate : datetime
 	Password : string
 	Age : int
+	Friends : User[]
 	TimeSinceLastLogin : timespan
 	LoginTimes : timespan[]
-	Friends : User[]
 	FollowerUserIds : uuid[]
 
 gateway TestService
