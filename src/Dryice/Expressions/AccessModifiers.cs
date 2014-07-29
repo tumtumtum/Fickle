@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Dryice.Expressions
 {
@@ -14,6 +10,7 @@ namespace Dryice.Expressions
 		Private = 0x02,
 		Protected = 0x04,
 		Static = 0x08,
-		Constant = 0x10
+		Constant = 0x10,
+		ClasseslessFunction = 0x20
 	}
 }

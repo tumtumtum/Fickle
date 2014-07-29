@@ -61,7 +61,7 @@ namespace Dryice.Generators.Java.Binders
 
 			var body = DryExpression.Block(switchStatement, Expression.Return(Expression.Label(), Expression.Constant(null)));
 
-			return new MethodDefinitionExpression("tryParse", new List<Expression>(), AccessModifiers.Public, currentTypeDefinition.Type, body, false, null, null, true);
+			return new MethodDefinitionExpression("tryParse", new List<Expression>(), AccessModifiers.Public, currentTypeDefinition.Type, body, false, null, null);
 		}
 
 		protected virtual Expression CreateConstructor(FieldDefinitionExpression value)
@@ -77,7 +77,7 @@ namespace Dryice.Generators.Java.Binders
 
 			var body = DryExpression.Block(Expression.Assign(valueMember, valParam).ToStatement());
 
-			return new MethodDefinitionExpression(currentTypeDefinition.Type.Name, parameters.ToReadOnlyCollection(), null, body, false, null, null, true);
+			return new MethodDefinitionExpression(currentTypeDefinition.Type.Name, parameters.ToReadOnlyCollection(), null, body, false, null, null);
 		}
 
 		protected override Expression VisitTypeDefinitionExpression(TypeDefinitionExpression expression)

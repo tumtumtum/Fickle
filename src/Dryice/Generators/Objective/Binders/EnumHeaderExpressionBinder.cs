@@ -45,7 +45,7 @@ namespace Dryice.Generators.Objective.Binders
 
 			var body = DryExpression.Block(switchStatement);
 
-			return new MethodDefinitionExpression(methodName, parameters.ToReadOnlyCollection(), typeof(string), body, false, "__unused", null, true);
+			return new MethodDefinitionExpression(methodName, parameters.ToReadOnlyCollection(), AccessModifiers.Static | AccessModifiers.ClasseslessFunction, typeof(string), body, false, "__unused", null);
 		}
 
 		protected virtual Expression CreateTryParseMethod()
@@ -72,7 +72,7 @@ namespace Dryice.Generators.Objective.Binders
 
 			var body = DryExpression.Block(switchStatement, Expression.Return(Expression.Label(), Expression.Constant(true)));
 
-			return new MethodDefinitionExpression(methodName, parameters.ToReadOnlyCollection(), typeof(bool), body, false, "__unused", null, true);
+			return new MethodDefinitionExpression(methodName, parameters.ToReadOnlyCollection(), AccessModifiers.Static | AccessModifiers.ClasseslessFunction, typeof(bool), body, false, "__unused", null);
 		}
 
 		protected override Expression VisitTypeDefinitionExpression(TypeDefinitionExpression expression)

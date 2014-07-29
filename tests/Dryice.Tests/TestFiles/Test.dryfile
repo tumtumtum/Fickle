@@ -30,7 +30,6 @@ class User
 	Friends : User[]
 	FollowerUserIds : uuid[]
 
-
 gateway TestService
 	@hostname dryice.kingstreetapps.com
 

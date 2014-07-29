@@ -185,6 +185,13 @@ namespace Dryice.Generators.Objective
 
 		protected override Expression VisitUnary(UnaryExpression node)
 		{
+			if (node.NodeType == ExpressionType.Not)
+			{
+				this.Write('!');
+				this.Write('(');
+				this.Visit(node.Operand);
+				this.Write(')');
+			}
 			if (node.NodeType == ExpressionType.Convert)
 			{
 				if (node.Type == typeof(Guid) || node.Type == typeof(Guid?))
@@ -910,9 +917,9 @@ namespace Dryice.Generators.Objective
 
 		protected override Expression VisitMethodDefinitionExpression(MethodDefinitionExpression method)
 		{
-			if (method.IsCStyleFunction)
+			if ((method.AccessModifiers & AccessModifiers.ClasseslessFunction) != 0)
 			{
-				if ((method.AccessModifiers | AccessModifiers.Static) == AccessModifiers.Static)
+				if ((method.AccessModifiers & AccessModifiers.Static) != 0)
 				{
 					this.Write("static ");
 				}
