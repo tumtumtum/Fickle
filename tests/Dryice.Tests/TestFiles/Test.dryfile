@@ -8,8 +8,7 @@ class ResponseStatus
 	StackTrace : string
 
 class Response
-	ResponseStatus : ResponseStatus
-
+	
 class UserResponse
 	@extends Response
 	User : User
@@ -97,6 +96,12 @@ gateway UserService
 		@path /api/UserService/User/{id}/{fromDate}
 		@method get
 		@returns User
+
+	GetUserUserResponse(id:uuid fromDate:datetime)
+		@format json
+		@path /api/UserService/User/{id}/{fromDate}
+		@method get
+		@returns UserResponse
 
 	SetPassword(id:uuid password:String)
 		@secure true

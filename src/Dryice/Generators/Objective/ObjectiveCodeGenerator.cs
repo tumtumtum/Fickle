@@ -439,7 +439,7 @@ namespace Dryice.Generators.Objective
 			{
 				if (node.Variables != null)
 				{
-					foreach (var expression in node.Variables)
+					foreach (var expression in node.Variables.OrderBy(c => c.Type.Name.Length + c.Name.Length))
 					{
 						this.WriteVariableDeclaration(expression);
 					}

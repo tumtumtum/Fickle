@@ -3,11 +3,8 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Net;
-using System.Security.Cryptography;
 using System.Text.RegularExpressions;
 using Dryice.Expressions;
-using Dryice.Model;
 using Platform;
 
 namespace Dryice.Generators.Objective.Binders
@@ -65,20 +62,20 @@ namespace Dryice.Generators.Objective.Binders
 			var methodName = method.Name.Uncapitalize();
 			
 			var self = Expression.Variable(currentType, "self");
+			var hostname = Expression.Variable(typeof(string), "hostname");
 			var options = DryExpression.Variable("NSMutableDictionary", "localOptions");
 			var url = Expression.Variable(typeof(string), "url");
 			var client = Expression.Variable(DryType.Define(this.CodeGenerationContext.Options.ServiceClientTypeName ?? "PKWebServiceClient"), "client");
 			var responseType = ObjectiveBinderHelpers.GetWrappedResponseType(this.CodeGenerationContext, method.ReturnType);
-
-			var variables = new [] { url, client, options };
-
-			var hostname = currentTypeDefinitionExpression.Attributes["Hostname"];
-			var path = "http://" + hostname + method.Attributes["Path"];
+			var variables = new [] { url, client, options, hostname };
+			var declaredHostname = currentTypeDefinitionExpression.Attributes["Hostname"];
+			var declaredPath = method.Attributes["Path"];
+			var path = StringUriUtils.Combine("http://%@", declaredPath);
 			var httpMethod = method.Attributes["Method"];
 			var names = new List<string>();
 			var parameters = new List<ParameterExpression>();
 			var args = new List<Expression>();
-			
+
 			var parametersByName = method.Parameters.ToDictionary(c => ((ParameterExpression)c).Name, c => (ParameterExpression)c, StringComparer.InvariantCultureIgnoreCase);
 
 			var objcUrl = urlParameterRegex.Replace(path, delegate(Match match)
@@ -118,6 +115,15 @@ namespace Dryice.Generators.Objective.Binders
 					
 					return "%@";
 				}
+				else if (type == typeof(Guid))
+				{
+					parameters.Add(Expression.Parameter(typeof(string), parameter.Name));
+					var arg = DryExpression.Call(parameter, typeof(string), "ToString", null);
+
+					args.Add(arg);
+
+					return "%@";
+				}
 				else
 				{
 					parameters.Add(Expression.Parameter(typeof(string), parameter.Name));
@@ -131,13 +137,17 @@ namespace Dryice.Generators.Objective.Binders
 				}
 			});
 
-			var parameterInfos = new List<DryParameterInfo>();
+			var parameterInfos = new List<DryParameterInfo>
+			{
+				new ObjectiveParameterInfo(typeof(string), "s"),
+				new ObjectiveParameterInfo(typeof(string), "hostname", true)
+			};
 
-			parameterInfos.Add(new ObjectiveParameterInfo(typeof(string), "s"));
 			parameterInfos.AddRange(parameters.Select(c => new ObjectiveParameterInfo(c.Type, c.Name, true)));
+
 			var methodInfo = new DryMethodInfo(typeof(string), typeof(string), "stringWithFormat", parameterInfos.ToArray(), true);
 
-			args.Insert(0, Expression.Constant(objcUrl));
+			args.InsertRange(0, new Expression[] { Expression.Constant(objcUrl), hostname });
 			
 			var newParameters = new List<Expression>(method.Parameters);
 			var callback = Expression.Parameter(new DryDelegateType(typeof(void), new DryParameterInfo(responseType, "response")), "callback");
@@ -183,6 +193,8 @@ namespace Dryice.Generators.Objective.Binders
 				{
 					zone = Expression.Constant(null, DryType.Define("NSZone"))
 				})),
+				Expression.Assign(hostname, DryExpression.Call(options, typeof(string), "objectForKey", Expression.Constant("Hostname"))),
+				Expression.IfThen(Expression.Equal(hostname, Expression.Constant(null)), Expression.Assign(hostname, Expression.Constant(declaredHostname)).ToStatement().ToBlock()),
 				DryExpression.Grouped
 				(
 					DryExpression.Call(options, "setObject", new
@@ -249,7 +261,6 @@ namespace Dryice.Generators.Objective.Binders
 			};
 
 			var clientOptions = DryExpression.Property(client, DryType.Define("NSDictionary"), "options");
-
 			var response = DryExpression.Variable(DryType.Define("id"), "response");
 			var responseClass = DryExpression.Call(clientOptions, "Class", "objectForKey", "$ResponseClass");
 			var responseStatus = DryExpression.Call(response, "ResponseStatus", "responseStatus", null);
