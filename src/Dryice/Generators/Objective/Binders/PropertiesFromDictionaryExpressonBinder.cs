@@ -72,7 +72,23 @@ namespace Dryice.Generators.Objective.Binders
 					else
 					{
 						var parsedValue = DryExpression.Variable(underlyingType, "parsedValue");
-						var success = DryExpression.Variable(typeof(bool), "success");
+						var success = Expression.Variable(typeof(bool), "success");
+
+						var parameters = new[] { new DryParameterInfo(typeof(string), "value"), new DryParameterInfo(underlyingType, "outValue", true) };
+						var methodInfo = new DryMethodInfo(null, typeof(bool), TypeSystem.GetPrimitiveName(underlyingType, true) + "TryParse", parameters, true);
+
+						processingStatements = new Expression[]
+						{
+							Expression.IfThen
+							(
+								Expression.Not(Expression.Assign(success, Expression.Call(null, methodInfo, Expression.Convert(value, typeof(string)), parsedValue))),
+								Expression.Assign(parsedValue, Expression.Convert(Expression.Constant(0), underlyingType)).ToStatement().ToBlock()
+							)
+						};
+
+						typeToCompare = DryType.Define("NSString");
+
+						outputValue = parsedValue;
 
 						variables = new ParameterExpression[]
 						{
@@ -80,19 +96,6 @@ namespace Dryice.Generators.Objective.Binders
 							success
 						};
 						
-						var parameters = new[] { new DryParameterInfo(typeof(string), "value"), new DryParameterInfo(underlyingType, "outValue", true) };
-						var methodInfo = new DryMethodInfo(null, typeof(bool), TypeSystem.GetPrimitiveName(underlyingType, true) + "TryParse", parameters, true);
-
-						processingStatements = new Expression[]
-						{
-							Expression.Assign(parsedValue, Expression.Convert(Expression.Constant(0), parsedValue.Type)).ToStatement(),
-							Expression.Assign(success, Expression.Call(null, methodInfo, Expression.Convert(value, typeof(string)), parsedValue)).ToStatement()
-						};
-
-						typeToCompare = DryType.Define("NSString");
-
-						outputValue = parsedValue;
-
 						if (propertyType.IsNullable())
 						{
 							outputValue = Expression.Convert(Expression.Condition(success, Expression.Convert(Expression.Convert(outputValue, propertyType), DryType.Define("id")), Expression.Convert(DryExpression.StaticCall(DryType.Define("NSNull"), propertyType, "null", null), DryType.Define("id"))), propertyType);
@@ -155,8 +158,16 @@ namespace Dryice.Generators.Objective.Binders
 						statements.AddRange(processingStatementsInner);
 					}
 
+					Expression objectToAdd = constructedArrayItem;
+
 					statements.Add(Expression.Assign(constructedArrayItem, outputValueInner).ToStatement());
-					statements.Add(DryExpression.Call(arrayVar, "addObject", constructedArrayItem).ToStatement());
+
+					if (objectToAdd.Type.GetUnwrappedNullableType().IsEnum)
+					{
+						objectToAdd = Expression.Convert(objectToAdd, typeof(object));
+					}
+
+					statements.Add(DryExpression.Call(arrayVar, "addObject", objectToAdd).ToStatement());
 
 					variablesInner = variablesInner ?? new ParameterExpression[0];
 					

@@ -196,39 +196,42 @@ namespace Dryice.Dryfile
 			var retval = new ServiceClass(this.tokenizer.CurrentIdentifier, null, new List<ServiceProperty>());
 
 			this.ReadNextToken();
-			this.Expect(DryfileToken.Indent);
-			this.ReadNextToken();
 
-			while (true)
+			if (tokenizer.CurrentToken == DryfileToken.Indent)
 			{
-				if (this.tokenizer.CurrentToken == DryfileToken.Identifier)
-				{
-					var property = this.ProcessProperty();
+				this.ReadNextToken();
 
-					retval.Properties.Add(property);
-				}
-				else if (this.tokenizer.CurrentToken == DryfileToken.Annotation)
+				while (true)
 				{
-					var annotation = this.ProcessAnnotation();
-
-					switch(annotation.Key)
+					if (this.tokenizer.CurrentToken == DryfileToken.Identifier)
 					{
-					case "extends":
-						retval.BaseTypeName = annotation.Value;
-						break;
-					default:
-						this.SetAnnotation(retval, annotation);
+						var property = this.ProcessProperty();
+
+						retval.Properties.Add(property);
+					}
+					else if (this.tokenizer.CurrentToken == DryfileToken.Annotation)
+					{
+						var annotation = this.ProcessAnnotation();
+
+						switch (annotation.Key)
+						{
+							case "extends":
+								retval.BaseTypeName = annotation.Value;
+								break;
+							default:
+								this.SetAnnotation(retval, annotation);
+								break;
+						}
+					}
+					else
+					{
 						break;
 					}
 				}
-				else
-				{
-					break;
-				}
-			}
 
-			this.Expect(DryfileToken.Dedent);
-			this.ReadNextToken();
+				this.Expect(DryfileToken.Dedent);
+				this.ReadNextToken();
+			}
 
 			return retval;
 		}

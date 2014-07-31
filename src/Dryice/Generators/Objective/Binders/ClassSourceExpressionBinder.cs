@@ -9,7 +9,6 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Dryice.Expressions;
-using Dryice.Model;
 
 namespace Dryice.Generators.Objective.Binders
 {

@@ -142,7 +142,7 @@ namespace Dryice.Generators.Java.Binders
 
 			var body = DryExpression.Block(Expression.Assign(client, valParam).ToStatement());
 
-			return new MethodDefinitionExpression(currentTypeDefinitionExpression.Type.Name, new Expression[] { }.ToReadOnlyCollection(), null, body, false, null, null, true);
+			return new MethodDefinitionExpression(currentTypeDefinitionExpression.Type.Name, new Expression[] { }.ToReadOnlyCollection(), null, body, false, null, null);
 		}
 
 		private Expression CreateParameterisedConstructor()
@@ -158,7 +158,7 @@ namespace Dryice.Generators.Java.Binders
 
 			var body = DryExpression.Block(Expression.Assign(client, valParam).ToStatement());
 
-			return new MethodDefinitionExpression(currentTypeDefinitionExpression.Type.Name, parameters.ToReadOnlyCollection(), null, body, false, null, null, true);
+			return new MethodDefinitionExpression(currentTypeDefinitionExpression.Type.Name, parameters.ToReadOnlyCollection(), null, body, false, null, null);
 		}
 
 		protected override Expression VisitTypeDefinitionExpression(TypeDefinitionExpression expression)

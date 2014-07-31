@@ -21,24 +21,23 @@ namespace Dryice.Expressions
 		public AccessModifiers AccessModifiers { get; private set; }
 		public string Name { get; private set; }
 		public string RawAttributes { get; private set; }
-		public bool IsCStyleFunction { get; private set; }
 		public bool IsPredeclaration { get; private set; }
 		public Type ReturnType { get; private set; }
 		public Expression Body { get; private set; }
 		public ReadOnlyCollection<Expression> Parameters { get; private set; }
 		public ReadOnlyDictionary<string, string> Attributes { get; private set; }
 
-		public MethodDefinitionExpression(string name, IEnumerable<Expression> parameters, AccessModifiers accessModifiers, Type returnType, Expression body, bool isPredeclaration, string rawAttributes = "", ReadOnlyDictionary<string, string> attributes = null, bool isCStyleFunction = false)
+		public MethodDefinitionExpression(string name, IEnumerable<Expression> parameters, AccessModifiers accessModifiers, Type returnType, Expression body, bool isPredeclaration, string rawAttributes = "", ReadOnlyDictionary<string, string> attributes = null)
 			: this(name, parameters.ToReadOnlyCollection(), accessModifiers, returnType, body, isPredeclaration, rawAttributes, attributes)
 		{	
 		}
 
-		public MethodDefinitionExpression(string name, IEnumerable<Expression> parameters, Type returnType, Expression body, bool isPredeclaration, string rawAttributes = "", ReadOnlyDictionary<string, string> attributes = null, bool isCStyleFunction = false)
+		public MethodDefinitionExpression(string name, IEnumerable<Expression> parameters, Type returnType, Expression body, bool isPredeclaration, string rawAttributes = "", ReadOnlyDictionary<string, string> attributes = null)
 			: this(name, parameters.ToReadOnlyCollection(), AccessModifiers.Public, returnType, body, isPredeclaration, rawAttributes, attributes)
 		{
 		}
 
-		public MethodDefinitionExpression(string name, ReadOnlyCollection<Expression> parameters, AccessModifiers accessModifiers, Type returnType, Expression body, bool isPredeclaration, string rawAttributes = "", ReadOnlyDictionary<string, string> attributes = null, bool isCStyleFunction = false)
+		public MethodDefinitionExpression(string name, ReadOnlyCollection<Expression> parameters, AccessModifiers accessModifiers, Type returnType, Expression body, bool isPredeclaration, string rawAttributes = "", ReadOnlyDictionary<string, string> attributes = null)
 		{
 			this.RawAttributes = rawAttributes;
 			this.Attributes = attributes ?? new ReadOnlyDictionary<string, string>(new Dictionary<string, string>());
@@ -48,7 +47,6 @@ namespace Dryice.Expressions
 			this.Parameters = parameters;
 			this.Body = body;
 			this.IsPredeclaration = isPredeclaration;
-			this.IsCStyleFunction = isCStyleFunction;
 		}
 	}
 }
