@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
 using System.Reflection;
@@ -296,13 +298,8 @@ namespace Dryice.Generators.Java
 			return node;
 		}
 
-		public override void ConvertToString(Expression expression)
+		public override void ConvertToStringMethodCall(Expression expression)
 		{
-			if (expression == null || expression.Type == null)
-			{
-				expression = null;
-			}
-
 			if (expression.Type == typeof(string))
 			{
 				this.Visit(expression);
@@ -322,11 +319,37 @@ namespace Dryice.Generators.Java
 			}
 		}
 
+		public override void ConvertToObjectMethodCall(Expression expression)
+		{
+			var methodCallArgument = ((MethodCallExpression) expression).Arguments[0];
+			var methodCallType = ((MethodCallExpression)expression).Method.DeclaringType;
+
+			if (methodCallType == typeof (String))
+			{
+				this.Visit(methodCallArgument);
+			}
+			else
+			{
+				this.Write("ConvertUtils.to");
+				this.Write(methodCallType);
+				this.Write("(");
+				this.Visit(methodCallArgument);
+				this.Write(")");
+			}
+		}
+
 		protected override Expression VisitMethodCall(MethodCallExpression node)
 		{
-			if (node.Method.Name == "toString")
+			if (node.Method.Name == SourceCodeGenerator.ToStringMethod)
 			{
-				ConvertToString(node.Object);
+				ConvertToStringMethodCall(node.Object);
+
+				return node;
+			}
+
+			if (node.Method.Name == SourceCodeGenerator.ToObjectMethod)
+			{
+				ConvertToObjectMethodCall(node);
 
 				return node;
 			}
@@ -366,27 +389,23 @@ namespace Dryice.Generators.Java
 			switch (node.NodeType)
 			{
 				case ExpressionType.Assign:
-					if (node.Left.Type.IsByRef && !node.Right.Type.IsByRef)
-					{
-						this.Write("*");
-					}
 					this.Visit(node.Left);
 					this.Write(" = ");
 					this.Visit(node.Right);
 					break;
 				case ExpressionType.Equal:
-					this.Write("((");
+					this.Write("(");
 					this.Visit(node.Left);
 					this.Write(") == (");
 					this.Visit(node.Right);
-					this.Write("))");
+					this.Write(")");
 					break;
 				case ExpressionType.NotEqual:
-					this.Write("((");
+					this.Write("(");
 					this.Visit(node.Left);
 					this.Write(") != (");
 					this.Visit(node.Right);
-					this.Write("))");
+					this.Write(")");
 					break;
 			}
 
@@ -457,6 +476,10 @@ namespace Dryice.Generators.Java
 					this.Write("return ");
 					this.Visit(node.Value);
 				}
+			}
+			else if (node.Kind == GotoExpressionKind.Continue)
+			{
+				this.Write("continue");
 			}
 
 			return node;
@@ -604,7 +627,22 @@ namespace Dryice.Generators.Java
 					this.Write(", ");
 				}
 			}
-			this.WriteLine(")");
+
+			this.Write(")");
+
+			if (method.Exceptions != null && method.Exceptions.Count > 0)
+			{
+				this.Write(" throws");
+
+				foreach (var exception in method.Exceptions)
+				{
+					this.Write(" ");
+					this.Write(exception.GetType());
+				}
+			}
+			
+			this.WriteLine();
+
 			this.Visit(method.Body);
 
 			return method;
@@ -762,7 +800,17 @@ namespace Dryice.Generators.Java
 			}
 		}
 
-		private String AccessModifiersToString(AccessModifiers accessModifiers)
+		protected override Expression VisitWhileExpression(WhileExpression expression)
+		{
+			this.Write("while (");
+			this.Visit(expression.Condition);
+			this.WriteLine(")");
+			this.Visit(expression.Body);
+
+			return expression;
+		}
+
+		private static String AccessModifiersToString(AccessModifiers accessModifiers)
 		{
 			var result = "";
 

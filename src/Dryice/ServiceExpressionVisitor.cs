@@ -39,6 +39,8 @@ namespace Dryice
 					return this.VisitSimpleLambdaExpression((SimpleLambdaExpression)expression);
 				case (int)ServiceExpressionType.FieldDefinition:
 					return this.VisitFieldDefinitionExpression((FieldDefinitionExpression)expression);
+				case (int)ServiceExpressionType.While:
+					return this.VisitWhileExpression((WhileExpression)expression);
 			}
 
 			return base.Visit(expression);
@@ -162,6 +164,11 @@ namespace Dryice
 				return new SimpleLambdaExpression(body, parameters);
 			}
 
+			return expression;
+		}
+
+		protected virtual Expression VisitWhileExpression(WhileExpression expression)
+		{
 			return expression;
 		}
 	}

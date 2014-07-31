@@ -530,7 +530,7 @@ namespace Dryice.Generators.Objective
 			base.Generate(DateFormatterInserter.Insert(normalized));
 		}
 
-		public override void ConvertToString(Expression expression)
+		public override void ConvertToStringMethodCall(Expression expression)
 		{
 			if (expression.Type == typeof(string))
 			{
@@ -587,9 +587,9 @@ namespace Dryice.Generators.Objective
 
 		protected override Expression VisitMethodCall(MethodCallExpression node)
 		{
-			if (node.Method.Name == "ToString")
+			if (node.Method.Name == SourceCodeGenerator.ToStringMethod)
 			{
-				ConvertToString(node.Object);
+				ConvertToStringMethodCall(node.Object);
 
 				return node;
 			}

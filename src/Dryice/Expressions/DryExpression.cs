@@ -318,5 +318,10 @@ namespace Dryice.Expressions
 		{
 			return new ForEachExpression(variableExpression, target, body);
 		}
+
+		public static WhileExpression While(Expression condition, Expression body)
+		{
+			return new WhileExpression(condition, body);
+		}
 	}
 }

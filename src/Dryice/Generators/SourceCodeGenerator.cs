@@ -5,6 +5,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Linq.Expressions;
 using Dryice.Expressions;
 using Platform.VirtualFileSystem.Providers.View;
@@ -14,6 +15,17 @@ namespace Dryice.Generators
 	public abstract class SourceCodeGenerator
 		: ServiceExpressionVisitor
 	{
+		public static String ToStringMethod = "toStringType";
+		public static String ToObjectMethod = "toObjectType";
+
+		public int CurrentIndent { get; protected internal set; }
+
+		private bool indentRequired;
+		private readonly TextWriter writer;
+
+		private Dictionary<Type, string> typeNameByPrimitiveType;
+		private Dictionary<Type, bool> isReferenceTypeByType;
+
 		protected class IndentationContext : IDisposable
 		{
 			private readonly SourceCodeGenerator generator;
@@ -31,11 +43,6 @@ namespace Dryice.Generators
 			}
 		}
 
-		public int CurrentIndent { get; protected internal set; }
-
-		private bool indentRequired;
-		private readonly TextWriter writer;
-
 		protected SourceCodeGenerator(TextWriter writer)
 		{
 			this.writer = writer;
@@ -50,9 +57,6 @@ namespace Dryice.Generators
 		{
 			this.Write(" ");
 		}
-
-		private Dictionary<Type, string> typeNameByPrimitiveType;
-		private Dictionary<Type, bool> isReferenceTypeByType;
 
 		protected virtual void AddPrimitiveTypeDecl(Type type, string name, bool isReferenceType)
 		{
@@ -209,7 +213,11 @@ namespace Dryice.Generators
 			return new IndentationContext(this);
 		}
 
-		public virtual void ConvertToString(Expression expression)
+		public virtual void ConvertToStringMethodCall(Expression expression)
+		{
+		}
+
+		public virtual void ConvertToObjectMethodCall(Expression expression)
 		{
 		}
 
@@ -233,6 +241,16 @@ namespace Dryice.Generators
 					this.WriteLine();
 				}
 			}
+		}
+
+		protected String getTypeNameFromPrimitiveType(Type primitiveType)
+		{
+			if (!typeNameByPrimitiveType.Keys.Contains(primitiveType))
+			{
+				return primitiveType.ToString();
+			}
+
+			return typeNameByPrimitiveType[primitiveType];
 		}
 	}
 }

@@ -1,13 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using Dryice.Expressions;
 using Dryice.Generators.Objective;
 using Dryice.Model;
 using Platform;
+using Platform.Text;
 
 namespace Dryice.Generators.Java.Binders
 {
@@ -15,6 +18,7 @@ namespace Dryice.Generators.Java.Binders
 		: ServiceExpressionVisitor
 	{
 		private readonly CodeGenerationContext codeGenerationContext;
+		private TypeDefinitionExpression currentTypeDefinition;
 		private Type currentType;
 		private List<FieldDefinitionExpression> fieldDefinitionsForProperties = new List<FieldDefinitionExpression>();
 
@@ -77,7 +81,7 @@ namespace Dryice.Generators.Java.Binders
 
 			var createErrorArguments = new
 			{
-				errorCode = DryExpression.Call(errorCodesVariable, typeof(String), "toString", null),
+				errorCode = DryExpression.Call(errorCodesVariable, typeof(String), SourceCodeGenerator.ToStringMethod, null),
 				errorMessage = DryExpression.Call(exception, "getMessage", null),
 				stackTrace = DryExpression.StaticCall(DryType.Define("Log"), typeof(String), "getStackTraceString", exception),
 			};
@@ -104,30 +108,123 @@ namespace Dryice.Generators.Java.Binders
 
 			var body = DryExpression.Block(methodVariables.ToArray(), methodStatements.ToArray());
 
-			return new MethodDefinitionExpression("deserialize", new List<Expression>() { inputStream }, AccessModifiers.Public | AccessModifiers.Static, currentType, body, false, null, null);
+			return new MethodDefinitionExpression("deserialize", new List<Expression>() { inputStream }, AccessModifiers.Public | AccessModifiers.Static, currentType, body, false, null, null, new List<Exception>() { new IOException() });
 		}
 
 		private Expression CreateDeserialiseReaderMethod()
 		{
-			var value = Expression.Parameter(currentType, "value");
+			var jsonReader = Expression.Parameter(DryType.Define("JsonReader"), "reader");
 
-			var defaultBody = Expression.Return(Expression.Label(), Expression.Constant(null, typeof(string))).ToStatement();
+			var result = Expression.Variable(currentType, "result");
 
-			var body = DryExpression.Block(defaultBody);
+			var jsonElementName = Expression.Variable(typeof(String), "elementName");
 
-			return new MethodDefinitionExpression("deserialize", new List<Expression>(), AccessModifiers.Public | AccessModifiers.Static, typeof(string), body, false, null, null);
+			var resultNew = Expression.New(currentType);
+
+			var returnResult = Expression.Return(Expression.Label(), result).ToStatement();
+
+			var conditionNull = Expression.MakeBinary(ExpressionType.Equal, DryExpression.Call(jsonReader, typeof(Enum), "peek", null),
+				DryExpression.Variable(typeof(Enum), "JsonToken.NULL"));
+
+			var actionNull = DryExpression.Block(
+				new Expression[]
+				{
+					DryExpression.Call(jsonReader, "skipValue", null),
+					Expression.Continue(Expression.Label())
+				});
+
+			var whileStatements = new List<Expression>
+			{
+				Expression.Assign(jsonElementName, DryExpression.Call(jsonReader, typeof(String), "nextName", null)).ToStatement(),
+				Expression.IfThen(conditionNull, actionNull)
+			};
+
+			Expression ifThenElseExpression = DryExpression.Block(DryExpression.Call(jsonReader, "skipValue", null));
+
+			foreach (var serviceProperty in ((DryType)currentTypeDefinition.Type).ServiceClass.Properties)
+			{
+				Expression setValueCall = null;
+
+				var propertyType = codeGenerationContext.ServiceModel.GetTypeFromName(serviceProperty.TypeName);
+
+				if (TypeSystem.IsNotPrimitiveType(propertyType) || propertyType == typeof(Enum))
+				{
+					var convertDtoCall = DryExpression.StaticCall(serviceProperty.TypeName, "deserialize", jsonReader);
+					setValueCall = DryExpression.Call(result, "set" + serviceProperty.Name, convertDtoCall);
+				}
+				else
+				{
+					var getPrimitiveElementCall = DryExpression.Call(jsonReader, "nextString", null);
+					var convertPrimitiveCall = DryExpression.StaticCall(propertyType, SourceCodeGenerator.ToObjectMethod, getPrimitiveElementCall);
+					setValueCall = DryExpression.Call(result, "set" + serviceProperty.Name, convertPrimitiveCall);
+				}
+
+				var condition = DryExpression.Call(jsonElementName, typeof(Boolean), "equals", Expression.Constant(serviceProperty.Name, typeof(String)));
+				var action = DryExpression.Block(setValueCall);
+
+				var currentExpression = Expression.IfThenElse(condition, action, ifThenElseExpression);
+
+				ifThenElseExpression = currentExpression;
+			}
+
+			whileStatements.Add(ifThenElseExpression);
+
+			var whileBody = DryExpression.Block(whileStatements.ToArray());
+
+			var whileExpression = DryExpression.While(DryExpression.Call(jsonReader, "hasNext", null), whileBody);
+
+			var methodVariables = new List<ParameterExpression>
+			{
+				result,
+				jsonElementName
+			};
+
+			var methodStatements = new List<Expression>
+			{
+				Expression.Assign(result, resultNew).ToStatement(),
+				DryExpression.Call(jsonReader, "beginObject", null),
+				whileExpression,
+				DryExpression.Call(jsonReader, "endObject", null),
+				returnResult
+			};
+
+			var body = DryExpression.Block(methodVariables.ToArray(), methodStatements.ToArray());
+
+			return new MethodDefinitionExpression("deserialize", new List<Expression>() { jsonReader }, AccessModifiers.Public | AccessModifiers.Static, typeof(string), body, false, null, null, new List<Exception>() { new IOException() });
 
 		}
 
 		private Expression CreateDeserialiseArrayMethod()
 		{
-			var value = Expression.Parameter(currentType, "value");
+			var jsonReader = Expression.Parameter(DryType.Define("JsonReader"), "reader");
 
-			var defaultBody = Expression.Return(Expression.Label(), Expression.Constant(null, typeof(string))).ToStatement();
+			var result = Expression.Variable(currentType, "result");
 
-			var body = DryExpression.Block(defaultBody);
+			var resultNew = Expression.New(currentType);
 
-			return new MethodDefinitionExpression("deserializeArray", new List<Expression>(), AccessModifiers.Public | AccessModifiers.Static, typeof(string), body, false, null, null);
+			var whileBody = DryExpression.Block(DryExpression.Call(result, "add", DryExpression.StaticCall(currentType, "deserialize", jsonReader)));
+
+			var whileExpression = DryExpression.While(DryExpression.Call(jsonReader, "hasNext", null), whileBody);
+
+			var returnResult = Expression.Return(Expression.Label(), result).ToStatement();
+
+			var methodVariables = new List<ParameterExpression>
+			{
+				result
+			};
+
+			var methodStatements = new List<Expression>
+			{
+				Expression.Assign(result, resultNew).ToStatement(),
+				DryExpression.Call(jsonReader, "beginArray", null),
+				whileExpression,
+				DryExpression.Call(jsonReader, "endArray", null),
+				returnResult
+			};
+
+			var body = DryExpression.Block(methodVariables.ToArray(), methodStatements.ToArray());
+
+			return new MethodDefinitionExpression("deserializeArray", new List<Expression>() { jsonReader }, AccessModifiers.Public | AccessModifiers.Static, typeof(string), body, false, null, null, new List<Exception>() { new IOException() });
 
 		}
 
@@ -150,6 +247,7 @@ namespace Dryice.Generators.Java.Binders
 
 		protected override Expression VisitTypeDefinitionExpression(TypeDefinitionExpression expression)
 		{
+			currentTypeDefinition = expression;
 			currentType = expression.Type;
 			var referencedTypes = ReferencedTypesCollector.CollectReferencedTypes(expression);
 			referencedTypes.Sort((x, y) => String.Compare(x.Name, y.Name, StringComparison.InvariantCultureIgnoreCase));

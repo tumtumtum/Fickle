@@ -112,7 +112,7 @@ namespace Dryice.Generators.Java.Binders
 				}
 
 				var valueToReplace = Expression.Constant("{" + param.Name + "}", typeof(String));
-				var valueAsString = DryExpression.Call(param, param.Type, typeof(String), "toString", parameter);
+				var valueAsString = DryExpression.Call(param, param.Type, typeof(String), SourceCodeGenerator.ToStringMethod, parameter);
 
 				var replaceArgs = new
 				{

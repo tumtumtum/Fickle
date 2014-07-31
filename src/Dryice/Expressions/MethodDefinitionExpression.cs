@@ -26,9 +26,10 @@ namespace Dryice.Expressions
 		public Expression Body { get; private set; }
 		public ReadOnlyCollection<Expression> Parameters { get; private set; }
 		public ReadOnlyDictionary<string, string> Attributes { get; private set; }
+		public ReadOnlyCollection<Exception> Exceptions { get; private set; }
 
-		public MethodDefinitionExpression(string name, IEnumerable<Expression> parameters, AccessModifiers accessModifiers, Type returnType, Expression body, bool isPredeclaration, string rawAttributes = "", ReadOnlyDictionary<string, string> attributes = null)
-			: this(name, parameters.ToReadOnlyCollection(), accessModifiers, returnType, body, isPredeclaration, rawAttributes, attributes)
+		public MethodDefinitionExpression(string name, IEnumerable<Expression> parameters, AccessModifiers accessModifiers, Type returnType, Expression body, bool isPredeclaration, string rawAttributes = "", ReadOnlyDictionary<string, string> attributes = null, IEnumerable<Exception> exceptions = null)
+			: this(name, parameters.ToReadOnlyCollection(), accessModifiers, returnType, body, isPredeclaration, rawAttributes, attributes, exceptions)
 		{	
 		}
 
@@ -37,7 +38,7 @@ namespace Dryice.Expressions
 		{
 		}
 
-		public MethodDefinitionExpression(string name, ReadOnlyCollection<Expression> parameters, AccessModifiers accessModifiers, Type returnType, Expression body, bool isPredeclaration, string rawAttributes = "", ReadOnlyDictionary<string, string> attributes = null)
+		public MethodDefinitionExpression(string name, ReadOnlyCollection<Expression> parameters, AccessModifiers accessModifiers, Type returnType, Expression body, bool isPredeclaration, string rawAttributes = "", ReadOnlyDictionary<string, string> attributes = null, IEnumerable<Exception> exceptions = null)
 		{
 			this.RawAttributes = rawAttributes;
 			this.Attributes = attributes ?? new ReadOnlyDictionary<string, string>(new Dictionary<string, string>());
@@ -47,6 +48,7 @@ namespace Dryice.Expressions
 			this.Parameters = parameters;
 			this.Body = body;
 			this.IsPredeclaration = isPredeclaration;
+			this.Exceptions = exceptions == null ? null : exceptions.ToReadOnlyCollection();
 		}
 	}
 }
