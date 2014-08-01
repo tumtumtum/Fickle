@@ -66,7 +66,9 @@ namespace Dryice
 
 		public static bool IsPrimitiveType(Type type)
 		{
-			return primitiveTypes.Contains(type) || type.GetUnwrappedNullableType().IsEnum;
+			return primitiveTypes.Contains(type)
+			       || type.GetUnwrappedNullableType().IsEnum
+			       || ((type is DryType) && ((DryType)type).IsPrimitive);
 		}
 
 		public static bool IsNotPrimitiveType(Type type)

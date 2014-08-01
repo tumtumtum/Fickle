@@ -314,6 +314,16 @@ namespace Dryice.Expressions
 			return new GroupedExpressionsExpression(expressions.ToStatementsNormalized(), style);
 		}
 
+		public static GroupedExpressionsExpression StatementisedGroupedExpression(params Expression[] expressions)
+		{
+			return new GroupedExpressionsExpression(expressions.ToStatementsNormalized(), GroupedExpressionsExpressionStyle.Narrow);
+		}
+
+		public static GroupedExpressionsExpression StatementisedGroupedExpression(GroupedExpressionsExpressionStyle style, params Expression[] expressions)
+		{
+			return new GroupedExpressionsExpression(expressions.ToStatementsNormalized(), style);
+		}
+
 		public static ForEachExpression ForEach(ParameterExpression variableExpression, Expression target, Expression body)
 		{
 			return new ForEachExpression(variableExpression, target, body);

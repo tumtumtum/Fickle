@@ -10,6 +10,7 @@ namespace Dryice
 		public bool GenerateClasses { get; set; }
 		public bool GenerateEnums { get; set; }
 		public bool GenerateGateways { get; set; }
+		public bool SerializeEnumsAsStrings { get; set; }
 		public string ServiceClientTypeName { get; set; }
 		public string ResponseStatusTypeName { get; set; }
 		public string ResponseStatusPropertyName { get; set; }

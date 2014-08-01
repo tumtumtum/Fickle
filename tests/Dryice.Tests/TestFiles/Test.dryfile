@@ -42,6 +42,13 @@ gateway TestService
 gateway UserService
 	@hostname dryice.kingstreetapps.com
 
+	SetUserSexes(id:uuid sexes:Sex?[])
+		@format json
+		@path /api/UserService/SetUserSexes?id={id}
+		@method post
+		@content sexes
+		@returns void
+
 	StoreUser(user:User)
 		@format json
 		@path /api/UserService/StoreUser
@@ -102,6 +109,11 @@ gateway UserService
 		@path /api/UserService/User/{id}/{fromDate}
 		@method get
 		@returns UserResponse
+
+	GetUserSexes(id:uuid)
+		@path /api/UserService/GetUserSexes?id={id}
+		@method get
+		@returns Sex[]
 
 	SetPassword(id:uuid password:String)
 		@secure true

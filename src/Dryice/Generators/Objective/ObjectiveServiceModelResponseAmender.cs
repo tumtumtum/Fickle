@@ -23,6 +23,10 @@ namespace Dryice.Generators.Objective
 			{
 				typeName = "int?";
 			}
+			else if (type is DryListType)
+			{
+				typeName = "int?[]";
+			}
 			else
 			{
 				typeName = TypeSystem.GetPrimitiveName(type);

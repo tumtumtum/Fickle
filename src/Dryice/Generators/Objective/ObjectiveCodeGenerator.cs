@@ -162,14 +162,21 @@ namespace Dryice.Generators.Objective
 			{
 				base.Write(type, nameOnly);
 
-				if (!nameOnly && dryiceType.IsClass)
+				if (type.Name == "Sex")
 				{
-					this.Write("*");
+					Console.WriteLine();
 				}
 
-				if (!nameOnly && dryiceType.IsEnum && dryiceType.IsByRef)
+				if (!nameOnly)
 				{
-					this.Write("*");
+					if (dryiceType.IsEnum && dryiceType.IsByRef)
+					{
+						this.Write("*");
+					}
+					else if (!(dryiceType.IsPrimitive || dryiceType.IsEnum))
+					{
+						this.Write("*");
+					}
 				}
 			}
 			else
@@ -192,9 +199,10 @@ namespace Dryice.Generators.Objective
 				this.Visit(node.Operand);
 				this.Write(')');
 			}
-			if (node.NodeType == ExpressionType.Convert)
+			else if (node.NodeType == ExpressionType.Convert)
 			{
-				if (node.Type == typeof(Guid) || node.Type == typeof(Guid?))
+				if ((node.Type == typeof(Guid) || node.Type == typeof(Guid?))
+					&& node.Operand.Type != DryType.Define("id"))
 				{
 					this.Write("[");
 					this.Write(typeof(Guid), true);
@@ -310,7 +318,8 @@ namespace Dryice.Generators.Objective
 					this.Visit(node.Operand);
 					this.Write(" substringWithRange:NSMakeRange(6, 10)] intValue]] : nil");
 				}
-				else if (node.Type == typeof(TimeSpan?) || node.Type == typeof(TimeSpan))
+				else if ((node.Type == typeof(TimeSpan?) || node.Type == typeof(TimeSpan))
+					&& node.Operand.Type != DryType.Define("id"))
 				{
 					this.Write("[");
 					this.Write(typeof(TimeSpan), true);
@@ -414,6 +423,7 @@ namespace Dryice.Generators.Objective
 			this.Visit(expression.Target);
 			this.WriteLine(")");
 			this.Visit(expression.Body);
+			this.WriteLine();
 
 			return expression;
 		}
@@ -547,7 +557,6 @@ namespace Dryice.Generators.Objective
 			{
 				this.Write("[");
 				this.Visit(expression);
-				this.Write(" ");
 				this.Write(" toIsoString");
 				this.Write("]");
 			}
@@ -1155,6 +1164,25 @@ namespace Dryice.Generators.Objective
 
 				return node;
 			}
+		}
+
+		protected override Expression VisitListInit(ListInitExpression node)
+		{
+			this.Write("@[");
+
+			var i = 0;
+			foreach (var value in node.Initializers)
+			{
+				this.Visit(value.Arguments[0]);
+
+				if (i != node.Initializers.Count - 1)
+				{
+					this.Write(", ");
+				}
+			}
+
+			this.Write("]");
+			return node;
 		}
 	}
 }
