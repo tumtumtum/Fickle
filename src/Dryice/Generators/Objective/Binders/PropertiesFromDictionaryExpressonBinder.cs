@@ -31,13 +31,13 @@ namespace Dryice.Generators.Objective.Binders
 			return builder.propertyGetterExpressions.ToStatementisedGroupedExpression(GroupedExpressionsExpressionStyle.Wide);
 		}
 
-		private void ProcessPropertyDeserializer(Type propertyType, string propertyName, Expression value, out Type typeToCompare, out Expression[] processingStatements, out Expression outputValue, out ParameterExpression[] variables, int parseLevel)
+		internal static void ProcessValueDeserializer(Type valueType, Expression value, out Type typeToCompare, out Expression[] processingStatements, out Expression outputValue, out ParameterExpression[] variables, int parseLevel)
 		{
 			variables = null;
 
-			if (TypeSystem.IsPrimitiveType(propertyType))
+			if (TypeSystem.IsPrimitiveType(valueType))
 			{
-				var underlyingType = propertyType.GetUnwrappedNullableType();
+				var underlyingType = valueType.GetUnwrappedNullableType();
 
 				processingStatements = null;
 
@@ -45,13 +45,13 @@ namespace Dryice.Generators.Objective.Binders
 				{
 					typeToCompare = new DryType("NSNumber");
 
-					if (underlyingType.IsEnum && propertyType.GetUnderlyingType() == null)
+					if (underlyingType.IsEnum && valueType.GetUnderlyingType() == null)
 					{
-						outputValue = Expression.Convert(DryExpression.Call(value, typeof(int), "intValue", null), propertyType);
+						outputValue = Expression.Convert(DryExpression.Call(value, typeof(int), "intValue", null), valueType);
 					}
 					else
 					{
-						outputValue = Expression.Convert(value, propertyType);
+						outputValue = Expression.Convert(value, valueType);
 					}
 				}
 				else if (underlyingType.IsEnum)
@@ -60,13 +60,13 @@ namespace Dryice.Generators.Objective.Binders
 					{
 						typeToCompare = DryType.Define("NSNumber");
 
-						if (propertyType.IsNullable())
+						if (valueType.IsNullable())
 						{
-							outputValue = Expression.Convert(value, propertyType);
+							outputValue = Expression.Convert(value, valueType);
 						}
 						else
 						{
-							outputValue = Expression.Convert(DryExpression.Call(value, typeof(int), "intValue", null), propertyType);
+							outputValue = Expression.Convert(DryExpression.Call(value, typeof(int), "intValue", null), valueType);
 						}
 					}
 					else
@@ -96,13 +96,13 @@ namespace Dryice.Generators.Objective.Binders
 							success
 						};
 						
-						if (propertyType.IsNullable())
+						if (valueType.IsNullable())
 						{
-							outputValue = Expression.Convert(Expression.Condition(success, Expression.Convert(Expression.Convert(outputValue, propertyType), DryType.Define("id")), Expression.Convert(DryExpression.StaticCall(DryType.Define("NSNull"), propertyType, "null", null), DryType.Define("id"))), propertyType);
+							outputValue = Expression.Convert(Expression.Condition(success, Expression.Convert(Expression.Convert(outputValue, valueType), DryType.Define("id")), Expression.Convert(DryExpression.StaticCall(DryType.Define("NSNull"), valueType, "null", null), DryType.Define("id"))), valueType);
 						}
 						else
 						{
-							outputValue = Expression.Convert(outputValue, propertyType);
+							outputValue = Expression.Convert(outputValue, valueType);
 						}
 					}
 				}
@@ -110,36 +110,30 @@ namespace Dryice.Generators.Objective.Binders
 				{
 					typeToCompare = typeof(string);
 
-					outputValue = Expression.Convert(value, propertyType);
+					outputValue = Expression.Convert(value, valueType);
 				}
 			}
-			else if (propertyType is DryType && ((DryType)propertyType).ServiceClass != null)
+			else if (valueType is DryType && ((DryType)valueType).ServiceClass != null)
 			{
 				typeToCompare = new DryType("NSDictionary");
 
 				processingStatements = null;
-				outputValue = DryExpression.New(propertyType, "initWithPropertyDictionary", DryExpression.Convert(value, "NSDictionary"));
+				outputValue = DryExpression.New(valueType, "initWithPropertyDictionary", DryExpression.Convert(value, "NSDictionary"));
 			}
-			else if (propertyType is DryType && ((DryType)propertyType).ServiceEnum != null)
+			else if (valueType is DryType && ((DryType)valueType).ServiceEnum != null)
 			{
 				typeToCompare = new DryType("NSNumber");
 
 				processingStatements = null;
-				outputValue = Expression.Convert(value, propertyType);
+				outputValue = Expression.Convert(value, valueType);
 			}
-			else if (propertyType is DryListType)
+			else if (valueType is DryListType)
 			{
-				processingStatements = null;
-
-				Type typeToCompareInner;
-				Expression outputValueInner = null;
-				Expression[] processingStatementsInner;
-				ParameterExpression[] variablesInner;
-				var listType = propertyType as DryListType;
+				var listType = valueType as DryListType;
 
 				typeToCompare = new DryType("NSArray");
 
-				var arrayVar = DryExpression.Variable("NSMutableArray", propertyName.Uncapitalize() + "Array");
+				var arrayVar = DryExpression.Variable("NSMutableArray", "array");
 				variables = new[] { arrayVar };
 
 				var arrayItem = DryExpression.Parameter(DryType.Define("id"), "arrayItem");
@@ -150,7 +144,12 @@ namespace Dryice.Generators.Objective.Binders
 				{
 					var constructedArrayItem = DryExpression.Parameter(listType.ListElementType, "constructedArrayItem");
 
-					this.ProcessPropertyDeserializer(listType.ListElementType, listType.ListElementType.Name.Uncapitalize(), arrayItem, out typeToCompareInner, out processingStatementsInner, out outputValueInner, out variablesInner, i);
+					Type typeToCompareInner;
+					Expression outputValueInner = null;
+					ParameterExpression[] variablesInner;
+					Expression[] processingStatementsInner;
+
+					ProcessValueDeserializer(listType.ListElementType, arrayItem, out typeToCompareInner, out processingStatementsInner, out outputValueInner, out variablesInner, i);
 
 					var statements = new List<Expression>();
 					if (processingStatementsInner != null)
@@ -187,11 +186,11 @@ namespace Dryice.Generators.Objective.Binders
 					DryExpression.ForEach(arrayItem, value, DryExpression.Block(expressionForEachBody))
 				};
 
-				outputValue = Expression.Convert(arrayVar, propertyType);
+				outputValue = Expression.Convert(arrayVar, valueType);
 			}
 			else
 			{
-				throw new InvalidOperationException("Unsupported property type: " + propertyType);
+				throw new InvalidOperationException("Unsupported property type: " + valueType);
 			}
 		}
 
@@ -212,7 +211,7 @@ namespace Dryice.Generators.Objective.Binders
 				var comment = new CommentExpression(property.PropertyName);
 				var expressions = new List<Expression>();
 
-				this.ProcessPropertyDeserializer(property.PropertyType, property.PropertyName, currentValueFromDictionary, out typeToCompare, out processingStatements, out outputValue, out variables, i);
+				ProcessValueDeserializer(property.PropertyType, currentValueFromDictionary, out typeToCompare, out processingStatements, out outputValue, out variables, i);
 
 				expressions.Add(comment);
 				expressions.Add(Expression.Assign(currentValueFromDictionary, objectForKeyCall).ToStatement());

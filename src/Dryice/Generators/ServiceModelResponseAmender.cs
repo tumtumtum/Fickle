@@ -1,4 +1,5 @@
 ﻿using System;
+using System.CodeDom;
 using System.Collections.Generic;
 using System.Linq;
 using Dryice.Model;
@@ -7,7 +8,7 @@ namespace Dryice.Generators
 {
 	public abstract class ServiceModelResponseAmender
 	{
-		private readonly ServiceModel serviceModel;
+		protected readonly ServiceModel serviceModel;
 		protected readonly CodeGenerationOptions options;
 		
 		protected abstract ServiceClass CreateValueResponseServiceClass(Type type);
@@ -62,7 +63,7 @@ namespace Dryice.Generators
 		public virtual ServiceModel Ammend()
 		{
 			var returnTypes = serviceModel.Gateways.SelectMany(c => c.Methods).Select(c => serviceModel.GetTypeFromName(c.Returns)).ToHashSet();
-			var returnServiceClasses = returnTypes.Where(TypeSystem.IsNotPrimitiveType).Select(serviceModel.GetServiceClass);
+			var returnServiceClasses = returnTypes.Where(c => TypeSystem.IsNotPrimitiveType(c) && (typeof(DryListType).IsAssignableFrom(c))).Select(serviceModel.GetServiceClass);
 			var additionalClasses = new HashSet<ServiceClass>();
 
 			var containsResponseStatus = serviceModel.GetServiceClass(options.ResponseStatusTypeName) != null;
@@ -74,7 +75,7 @@ namespace Dryice.Generators
 				additionalClasses.Add(responseStatusClass);
 			} 
 			
-			foreach (var type in returnTypes.Where(TypeSystem.IsPrimitiveType).ToHashSet())
+			foreach (var type in returnTypes.Where(c => TypeSystem.IsPrimitiveType(c) || c is DryListType).ToHashSet())
 			{ 
 				var valueResponse = CreateValueResponseServiceClass(type);
 

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -12,6 +13,7 @@ namespace Dryice
 		: Type
 	{
 		private Type baseType;
+		private readonly bool isPrimitive;
 		private readonly bool byRef;
 		private readonly string name;
 		private readonly ServiceModel serviceModel;
@@ -27,18 +29,19 @@ namespace Dryice
 		public override bool ContainsGenericParameters { get { return false; } }
 		public override Assembly Assembly { get { return typeof(DryType).Assembly; } }
 		
-		public static DryType Define(string name, bool byRef = false)
+		public static DryType Define(string name, bool byRef = false, bool isPrimitive = false)
 		{
 			DryType retval;
 
 			if (!dryTypeByName.TryGetValue(name, out retval))
 			{
-				retval = new DryType(name, byRef);	
+				retval = new DryType(name, byRef, isPrimitive);	
 			}
 
 			return retval;
 		}
 
+		
 		public override Type MakeByRefType()
 		{
 			if (this.ServiceClass != null)
@@ -55,35 +58,39 @@ namespace Dryice
 			}
 		}
 
-		public DryType(string name, bool byRef = false)
+		public DryType(string name, bool byRef = false, bool isPrimitive = false)
 			: this(name, typeof(object))
 		{
 			this.byRef = byRef;
+			this.isPrimitive = isPrimitive;
 		}
 
-		public DryType(string name, Type baseType, bool byRef = false)
+		public DryType(string name, Type baseType, bool byRef = false, bool isPrimitive = false)
 		{
 			this.name = name;
 			this.ServiceClass = null;
 			this.baseType = baseType;
 			this.byRef = byRef;
+			this.isPrimitive = isPrimitive;
 		}
 
-		public DryType(ServiceClass serviceClass, ServiceModel serviceModel, bool byRef = false)
+		public DryType(ServiceClass serviceClass, ServiceModel serviceModel, bool byRef = false, bool isPrimitive = false)
 		{
 			this.serviceModel = serviceModel;
 			this.name = serviceClass.Name;
 			this.ServiceClass = serviceClass;
 			this.byRef = byRef;
+			this.isPrimitive = isPrimitive;
 		}
 
-		public DryType(ServiceEnum serviceEnum, ServiceModel serviceModel, bool nullable = false, bool byRef = false)
+		public DryType(ServiceEnum serviceEnum, ServiceModel serviceModel, bool nullable = false, bool byRef = false, bool isPrimitive = false)
 		{
 			this.serviceModel = serviceModel;
 			this.ServiceEnum = serviceEnum;
 			this.Nullable = nullable;
 			this.name = serviceEnum.Name;
 			this.byRef = byRef;
+			this.isPrimitive = isPrimitive;
 		}
 
 		protected override bool IsValueTypeImpl()
@@ -250,7 +257,6 @@ namespace Dryice
 
 			return new DryPropertyInfo(this, returnType, name);
 		}
-
 		
 		protected override MethodInfo GetMethodImpl(string name, BindingFlags bindingAttr, Binder binder, CallingConventions callConvention, Type[] types, ParameterModifier[] modifiers)
 		{
@@ -286,7 +292,7 @@ namespace Dryice
 
 		protected override bool IsPrimitiveImpl()
 		{
-			return false;
+			return isPrimitive;
 		}
 
 		protected override bool IsCOMObjectImpl()

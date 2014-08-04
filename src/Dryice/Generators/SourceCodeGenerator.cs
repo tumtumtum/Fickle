@@ -73,7 +73,7 @@ namespace Dryice.Generators
 				return value;
 			}
 
-			return true;
+			return !TypeSystem.IsPrimitiveType(type);
 		}
 		
 		protected virtual void Write(Type type)

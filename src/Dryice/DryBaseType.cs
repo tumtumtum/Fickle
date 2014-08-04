@@ -75,7 +75,7 @@ namespace Dryice
 
 		protected override MethodInfo GetMethodImpl(string name, BindingFlags bindingAttr, Binder binder, CallingConventions callConvention, Type[] types, ParameterModifier[] modifiers)
 		{
-			throw new NotImplementedException();
+			return typeof(object).GetMethod(name, bindingAttr, binder, callConvention, types, modifiers);
 		}
 
 		public override MethodInfo[] GetMethods(BindingFlags bindingAttr)
