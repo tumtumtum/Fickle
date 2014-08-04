@@ -91,9 +91,16 @@ namespace Dryice.Generators.Java
 
 				return;
 			}
-			else if (type.GetDryiceListElementType() != null)
+			else if (type is DryListType)
 			{
-				this.Write("ArrayList");
+				var typeName = type.GetDryiceListElementType().Name;
+
+				if (type.GetDryiceListElementType().GetUnderlyingType() != null)
+				{
+					typeName = type.GetDryiceListElementType().GetUnderlyingType().Name;
+				}
+
+				this.Write("ArrayList <? extends " + typeName + ">");
 
 				return;
 			}

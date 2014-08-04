@@ -28,10 +28,12 @@ namespace Dryice
 		{
 			AddPrimitiveType(typeof(void), "Void");
 			AddPrimitiveType(typeof(bool), "Bool");
+			AddPrimitiveType(typeof(bool), "Boolean");
 			AddPrimitiveType(typeof(byte), "Byte");
 			AddPrimitiveType(typeof(char), "Char");
 			AddPrimitiveType(typeof(short), "Short");
-			AddPrimitiveType(typeof(int), "Int"); 
+			AddPrimitiveType(typeof(int), "Int");
+			AddPrimitiveType(typeof(int), "Integer"); 
 			AddPrimitiveType(typeof(long), "Long");
 			AddPrimitiveType(typeof(double), "Double");
 			AddPrimitiveType(typeof(string), "String");

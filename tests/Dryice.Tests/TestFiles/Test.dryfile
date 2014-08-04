@@ -82,13 +82,13 @@ gateway UserService
 
 	SetUserSex(id:uuid value:Sex)
 		@format json
-		@path /api/UserService/SetUserSex?UserId={id}&Sex=value
+		@path /api/UserService/SetUserSex?UserId={id}&Sex={value}
 		@method get
 		@returns User
 
 	SetUserNullableSex(id:uuid value:Sex?)
 		@format json
-		@path /api/UserService/SetUserSex?UserId={id}&Sex=value
+		@path /api/UserService/SetUserSex?UserId={id}&Sex={value}
 		@method get
 		@returns User
 
@@ -109,11 +109,6 @@ gateway UserService
 		@path /api/UserService/User/{id}/{fromDate}
 		@method get
 		@returns UserResponse
-
-	GetUserSexes(id:uuid)
-		@path /api/UserService/GetUserSexes?id={id}
-		@method get
-		@returns Sex[]
 
 	SetPassword(id:uuid password:String)
 		@secure true

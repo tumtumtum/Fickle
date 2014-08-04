@@ -149,7 +149,14 @@ namespace Dryice.Generators.Java.Binders
 
 				if (TypeSystem.IsNotPrimitiveType(propertyType) || propertyType == typeof(Enum))
 				{
-					var convertDtoCall = DryExpression.StaticCall(serviceProperty.TypeName, "deserialize", jsonReader);
+					var name = serviceProperty.TypeName;
+
+					if (serviceProperty.TypeName.GetType().GetUnderlyingType() != null)
+					{
+						name = serviceProperty.GetType().GetUnderlyingType().Name;
+					}
+
+					var convertDtoCall = DryExpression.StaticCall(name, "deserialize", jsonReader);
 					setValueCall = DryExpression.Call(result, "set" + serviceProperty.Name, convertDtoCall);
 				}
 				else
@@ -198,9 +205,9 @@ namespace Dryice.Generators.Java.Binders
 		{
 			var jsonReader = Expression.Parameter(DryType.Define("JsonReader"), "reader");
 
-			var result = Expression.Variable(currentType, "result");
+			var result = Expression.Variable(typeof(DryListType), "result");
 
-			var resultNew = Expression.New(currentType);
+			var resultNew = DryExpression.New(typeof(DryListType), "DryListType", DryType.Define(currentType.Name));
 
 			var whileBody = DryExpression.Block(DryExpression.Call(result, "add", DryExpression.StaticCall(currentType, "deserialize", jsonReader)));
 
@@ -224,7 +231,7 @@ namespace Dryice.Generators.Java.Binders
 
 			var body = DryExpression.Block(methodVariables.ToArray(), methodStatements.ToArray());
 
-			return new MethodDefinitionExpression("deserializeArray", new List<Expression>() { jsonReader }, AccessModifiers.Public | AccessModifiers.Static, typeof(string), body, false, null, null, new List<Exception>() { new IOException() });
+			return new MethodDefinitionExpression("deserializeArray", new List<Expression>() { jsonReader }, AccessModifiers.Public | AccessModifiers.Static, typeof(DryListType), body, false, null, null, new List<Exception>() { new IOException() });
 
 		}
 
