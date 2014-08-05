@@ -63,37 +63,38 @@ namespace Dryice.Generators.Java.Binders
 			return new Expression[] { propertyGetter, propertySetter }.ToStatementisedGroupedExpression();
 		}
 
-		private Expression CreateDeserialiseStreamMethod()
+		private Expression CreateDeserializeStreamMethod()
 		{
 			var inputStream = Expression.Parameter(DryType.Define("InputStream"), "in");
 
 			var jsonReaderType = DryType.Define("JsonReader");
 			var jsonReader = Expression.Variable(jsonReaderType, "reader");
-			var result = Expression.Variable(currentType, "result");
 
 			var inputStreamReaderNew = DryExpression.New(DryType.Define("InputStreamReader"), "InputStreamReader", inputStream);
-
 			var jsonReaderNew = DryExpression.New(jsonReaderType, "JsonReader", inputStreamReaderNew); 
-			var resultCreate = Expression.Assign(result, DryExpression.StaticCall(currentType, currentType, "deserialize", jsonReader)).ToStatement();
+
+			var self = DryExpression.Variable(currentType, "this");
+			var resultCreate = DryExpression.Call(self, currentType, "deserialize", jsonReader).ToStatement();
+
 			var jsonReaderClose = DryExpression.Call(jsonReader, "close", null).ToStatement();
 
 			var exception = Expression.Variable(typeof(Exception), "exception"); ;
-			var errorCodesVariable = Expression.Constant("DeserializationError", typeof(String));
-
-			var returnResult = DryExpression.Return(result);
-
-			var createErrorArguments = new
-			{
-				errorCode = errorCodesVariable,
-				errorMessage = DryExpression.Call(exception, "getMessage", null),
-				stackTrace = DryExpression.StaticCall(DryType.Define("Log"), typeof(String), "getStackTraceString", exception),
-			};
 
 			Expression handleError;
 
 			if (CurrentTypeIsResponseType())
 			{
-				handleError = Expression.Assign(result, DryExpression.StaticCall(currentType, currentType, "createErrorResponse", createErrorArguments)).ToStatement();	
+				var responseStatusType = DryType.Define("ResponseStatus");
+				var responseStatus = DryExpression.Variable(responseStatusType, "responseStatus");
+				var newResponseStatus = Expression.Assign(responseStatus, Expression.New(responseStatusType));
+
+				handleError = DryExpression.Grouped(new Expression[]
+				{
+					newResponseStatus,
+					DryExpression.Call(responseStatus, "setErrorCode", Expression.Constant("DeserializationError", typeof(String))),
+					DryExpression.Call(responseStatus, "setMessage", DryExpression.Call(exception, typeof(String), "getMessage", null)),
+					DryExpression.Call(responseStatus, "setStackTrace", DryExpression.StaticCall("Log", "getStackTraceString", exception))
+				}.ToStatementisedGroupedExpression());
 			}
 			else
 			{
@@ -107,33 +108,23 @@ namespace Dryice.Generators.Java.Binders
 
 			var methodVariables = new List<ParameterExpression>
 			{
-				result,
 				jsonReader
 			};
 
 			var methodStatements = new List<Expression>
 			{
 				Expression.Assign(jsonReader, jsonReaderNew).ToStatement(),
-				tryCatch,
-				returnResult
+				tryCatch
 			};
 
 			var body = DryExpression.Block(methodVariables.ToArray(), methodStatements.ToArray());
 
-			return new MethodDefinitionExpression("deserialize", new List<Expression>() { inputStream }, AccessModifiers.Public | AccessModifiers.Static, currentType, body, false, null, null, new List<Exception>() { new Exception() });
+			return new MethodDefinitionExpression("deserialize", new List<Expression>() { inputStream }, AccessModifiers.Public, typeof(void), body, false, null, null, new List<Exception>() { new Exception() });
 		}
 
-		private Expression CreateDeserialiseReaderMethod()
+		private Expression CreateDeserializeReaderMethod()
 		{
 			var jsonReader = Expression.Parameter(DryType.Define("JsonReader"), "reader");
-
-			var result = Expression.Variable(currentType, "result");
-
-			var jsonElementName = Expression.Variable(typeof(String), "elementName");
-
-			var resultNew = Expression.New(currentType);
-
-			var returnResult = Expression.Return(Expression.Label(), result).ToStatement();
 
 			var conditionNull = Expression.MakeBinary(ExpressionType.Equal, DryExpression.Call(jsonReader, typeof(Enum), "peek", null),
 				DryExpression.Variable(typeof(Enum), "JsonToken.NULL"));
@@ -145,23 +136,63 @@ namespace Dryice.Generators.Java.Binders
 					Expression.Continue(Expression.Label())
 				});
 
+			var self = DryExpression.Variable(currentType, "this");
+
 			var whileStatements = new List<Expression>
 			{
-				Expression.Assign(jsonElementName, DryExpression.Call(jsonReader, typeof(String), "nextName", null)).ToStatement(),
-				Expression.IfThen(conditionNull, actionNull)
+				Expression.IfThen(conditionNull, actionNull),
+				DryExpression.Call(self, "deserializeElement", jsonReader)
 			};
 
-			Expression ifThenElseExpression = DryExpression.Block(DryExpression.Call(jsonReader, "skipValue", null));
+			var whileBody = DryExpression.Block(whileStatements.ToArray());
+
+			var whileExpression = DryExpression.While(DryExpression.Call(jsonReader, "hasNext", null), whileBody);
+
+			var methodVariables = new List<ParameterExpression>();
+
+			var methodStatements = new List<Expression>
+			{
+				DryExpression.Call(jsonReader, "beginObject", null),
+				whileExpression,
+				DryExpression.Call(jsonReader, "endObject", null),
+			};
+
+			var body = DryExpression.Block(methodVariables.ToArray(), methodStatements.ToArray());
+
+			return new MethodDefinitionExpression("deserialize", new List<Expression>() { jsonReader }, AccessModifiers.Public, typeof(void), body, false, null, null, new List<Exception>() { new Exception() });
+		}
+
+		private Expression CreateDeserializeElementMethod()
+		{
+			var jsonReader = Expression.Parameter(DryType.Define("JsonReader"), "reader");
+
+			var jsonElementName = Expression.Variable(typeof(String), "elementName");
+
+			Expression ifThenElseExpression;
+
+			if (currentTypeDefinition.Type.BaseType != null && currentTypeDefinition.Type.BaseType != typeof (Object))
+			{
+				var superType = currentTypeDefinition.Type.BaseType;
+				var super = Expression.Variable(superType, "super");
+				
+				ifThenElseExpression = DryExpression.Block(DryExpression.Call(super, "deserializeElement", jsonReader));
+			}
+			else
+			{
+				ifThenElseExpression = DryExpression.Block(DryExpression.Call(jsonReader, "skipValue", null));
+			}
+
+			var self = Expression.Variable(currentType, "this");
 
 			foreach (var serviceProperty in ((DryType)currentTypeDefinition.Type).ServiceClass.Properties)
 			{
-				Expression setValueCall = null;
+				Expression action = null;
 
 				var propertyType = codeGenerationContext.ServiceModel.GetTypeFromName(serviceProperty.TypeName);
 
 				if (propertyType is DryListType)
 				{
-					var listItemType = ((DryListType) propertyType).ListElementType;
+					var listItemType = ((DryListType)propertyType).ListElementType;
 
 					if (listItemType is DryNullable)
 					{
@@ -169,147 +200,81 @@ namespace Dryice.Generators.Java.Binders
 					}
 
 					var convertDtoCall = DryExpression.StaticCall(listItemType.Name, "deserializeArray", jsonReader);
-					setValueCall = DryExpression.Call(result, "set" + serviceProperty.Name, convertDtoCall);
+					action = DryExpression.Block(DryExpression.Call(self, "set" + serviceProperty.Name, convertDtoCall));
 				}
-				else if (TypeSystem.IsNotPrimitiveType(propertyType) || propertyType == typeof(Enum))
+				else if (TypeSystem.IsNotPrimitiveType(propertyType))
 				{
-					var convertDtoCall = DryExpression.StaticCall(serviceProperty.TypeName, "deserialize", jsonReader);
-					setValueCall = DryExpression.Call(result, "set" + serviceProperty.Name, convertDtoCall);
+					var value = DryExpression.Variable(propertyType, "value");
+
+					var valueNew = Expression.Assign(value, Expression.New(propertyType));
+
+					var convertDtoCall = DryExpression.Call(value, "deserialize", jsonReader);
+
+					var variables = new List<ParameterExpression>
+					{
+						value
+					};
+
+					var statements = new List<Expression>
+					{
+						valueNew,
+						convertDtoCall,
+						DryExpression.Call(self, "set" + serviceProperty.Name, value)
+					}.ToStatementisedGroupedExpression();
+
+					action = Expression.Block(variables.ToArray(), statements);
+				}
+				else if (propertyType.GetUnwrappedNullableType().IsEnum)
+				{
+					var getPrimitiveElementCall = DryExpression.Call(jsonReader, "nextString", null);
+					var convertDtoCall = DryExpression.StaticCall(serviceProperty.TypeName, "deserialize", getPrimitiveElementCall);
+					action = DryExpression.Block(DryExpression.Call(self, "set" + serviceProperty.Name, convertDtoCall));
 				}
 				else
 				{
 					var getPrimitiveElementCall = DryExpression.Call(jsonReader, "nextString", null);
 					var convertPrimitiveCall = DryExpression.StaticCall(propertyType, SourceCodeGenerator.ToObjectMethod, getPrimitiveElementCall);
-					setValueCall = DryExpression.Call(result, "set" + serviceProperty.Name, convertPrimitiveCall);
+					action = DryExpression.Block(DryExpression.Call(self, "set" + serviceProperty.Name, convertPrimitiveCall));
 				}
 
 				var condition = DryExpression.Call(jsonElementName, typeof(Boolean), "equals", Expression.Constant(serviceProperty.Name, typeof(String)));
-				var action = DryExpression.Block(setValueCall);
 
 				var currentExpression = Expression.IfThenElse(condition, action, ifThenElseExpression);
 
 				ifThenElseExpression = currentExpression;
 			}
 
-			whileStatements.Add(ifThenElseExpression);
-
-			var whileBody = DryExpression.Block(whileStatements.ToArray());
-
-			var whileExpression = DryExpression.While(DryExpression.Call(jsonReader, "hasNext", null), whileBody);
-
 			var methodVariables = new List<ParameterExpression>
 			{
-				result,
 				jsonElementName
 			};
 
 			var methodStatements = new List<Expression>
 			{
-				Expression.Assign(result, resultNew).ToStatement(),
-				DryExpression.Call(jsonReader, "beginObject", null),
-				whileExpression,
-				DryExpression.Call(jsonReader, "endObject", null),
-				returnResult
+				Expression.Assign(jsonElementName, DryExpression.Call(jsonReader, typeof(String), "nextName", null)).ToStatement(),
+				ifThenElseExpression
 			};
 
 			var body = DryExpression.Block(methodVariables.ToArray(), methodStatements.ToArray());
 
-			return new MethodDefinitionExpression("deserialize", new List<Expression>() { jsonReader }, AccessModifiers.Public | AccessModifiers.Static, currentType, body, false, null, null, new List<Exception>() { new Exception() });
-
+			return new MethodDefinitionExpression("deserializeElement", new List<Expression>() { jsonReader }, AccessModifiers.Public, typeof(void), body, false, null, null, new List<Exception>() { new Exception() });
 		}
 
-		private Expression CreateDeserialiseArrayMethod()
+		private Expression CreateSerializeMethod()
 		{
-			var jsonReader = Expression.Parameter(DryType.Define("JsonReader"), "reader");
-
-			var result = DryExpression.Variable(new DryListType(currentType), "result");
-
-			var resultNew = DryExpression.New(new DryListType(currentType), "DryListType", null);
-
-			var whileBody = DryExpression.Block(DryExpression.Call(result, "add", DryExpression.StaticCall(currentType, "deserialize", jsonReader)));
-
-			var whileExpression = DryExpression.While(DryExpression.Call(jsonReader, "hasNext", null), whileBody);
-
-			var returnResult = Expression.Return(Expression.Label(), result).ToStatement();
-
-			var methodVariables = new List<ParameterExpression>
-			{
-				result
-			};
-
-			var methodStatements = new List<Expression>
-			{
-				Expression.Assign(result, resultNew).ToStatement(),
-				DryExpression.Call(jsonReader, "beginArray", null),
-				whileExpression,
-				DryExpression.Call(jsonReader, "endArray", null),
-				returnResult
-			};
-
-			var body = DryExpression.Block(methodVariables.ToArray(), methodStatements.ToArray());
-
-			return new MethodDefinitionExpression("deserializeArray", new List<Expression>() { jsonReader }, AccessModifiers.Public | AccessModifiers.Static, new DryListType(new DryType("? extends " + currentType.Name)), body, false, null, null, new List<Exception>() { new Exception() });
-
-		}
-
-		private Expression CreateSerialiseMethod()
-		{
-			var value = Expression.Parameter(currentType, "value");
+			var self = Expression.Parameter(currentType, "this");
 
 			var jsonBuilder = DryType.Define("DefaultJsonBuilder");
 
 			var jsonBuilderInstance = DryExpression.StaticCall(jsonBuilder, "instance");
 
-			var toJsonCall = DryExpression.Call(jsonBuilderInstance, "toJson", value);
+			var toJsonCall = DryExpression.Call(jsonBuilderInstance, "toJson", self);
 
 			var defaultBody = Expression.Return(Expression.Label(), toJsonCall).ToStatement();
 
 			var body = DryExpression.Block(defaultBody);
 
-			return new MethodDefinitionExpression("serialize", new List<Expression>() {value}, AccessModifiers.Public | AccessModifiers.Static, typeof(string), body, false, null);
-		}
-
-		protected virtual MethodDefinitionExpression CreateCreateErrorResponseMethod()
-		{
-			var errorCode = Expression.Parameter(typeof(string), "errorCode");
-			var message = Expression.Parameter(typeof(string), "errorMessage");
-			var stackTrace = Expression.Parameter(typeof(string), "stackTrace");
-
-			var parameters = new Expression[]
-			{
-				errorCode,
-				message,
-				stackTrace
-			};
-
-			var responseStatusType = DryType.Define("ResponseStatus");
-
-			var result = DryExpression.Variable(currentType, "result");
-			var responseStatus = DryExpression.Variable(responseStatusType, "responseStatus");
-
-			var newResult = Expression.Assign(result, Expression.New(currentType));
-			var newResponseStatus = Expression.Assign(responseStatus, Expression.New(responseStatusType));
-
-			var methodVariables = new List<ParameterExpression>
-			{
-				result,
-				responseStatus
-			};
-
-			var methodStatements = new List<Expression>
-			{
-				newResponseStatus,
-				DryExpression.Call(responseStatus, "setErrorCode", errorCode),
-				DryExpression.Call(responseStatus, "setMessage", message),
-				DryExpression.Call(responseStatus, "setStackTrace", stackTrace),
-				newResult,
-				DryExpression.Call(result, "setResponseStatus", responseStatus),
-				Expression.Return(Expression.Label(), result)
-			};
-
-			var body = DryExpression.Block(methodVariables.ToArray(), methodStatements.ToArray());
-
-			return new MethodDefinitionExpression("createErrorResponse", new ReadOnlyCollection<Expression>(parameters), AccessModifiers.Public | AccessModifiers.Static, currentType, body, false, null);
+			return new MethodDefinitionExpression("serialize", new List<Expression>() , AccessModifiers.Public, typeof(string), body, false, null);
 		}
 
 		protected override Expression VisitTypeDefinitionExpression(TypeDefinitionExpression expression)
@@ -323,11 +288,6 @@ namespace Dryice.Generators.Java.Binders
 
 			var lookup = new HashSet<Type>(referencedTypes.Where(TypeSystem.IsPrimitiveType));
 
-			if (lookup.Contains(typeof(DryListType)))
-			{
-				includeExpressions.Add(DryExpression.Include("java.util.ArrayList"));
-			}
-	
 			if (lookup.Contains(typeof(Guid)) || lookup.Contains(typeof(Guid?)))
 			{
 				includeExpressions.Add(DryExpression.Include("java.util.UUID"));
@@ -354,16 +314,10 @@ namespace Dryice.Generators.Java.Binders
 				includeExpressions.Add(DryExpression.Include("java.io.InputStreamReader"));
 				includeExpressions.Add(DryExpression.Include("java.util.ArrayList"));
 
-				members.Add(CreateDeserialiseStreamMethod());
-				members.Add(CreateDeserialiseReaderMethod());
-				members.Add(CreateDeserialiseArrayMethod());
-				members.Add(CreateSerialiseMethod());
-			}
-
-			//if this class is a return type, amend a new method
-			if (CurrentTypeIsResponseType())
-			{
-				members.Add(CreateCreateErrorResponseMethod());
+				members.Add(CreateDeserializeStreamMethod());
+				members.Add(CreateDeserializeReaderMethod());
+				members.Add(CreateDeserializeElementMethod());
+				members.Add(CreateSerializeMethod());
 			}
 
 			var headerGroup = includeExpressions.ToStatementisedGroupedExpression();

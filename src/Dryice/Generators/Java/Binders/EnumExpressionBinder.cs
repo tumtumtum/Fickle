@@ -104,7 +104,7 @@ namespace Dryice.Generators.Java.Binders
 			return new MethodDefinitionExpression("deserialize", new List<Expression>() { inputStream }, AccessModifiers.Public | AccessModifiers.Static, currentType, body, false, null, null, new List<Exception>() { new Exception() });
 		}
 
-		private Expression CreateDeserialiseStringMethod()
+		private Expression CreateDeserializeMethod()
 		{
 			var inputString = Expression.Parameter(typeof(String), "value");
 
@@ -114,11 +114,39 @@ namespace Dryice.Generators.Java.Binders
 
 			if (codeGenerationContext.Options.SerializeEnumsAsStrings)
 			{
-				methodStatements.Add(DryExpression.Return(DryExpression.StaticCall(currentType, "valueOf", inputString)));
+				var returnResult = DryExpression.Return(DryExpression.StaticCall(currentType, "valueOf", inputString));
+
+				methodStatements.Add(returnResult);
 			}
 			else
 			{
-				
+				var intValue = Expression.Variable(typeof (int), "intValue");
+
+				methodVariables.Add(intValue);
+
+				var convertInt = Expression.Assign(intValue, DryExpression.StaticCall("ConvertUtils", typeof(int), "toint", inputString));
+
+				methodStatements.Add(convertInt);
+
+				Expression ifThenElseExpression = DryExpression.Block(DryExpression.Return(Expression.Constant(null)));
+
+				foreach (var enumMemberExpression in ((GroupedExpressionsExpression)currentTypeDefinition.Body).Expressions)
+				{
+					var enumMemberNameExpression = ((BinaryExpression) enumMemberExpression).Left;
+
+					var enumMemberName = ((ParameterExpression)enumMemberNameExpression).Name;
+
+					var enumMemberValue = Expression.Variable(typeof (int), enumMemberName + ".value");
+
+					var condition = Expression.Equal(intValue, enumMemberValue);
+					var action = DryExpression.Block(DryExpression.Return(enumMemberNameExpression));
+
+					var currentExpression = Expression.IfThenElse(condition, action, ifThenElseExpression);
+
+					ifThenElseExpression = currentExpression;
+				}
+
+				methodStatements.Add(ifThenElseExpression);
 			}
 
 			var body = DryExpression.Block(methodVariables.ToArray(), methodStatements.ToArray());
@@ -127,7 +155,7 @@ namespace Dryice.Generators.Java.Binders
 
 		}
 
-		private Expression CreateDeserialiseArrayMethod()
+		private Expression CreateDeserializeArrayMethod()
 		{
 			var jsonReader = Expression.Parameter(DryType.Define("JsonReader"), "reader");
 
@@ -159,11 +187,10 @@ namespace Dryice.Generators.Java.Binders
 
 			var body = DryExpression.Block(methodVariables.ToArray(), methodStatements.ToArray());
 
-			return new MethodDefinitionExpression("deserializeArray", new List<Expression>() { jsonReader }, AccessModifiers.Public | AccessModifiers.Static, new DryListType(new DryType("? extends " + currentType.Name)), body, false, null, null, new List<Exception>() { new Exception() });
-
+			return new MethodDefinitionExpression("deserializeArray", new List<Expression>() { jsonReader }, AccessModifiers.Public | AccessModifiers.Static, new DryListType(currentType), body, false, null, null, new List<Exception>() { new Exception() });
 		}
 
-		private Expression CreateSerialiseMethod()
+		private Expression CreateSerializeMethod()
 		{
 			var methodVariables = new List<ParameterExpression>();
 			var methodStatements = new List<Expression>();
@@ -218,9 +245,7 @@ namespace Dryice.Generators.Java.Binders
 				var includeExpressions = new List<Expression>()
 				{
 					DryExpression.Include("android.util.JsonReader"),
-					DryExpression.Include("com.jaigo.androiddevkit.utils.*"),
-					DryExpression.Include("java.io.InputStream"),
-					DryExpression.Include("java.io.InputStreamReader"),
+					DryExpression.Include("com.jaigo.androiddevkit.DefaultJsonBuilder"),
 					DryExpression.Include("java.util.ArrayList")
 				};
 
@@ -243,10 +268,10 @@ namespace Dryice.Generators.Java.Binders
 					expression.Body,
 					enumValueField,
 					CreateConstructor(),
-					CreateDeserialiseStreamMethod(),
-					CreateDeserialiseStringMethod(),
-					CreateDeserialiseArrayMethod(),
-					CreateSerialiseMethod()
+					CreateDeserializeMethod(),
+					CreateDeserializeArrayMethod(),
+					CreateSerializeMethod(),
+					JavaBinderHelpers.CreateSerializeArrayMethod(currentType)
 				};
 
 				var body = new GroupedExpressionsExpression(bodyExpressions);

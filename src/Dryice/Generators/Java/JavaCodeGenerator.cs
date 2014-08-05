@@ -94,36 +94,38 @@ namespace Dryice.Generators.Java
 			}
 			else if (type is DryListType)
 			{
-				var typeName = type.GetDryiceListElementType().Name;
+				var listType = type.GetDryiceListElementType();
 
 				if (type.GetDryiceListElementType().GetUnderlyingType() != null)
 				{
-					typeName = type.GetDryiceListElementType().GetUnderlyingType().Name;
+					listType = type.GetDryiceListElementType().GetUnderlyingType();
 				}
 
-				this.Write("ArrayList <" + typeName + ">");
+				this.Write("ArrayList <");
+				this.Write(listType, true);
+				this.Write(">");
 
 				return;
 			}
-		else if (type is DryDelegateType)
-		{
-			var delegateType = (DryDelegateType)type;
-
-			this.Write(delegateType.ReturnType, false);
-			for (var i = 0; i < delegateType.Parameters.Length; i++)
+			else if (type is DryDelegateType)
 			{
-				this.Write(delegateType.Parameters[i].ParameterType, false);
-				this.Write(' ');
-				this.Write(delegateType.Parameters[i].Name);
+				var delegateType = (DryDelegateType)type;
 
-				if (i != delegateType.Parameters.Length - 1)
+				this.Write(delegateType.ReturnType, false);
+				for (var i = 0; i < delegateType.Parameters.Length; i++)
 				{
-					this.Write(", ");
-				}
-			}
+					this.Write(delegateType.Parameters[i].ParameterType, false);
+					this.Write(' ');
+					this.Write(delegateType.Parameters[i].Name);
 
-			return;
-		}
+					if (i != delegateType.Parameters.Length - 1)
+					{
+						this.Write(", ");
+					}
+				}
+
+				return;
+			}
 
 			base.Write(type, nameOnly);
 		}
@@ -536,7 +538,7 @@ namespace Dryice.Generators.Java
 				this.Write("public class ");
 				this.Write(expression.Type.Name, true);
 
-				if (expression.Type.BaseType != null)
+				if (expression.Type.BaseType != null && expression.Type.BaseType != typeof(Object))
 				{
 					this.Write(" extends ");
 					this.Write(expression.Type.BaseType, true);
