@@ -1,5 +1,4 @@
 ﻿using System;
-using System.CodeDom;
 using System.Collections.Generic;
 using System.Linq;
 using Dryice.Model;
@@ -63,7 +62,7 @@ namespace Dryice.Generators
 		public virtual ServiceModel Ammend()
 		{
 			var returnTypes = serviceModel.Gateways.SelectMany(c => c.Methods).Select(c => serviceModel.GetTypeFromName(c.Returns)).ToHashSet();
-			var returnServiceClasses = returnTypes.Where(c => TypeSystem.IsNotPrimitiveType(c) && (typeof(DryListType).IsAssignableFrom(c))).Select(serviceModel.GetServiceClass);
+			var returnServiceClasses = returnTypes.Where(c => TypeSystem.IsNotPrimitiveType(c) && !(typeof(DryListType).IsAssignableFrom(c))).Select(serviceModel.GetServiceClass);
 			var additionalClasses = new HashSet<ServiceClass>();
 
 			var containsResponseStatus = serviceModel.GetServiceClass(options.ResponseStatusTypeName) != null;
