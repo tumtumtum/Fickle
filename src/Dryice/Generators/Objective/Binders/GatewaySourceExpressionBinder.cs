@@ -5,8 +5,10 @@ using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Security.Cryptography;
 using System.Text.RegularExpressions;
 using Dryice.Expressions;
+using Newtonsoft.Json.Converters;
 using Platform;
 
 namespace Dryice.Generators.Objective.Binders
@@ -160,14 +162,14 @@ namespace Dryice.Generators.Objective.Binders
 
 			var returnType = method.ReturnType;
 
-			if (TypeSystem.IsPrimitiveType(method.ReturnType))
+			if (ObjectiveBinderHelpers.NeedsValueResponseWrapper(method.ReturnType))
 			{
 				returnType = DryType.Define(ObjectiveBinderHelpers.GetValueResponseWrapperTypeName(method.ReturnType));
 			}
 
 			var conversion = Expression.Convert(blockArg, returnType);
 			var body = DryExpression.Call(callback, "Invoke", conversion).ToStatement();
-			var conversionBlock = DryExpression.SimpleLambda(body, blockArg);
+			var conversionBlock = DryExpression.SimpleLambda(null, body, new Expression[0], blockArg);
 			
 			Expression clientCallExpression;
 
@@ -187,6 +189,67 @@ namespace Dryice.Generators.Objective.Binders
 				});
 			}
 
+			var error = DryExpression.Variable("NSError", "error");
+
+			var parseErrorResult = DryExpression.Call(self, "webServiceClient", new
+			{
+				client,
+				createErrorResponseWithErrorCode = "JsonDeserializationError",
+				andMessage = DryExpression.Call(error, "localizedDescription", null)
+			});
+
+			Expression parseResultBlock;
+
+			if (method.ReturnType != typeof(void))
+			{
+				var nsdataParam = Expression.Parameter(DryType.Define("NSData"), "data");
+				var jsonObjectWithDataParameters = new[] { new DryParameterInfo(DryType.Define("NSDictionary"), "obj"), new DryParameterInfo(typeof(int), "options"), new DryParameterInfo(DryType.Define("NSError", true), "error", true) };
+				var objectWithDataMethodInfo = new DryMethodInfo(DryType.Define("NSJSONSerialization"), DryType.Define("NSData"), "JSONObjectWithData", jsonObjectWithDataParameters, true);
+				var deserializedValue = Expression.Parameter(DryType.Define("id"), "deserializedValue");
+				
+				if (TypeSystem.IsPrimitiveType(method.ReturnType) || method.ReturnType is DryListType)
+				{
+					var responseObject = DryExpression.Variable(responseType, "responseObject");
+
+					var needToBoxValue = ObjectiveBinderHelpers.ValueResponseValueNeedsBoxing(method.ReturnType);
+
+					parseResultBlock = DryExpression.SimpleLambda
+					(
+						DryType.Define("id"),
+						DryExpression.GroupedWide
+						(
+							Expression.Assign(responseObject, DryExpression.New(responseType, "init", null)).ToStatement(),
+							Expression.Assign(deserializedValue, Expression.Call(objectWithDataMethodInfo, nsdataParam, DryExpression.Variable(typeof(int), "NSJSONReadingAllowFragments"), error)).ToStatement(),
+							PropertiesFromDictionaryExpressonBinder.GetDeserializeExpressionProcessValueDeserializer(method.ReturnType, deserializedValue, c => DryExpression.Call(responseObject, typeof(void), "setValue", needToBoxValue  ? Expression.Convert(c, typeof(object)) : c).ToStatement()),
+							DryExpression.Return(parseErrorResult).ToStatement()
+						),
+						new Expression[] { deserializedValue, responseObject, error },
+						nsdataParam
+					);
+				}
+				else
+				{
+					parseResultBlock = DryExpression.SimpleLambda
+					(
+						DryType.Define("id"),
+						DryExpression.GroupedWide
+						(
+							Expression.Assign(deserializedValue, Expression.Call(objectWithDataMethodInfo, nsdataParam, DryExpression.Variable(typeof(int), "NSJSONReadingAllowFragments"), error)).ToStatement(),
+							PropertiesFromDictionaryExpressonBinder.GetDeserializeExpressionProcessValueDeserializer(method.ReturnType, deserializedValue, c => DryExpression.Return(c).ToStatement()),
+							DryExpression.Return(parseErrorResult).ToStatement()
+						),
+						new Expression[] { deserializedValue, error },
+						nsdataParam
+					);
+				}
+
+				parseResultBlock = DryExpression.Call(parseResultBlock, parseResultBlock.Type, "copy", null);
+			}
+			else
+			{
+				parseResultBlock = DryExpression.StaticCall("NSNull", "id", "null", null);
+			}
+
 			var block = DryExpression.Block
 			(
 				variables,
@@ -195,14 +258,15 @@ namespace Dryice.Generators.Objective.Binders
 				{
 					zone = Expression.Constant(null, DryType.Define("NSZone"))
 				})),
+				DryExpression.Call(options, typeof(void), "setObject", new { value = DryExpression.StaticCall(responseType, "class", null), forKey = "$ResponseClass" }).ToStatement(),
 				Expression.Assign(hostname, DryExpression.Call(options, typeof(string), "objectForKey", Expression.Constant("Hostname"))),
 				Expression.IfThen(Expression.Equal(hostname, Expression.Constant(null)), Expression.Assign(hostname, Expression.Constant(declaredHostname)).ToStatement().ToBlock()),
 				DryExpression.Grouped
 				(
 					DryExpression.Call(options, "setObject", new
 					{
-						obj = responseType == typeof(void) ? (Expression)DryExpression.StaticCall(DryType.Define("NSNull"), DryType.Define("id"), "null", null) : (Expression)DryExpression.StaticCall(responseType, "class", null),
-						forKey = "$ResponseClass"
+						obj = parseResultBlock,
+						forKey = "$ParseResultBlock"
 					}).ToStatement(),
 					method.ReturnType.GetUnwrappedNullableType() == typeof(bool) ?
 					DryExpression.Call(options, "setObject", new

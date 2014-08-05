@@ -546,6 +546,20 @@ namespace Dryice.Generators.Objective
 			{
 				this.Visit(expression);
 			}
+			else if (expression.Type.IsEnum)
+			{
+				this.Write(expression.Type);
+				this.Write("ToString(");
+				this.Visit(expression);
+				this.Write(")");
+			}
+			else if (expression.Type.GetUnwrappedNullableType().IsEnum)
+			{
+				this.Write(expression.Type.GetUnwrappedNullableType());
+				this.Write("ToString([");
+				this.Visit(expression);
+				this.Write(" intValue])");
+			}
 			else if (expression.Type == typeof(Guid) || expression.Type == typeof(Guid?))
 			{
 				this.Write("[");
@@ -702,6 +716,20 @@ namespace Dryice.Generators.Objective
 		{
 			switch (node.NodeType)
 			{
+				case ExpressionType.Or:
+					this.Write("((");
+					this.Visit(node.Left);
+					this.Write(") || (");
+					this.Visit(node.Right);
+					this.Write(")");
+					break;
+				case ExpressionType.And:
+					this.Write("((");
+					this.Visit(node.Left);
+					this.Write(") && (");
+					this.Visit(node.Right);
+					this.Write(")");
+					break;
 				case ExpressionType.Assign:
 					if (node.Left.Type.IsByRef && !node.Right.Type.IsByRef)
 					{
@@ -794,6 +822,10 @@ namespace Dryice.Generators.Objective
 					this.Write("return ");
 					this.Visit(node.Value);
 				}
+			}
+			else if (node.Kind == GotoExpressionKind.Continue)
+			{
+				this.Write("continue");
 			}
 
 			return node;
@@ -1031,6 +1063,12 @@ namespace Dryice.Generators.Objective
 		protected override Expression VisitSimpleLambdaExpression(SimpleLambdaExpression node)
 		{
 			this.Write("^");
+
+			if (node.ReturnType != null)
+			{
+				this.Write(node.ReturnType);
+			}
+
 			this.Write("(");
 
 			foreach (ParameterExpression parameter in node.Parameters)
@@ -1046,6 +1084,16 @@ namespace Dryice.Generators.Objective
 			{
 				using (this.AcquireIndentationContext(BraceLanguageStyleIndentationOptions.IncludeBraces))
 				{
+					if (node.Variables.Count > 0)
+					{	
+						foreach (var variable in node.Variables)
+						{
+							this.WriteVariableDeclaration((ParameterExpression)variable);
+						}
+
+						this.WriteLine();
+					}
+
 					this.Visit(node.Body);
 				}
 			}
