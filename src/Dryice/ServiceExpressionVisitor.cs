@@ -41,6 +41,8 @@ namespace Dryice
 					return this.VisitFieldDefinitionExpression((FieldDefinitionExpression)expression);
 				case (int)ServiceExpressionType.While:
 					return this.VisitWhileExpression((WhileExpression)expression);
+				case (int)ServiceExpressionType.Namespace:
+					return this.VisitNamespaceExpresson((NamespaceExpression)expression);
 			}
 
 			return base.Visit(expression);
@@ -121,6 +123,11 @@ namespace Dryice
 		}
 
 		protected virtual Expression VisitIncludeStatementExpresson(IncludeExpression expression)
+		{
+			return expression;
+		}
+
+		protected virtual Expression VisitNamespaceExpresson(NamespaceExpression expression)
 		{
 			return expression;
 		}

@@ -15,5 +15,6 @@
 		SimpleLambdaExpression = GroupedExpressions + 11,
 		FieldDefinition = GroupedExpressions + 12,
 		While = GroupedExpressions + 13,
+		Namespace = GroupedExpressions + 14,
 	}
 }

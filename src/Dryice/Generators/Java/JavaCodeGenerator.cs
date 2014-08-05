@@ -29,12 +29,13 @@ namespace Dryice.Generators.Java
 	[PrimitiveTypeName(typeof(double?), "Double", true)]
 	[PrimitiveTypeName(typeof(Guid), "UUID", true)]
 	[PrimitiveTypeName(typeof(Guid?), "UUID", true)]
-	[PrimitiveTypeName(typeof(DateTime), "DateTime", true)]
-	[PrimitiveTypeName(typeof(DateTime?), "DateTime", true)]
+	[PrimitiveTypeName(typeof(DateTime), "Date", true)]
+	[PrimitiveTypeName(typeof(DateTime?), "Date", true)]
 	[PrimitiveTypeName(typeof(TimeSpan), "TimeSpan", true)]
 	[PrimitiveTypeName(typeof(TimeSpan?), "TimeSpan", true)]
 	[PrimitiveTypeName(typeof(Exception), "Exception", true)]
 	[PrimitiveTypeName(typeof(string), "String", true)]
+	[PrimitiveTypeName(typeof(DryListType), "ArrayList", true)]
 	public class JavaCodeGenerator
 		: BraceLanguageStyleSourceCodeGenerator
 	{
@@ -100,7 +101,7 @@ namespace Dryice.Generators.Java
 					typeName = type.GetDryiceListElementType().GetUnderlyingType().Name;
 				}
 
-				this.Write("ArrayList <? extends " + typeName + ">");
+				this.Write("ArrayList <" + typeName + ">");
 
 				return;
 			}
@@ -137,19 +138,6 @@ namespace Dryice.Generators.Java
 					this.Write(".uuidFromString");
 					this.Visit(node.Operand);
 				}
-				else if ((node.Type.GetUnwrappedNullableType().IsNumericType() || node.Type.GetUnwrappedNullableType() == typeof(bool))
-						 && (node.Operand.Type == typeof(object) || DryNullable.GetUnderlyingType(node.Operand.Type) != null))
-				{
-					this.Write("TODO OBJECT FROM STRING");
-				}
-				else if (node.Type == typeof(DateTime?) || node.Type == typeof(DateTime))
-				{
-					this.Write("TODO DATETIME FROM STRING");
-				}
-				else if (node.Type == typeof(TimeSpan?) || node.Type == typeof(TimeSpan))
-				{
-					this.Write("TODO TIMESPAN FROM STRING");
-				}
 				else if (node.Type == typeof(object))
 				{
 					this.Visit(node.Operand);
@@ -175,6 +163,11 @@ namespace Dryice.Generators.Java
 			else if (node.NodeType == ExpressionType.IsFalse)
 			{
 				this.Write('!');
+				this.Visit(node.Operand);
+			}
+			else if (node.NodeType == ExpressionType.Throw)
+			{
+				this.Write("throw ");
 				this.Visit(node.Operand);
 			}
 
@@ -501,6 +494,15 @@ namespace Dryice.Generators.Java
 			return expression;
 		}
 
+		protected override Expression VisitNamespaceExpresson(NamespaceExpression expression)
+		{
+			this.Write("package ");
+			this.Write(expression.NameSpace);
+			this.WriteLine(';');
+
+			return expression;
+		}
+
 		protected override Expression VisitReferencedTypeExpresson(ReferencedTypeExpression expression)
 		{
 			this.Write("import ");
@@ -531,10 +533,19 @@ namespace Dryice.Generators.Java
 
 			if (dryType != null && dryType.IsClass)
 			{
-				this.WriteLine("public class " + expression.Type.Name);
+				this.Write("public class ");
+				this.Write(expression.Type.Name, true);
+
+				if (expression.Type.BaseType != null)
+				{
+					this.Write(" extends ");
+					this.Write(expression.Type.BaseType, true);
+				}
+
+				this.WriteLine();
+
 				using (this.AcquireIndentationContext(BraceLanguageStyleIndentationOptions.IncludeBracesNewLineAfter))
 				{
-					this.WriteLine();
 					this.Visit(expression.Body);
 					this.WriteLine();
 				}
@@ -651,6 +662,8 @@ namespace Dryice.Generators.Java
 			this.WriteLine();
 
 			this.Visit(method.Body);
+
+			this.WriteLine();
 
 			return method;
 		}

@@ -168,8 +168,6 @@ namespace Dryice.Generators.Java.Binders
 
 			var includeExpressions = new List<IncludeExpression>
 			{
-				DryExpression.Include(expression.Type.Name),
-				DryExpression.Include(this.CodeGenerationContext.Options.ResponseStatusTypeName),
 				DryExpression.Include("com.jaigo.androiddevkit.RequestCallback"),
 				DryExpression.Include("com.jaigo.androiddevkit.utils.ConvertUtils"),
 				DryExpression.Include("com.jaigo.androiddevkit.WebServiceClient")
@@ -193,13 +191,27 @@ namespace Dryice.Generators.Java.Binders
 			var referencedTypes = ReferencedTypesCollector.CollectReferencedTypes(body).Append(singleValueResponseTypes).Distinct().ToList();
 			referencedTypes.Sort((x, y) => String.Compare(x.Name, y.Name, StringComparison.InvariantCultureIgnoreCase));
 
-			foreach (var referencedType in referencedTypes.Where(c => c is DryType && ((DryType)c).ServiceClass != null))
+			var lookup = new HashSet<Type>(referencedTypes.Where(TypeSystem.IsPrimitiveType));
+
+			if (lookup.Contains(typeof(DryListType)))
 			{
-				includeExpressions.Add(DryExpression.Include(referencedType.Name));
+				includeExpressions.Add(DryExpression.Include("java.util.ArrayList"));
+			}
+
+			if (lookup.Contains(typeof(Guid)) || lookup.Contains(typeof(Guid?)))
+			{
+				includeExpressions.Add(DryExpression.Include("java.util.UUID"));
+			}
+
+			if (lookup.Contains(typeof(DateTime)) || lookup.Contains(typeof(DateTime?)))
+			{
+				includeExpressions.Add(DryExpression.Include("java.util.Date"));
 			}
 
 			var headerGroup = includeExpressions.Sorted(IncludeExpression.Compare).ToGroupedExpression();
-			var header = new Expression[] { comment, headerGroup }.ToGroupedExpression(GroupedExpressionsExpressionStyle.Wide);
+			var namespaceExpression = new NamespaceExpression(CodeGenerationContext.Options.Namespace);
+
+			var header = new Expression[] { comment, namespaceExpression, headerGroup }.ToGroupedExpression(GroupedExpressionsExpressionStyle.Wide);
 
 			return new TypeDefinitionExpression(expression.Type, header, body, false);
 		}

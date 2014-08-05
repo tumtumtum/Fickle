@@ -34,7 +34,7 @@ namespace Dryice.Expressions
 		}
 
 		public MethodDefinitionExpression(string name, IEnumerable<Expression> parameters, Type returnType, Expression body, bool isPredeclaration, string rawAttributes = "", ReadOnlyDictionary<string, string> attributes = null)
-			: this(name, parameters.ToReadOnlyCollection(), AccessModifiers.Public, returnType, body, isPredeclaration, rawAttributes, attributes)
+			: this(name, parameters.ToReadOnlyCollection(), AccessModifiers.None, returnType, body, isPredeclaration, rawAttributes, attributes)
 		{
 		}
 

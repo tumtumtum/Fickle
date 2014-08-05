@@ -83,6 +83,7 @@
     <Compile Include="Dryfile\DryFileWriter.cs" />
     <Compile Include="DryNullable.cs" />
     <Compile Include="Expressions\BaseExpression.cs" />
+    <Compile Include="Expressions\NamespaceExpression.cs" />
     <Compile Include="Expressions\WhileExpression.cs" />
     <Compile Include="Expressions\GroupedExpressionsExpressionStyle.cs" />
     <Compile Include="Expressions\AccessModifiers.cs" />

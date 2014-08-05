@@ -15,6 +15,7 @@ namespace Dryice
 		public string ResponseStatusTypeName { get; set; }
 		public string ResponseStatusPropertyName { get; set; }
 		public string TypeNamePrefix { get; set; }
+		public string Namespace { get; set; }
 		public ServiceModelInfo ServiceModelInfo { get; set; }
 
 		public CodeGenerationOptions()

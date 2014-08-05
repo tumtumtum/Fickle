@@ -50,34 +50,5 @@ namespace Dryice.Generators.Java
 
 			return new ServiceClass(JavaBinderHelpers.GetValueResponseWrapperTypeName(type), null, properties);
 		}
-
-		protected virtual MethodDefinitionExpression CreateCreateErrorResponseMethod()
-		{
-			var errorCode = Expression.Parameter(typeof(string), "errorCode");
-			var message = Expression.Parameter(typeof(string), "errorMessage");
-			var stackTrace = Expression.Parameter(typeof(string), "stackTrace");
-
-			var parameters = new Expression[]
-			{
-				errorCode,
-				message,
-				stackTrace
-			};
-
-			var response = DryExpression.Variable(DryType.Define("id"), "response");
-			var responseStatus = DryExpression.Call(response, "ResponseStatus", "responseStatus", null);
-			var newResponseStatus = DryExpression.New("ResponseStatus", "init", null);
-
-			var body = DryExpression.Block
-			(
-				new[] { response },
-				Expression.IfThen(Expression.IsTrue(Expression.Equal(responseStatus, Expression.Constant(null, responseStatus.Type))), DryExpression.Block(DryExpression.Call(response, "setResponseStatus", newResponseStatus))),
-				DryExpression.Call(responseStatus, typeof(string), "setErrorCode", errorCode),
-				DryExpression.Call(responseStatus, typeof(string), "setMessage", message),
-				Expression.Return(Expression.Label(), response)
-			);
-
-			return new MethodDefinitionExpression("createErrorResponse", new ReadOnlyCollection<Expression>(parameters), AccessModifiers.Public | AccessModifiers.Static, typeof(String), body, false, null);
-		}
 	}
 }

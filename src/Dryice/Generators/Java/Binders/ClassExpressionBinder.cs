@@ -21,10 +21,13 @@ namespace Dryice.Generators.Java.Binders
 		private TypeDefinitionExpression currentTypeDefinition;
 		private Type currentType;
 		private List<FieldDefinitionExpression> fieldDefinitionsForProperties = new List<FieldDefinitionExpression>();
+		private HashSet<Type> serviceModelResponseTypes;
 
 		private ClassExpressionBinder(CodeGenerationContext codeGenerationContext)
 		{
 			this.codeGenerationContext = codeGenerationContext;
+
+			GetServiceModelResponseTypes();
 		}
 
 		public static Expression Bind(CodeGenerationContext codeGenerationContext, Expression expression)
@@ -71,27 +74,36 @@ namespace Dryice.Generators.Java.Binders
 			var inputStreamReaderNew = DryExpression.New(DryType.Define("InputStreamReader"), "InputStreamReader", inputStream);
 
 			var jsonReaderNew = DryExpression.New(jsonReaderType, "JsonReader", inputStreamReaderNew); 
-			var resultCreate = Expression.Assign(result, DryExpression.StaticCall(currentType, currentType, "deserialise", jsonReader)).ToStatement();
+			var resultCreate = Expression.Assign(result, DryExpression.StaticCall(currentType, currentType, "deserialize", jsonReader)).ToStatement();
 			var jsonReaderClose = DryExpression.Call(jsonReader, "close", null).ToStatement();
 
 			var exception = Expression.Variable(typeof(Exception), "exception"); ;
-			var errorCodesVariable = Expression.Variable(typeof(Enum), "ServiceErrorCodes.DeserializationError");
+			var errorCodesVariable = Expression.Constant("DeserializationError", typeof(String));
 
 			var returnResult = DryExpression.Return(result);
 
 			var createErrorArguments = new
 			{
-				errorCode = DryExpression.Call(errorCodesVariable, typeof(String), SourceCodeGenerator.ToStringMethod, null),
+				errorCode = errorCodesVariable,
 				errorMessage = DryExpression.Call(exception, "getMessage", null),
 				stackTrace = DryExpression.StaticCall(DryType.Define("Log"), typeof(String), "getStackTraceString", exception),
 			};
 
-			var resultCreateErrorResponse = Expression.Assign(result, DryExpression.StaticCall(currentType, currentType, "createError", createErrorArguments)).ToStatement();
+			Expression handleError;
+
+			if (CurrentTypeIsResponseType())
+			{
+				handleError = Expression.Assign(result, DryExpression.StaticCall(currentType, currentType, "createErrorResponse", createErrorArguments)).ToStatement();	
+			}
+			else
+			{
+				handleError = Expression.Throw(exception).ToStatement();
+			}
 
 			var tryCatch = Expression.TryCatchFinally(
 				resultCreate,
 				jsonReaderClose,
-				Expression.Catch(typeof(Exception), resultCreateErrorResponse));
+				Expression.Catch(typeof(Exception), handleError));
 
 			var methodVariables = new List<ParameterExpression>
 			{
@@ -108,7 +120,7 @@ namespace Dryice.Generators.Java.Binders
 
 			var body = DryExpression.Block(methodVariables.ToArray(), methodStatements.ToArray());
 
-			return new MethodDefinitionExpression("deserialize", new List<Expression>() { inputStream }, AccessModifiers.Public | AccessModifiers.Static, currentType, body, false, null, null, new List<Exception>() { new IOException() });
+			return new MethodDefinitionExpression("deserialize", new List<Expression>() { inputStream }, AccessModifiers.Public | AccessModifiers.Static, currentType, body, false, null, null, new List<Exception>() { new Exception() });
 		}
 
 		private Expression CreateDeserialiseReaderMethod()
@@ -147,16 +159,21 @@ namespace Dryice.Generators.Java.Binders
 
 				var propertyType = codeGenerationContext.ServiceModel.GetTypeFromName(serviceProperty.TypeName);
 
-				if (TypeSystem.IsNotPrimitiveType(propertyType) || propertyType == typeof(Enum))
+				if (propertyType is DryListType)
 				{
-					var name = serviceProperty.TypeName;
+					var listItemType = ((DryListType) propertyType).ListElementType;
 
-					if (serviceProperty.TypeName.GetType().GetUnderlyingType() != null)
+					if (listItemType is DryNullable)
 					{
-						name = serviceProperty.GetType().GetUnderlyingType().Name;
+						listItemType = listItemType.GetUnderlyingType();
 					}
 
-					var convertDtoCall = DryExpression.StaticCall(name, "deserialize", jsonReader);
+					var convertDtoCall = DryExpression.StaticCall(listItemType.Name, "deserializeArray", jsonReader);
+					setValueCall = DryExpression.Call(result, "set" + serviceProperty.Name, convertDtoCall);
+				}
+				else if (TypeSystem.IsNotPrimitiveType(propertyType) || propertyType == typeof(Enum))
+				{
+					var convertDtoCall = DryExpression.StaticCall(serviceProperty.TypeName, "deserialize", jsonReader);
 					setValueCall = DryExpression.Call(result, "set" + serviceProperty.Name, convertDtoCall);
 				}
 				else
@@ -197,7 +214,7 @@ namespace Dryice.Generators.Java.Binders
 
 			var body = DryExpression.Block(methodVariables.ToArray(), methodStatements.ToArray());
 
-			return new MethodDefinitionExpression("deserialize", new List<Expression>() { jsonReader }, AccessModifiers.Public | AccessModifiers.Static, typeof(string), body, false, null, null, new List<Exception>() { new IOException() });
+			return new MethodDefinitionExpression("deserialize", new List<Expression>() { jsonReader }, AccessModifiers.Public | AccessModifiers.Static, currentType, body, false, null, null, new List<Exception>() { new Exception() });
 
 		}
 
@@ -205,9 +222,9 @@ namespace Dryice.Generators.Java.Binders
 		{
 			var jsonReader = Expression.Parameter(DryType.Define("JsonReader"), "reader");
 
-			var result = Expression.Variable(typeof(DryListType), "result");
+			var result = DryExpression.Variable(new DryListType(currentType), "result");
 
-			var resultNew = DryExpression.New(typeof(DryListType), "DryListType", DryType.Define(currentType.Name));
+			var resultNew = DryExpression.New(new DryListType(currentType), "DryListType", null);
 
 			var whileBody = DryExpression.Block(DryExpression.Call(result, "add", DryExpression.StaticCall(currentType, "deserialize", jsonReader)));
 
@@ -231,7 +248,7 @@ namespace Dryice.Generators.Java.Binders
 
 			var body = DryExpression.Block(methodVariables.ToArray(), methodStatements.ToArray());
 
-			return new MethodDefinitionExpression("deserializeArray", new List<Expression>() { jsonReader }, AccessModifiers.Public | AccessModifiers.Static, typeof(DryListType), body, false, null, null, new List<Exception>() { new IOException() });
+			return new MethodDefinitionExpression("deserializeArray", new List<Expression>() { jsonReader }, AccessModifiers.Public | AccessModifiers.Static, new DryListType(new DryType("? extends " + currentType.Name)), body, false, null, null, new List<Exception>() { new Exception() });
 
 		}
 
@@ -252,6 +269,49 @@ namespace Dryice.Generators.Java.Binders
 			return new MethodDefinitionExpression("serialize", new List<Expression>() {value}, AccessModifiers.Public | AccessModifiers.Static, typeof(string), body, false, null);
 		}
 
+		protected virtual MethodDefinitionExpression CreateCreateErrorResponseMethod()
+		{
+			var errorCode = Expression.Parameter(typeof(string), "errorCode");
+			var message = Expression.Parameter(typeof(string), "errorMessage");
+			var stackTrace = Expression.Parameter(typeof(string), "stackTrace");
+
+			var parameters = new Expression[]
+			{
+				errorCode,
+				message,
+				stackTrace
+			};
+
+			var responseStatusType = DryType.Define("ResponseStatus");
+
+			var result = DryExpression.Variable(currentType, "result");
+			var responseStatus = DryExpression.Variable(responseStatusType, "responseStatus");
+
+			var newResult = Expression.Assign(result, Expression.New(currentType));
+			var newResponseStatus = Expression.Assign(responseStatus, Expression.New(responseStatusType));
+
+			var methodVariables = new List<ParameterExpression>
+			{
+				result,
+				responseStatus
+			};
+
+			var methodStatements = new List<Expression>
+			{
+				newResponseStatus,
+				DryExpression.Call(responseStatus, "setErrorCode", errorCode),
+				DryExpression.Call(responseStatus, "setMessage", message),
+				DryExpression.Call(responseStatus, "setStackTrace", stackTrace),
+				newResult,
+				DryExpression.Call(result, "setResponseStatus", responseStatus),
+				Expression.Return(Expression.Label(), result)
+			};
+
+			var body = DryExpression.Block(methodVariables.ToArray(), methodStatements.ToArray());
+
+			return new MethodDefinitionExpression("createErrorResponse", new ReadOnlyCollection<Expression>(parameters), AccessModifiers.Public | AccessModifiers.Static, currentType, body, false, null);
+		}
+
 		protected override Expression VisitTypeDefinitionExpression(TypeDefinitionExpression expression)
 		{
 			currentTypeDefinition = expression;
@@ -259,18 +319,15 @@ namespace Dryice.Generators.Java.Binders
 			var referencedTypes = ReferencedTypesCollector.CollectReferencedTypes(expression);
 			referencedTypes.Sort((x, y) => String.Compare(x.Name, y.Name, StringComparison.InvariantCultureIgnoreCase));
 
-			var includeExpressions = referencedTypes
-				.Where(ObjectiveBinderHelpers.TypeIsServiceClass)
-				.Where(c => c != expression.Type.BaseType)
-				.Select(c => (Expression)new ReferencedTypeExpression(c)).ToList();
-
-			foreach (var referencedType in referencedTypes.Where(JavaBinderHelpers.TypeIsServiceClass))
-			{
-				includeExpressions.Add(DryExpression.Include(referencedType.Name));
-			}
+			var includeExpressions = new List<IncludeExpression>();
 
 			var lookup = new HashSet<Type>(referencedTypes.Where(TypeSystem.IsPrimitiveType));
 
+			if (lookup.Contains(typeof(DryListType)))
+			{
+				includeExpressions.Add(DryExpression.Include("java.util.ArrayList"));
+			}
+	
 			if (lookup.Contains(typeof(Guid)) || lookup.Contains(typeof(Guid?)))
 			{
 				includeExpressions.Add(DryExpression.Include("java.util.UUID"));
@@ -281,30 +338,51 @@ namespace Dryice.Generators.Java.Binders
 				includeExpressions.Add(DryExpression.Include("java.util.Date"));
 			}
 
-			if (ObjectiveBinderHelpers.TypeIsServiceClass(expression.Type.BaseType))
+			var comment = new CommentExpression("This file is AUTO GENERATED");
+			var namespaceExpression = new NamespaceExpression(codeGenerationContext.Options.Namespace);
+
+			var members = new List<Expression>() { this.Visit(expression.Body) };
+
+			if (((DryType) currentTypeDefinition.Type).ServiceClass.Properties.Count > 0)
 			{
-				includeExpressions.Add(DryExpression.Include(expression.Type.BaseType.Name));
+				includeExpressions.Add(DryExpression.Include("android.util.JsonReader"));
+				includeExpressions.Add(DryExpression.Include("android.util.JsonToken"));
+				includeExpressions.Add(DryExpression.Include("com.jaigo.androiddevkit.*"));
+				includeExpressions.Add(DryExpression.Include("com.jaigo.androiddevkit.utils.*"));
+				includeExpressions.Add(DryExpression.Include("java.lang.Exception"));
+				includeExpressions.Add(DryExpression.Include("java.io.InputStream"));
+				includeExpressions.Add(DryExpression.Include("java.io.InputStreamReader"));
+				includeExpressions.Add(DryExpression.Include("java.util.ArrayList"));
+
+				members.Add(CreateDeserialiseStreamMethod());
+				members.Add(CreateDeserialiseReaderMethod());
+				members.Add(CreateDeserialiseArrayMethod());
+				members.Add(CreateSerialiseMethod());
 			}
 
-			includeExpressions.Add(DryExpression.Include("java.util.Dictionary"));
-
-			var comment = new CommentExpression("This file is AUTO GENERATED");
+			//if this class is a return type, amend a new method
+			if (CurrentTypeIsResponseType())
+			{
+				members.Add(CreateCreateErrorResponseMethod());
+			}
 
 			var headerGroup = includeExpressions.ToStatementisedGroupedExpression();
-			var header = new Expression[] { comment, headerGroup }.ToStatementisedGroupedExpression(GroupedExpressionsExpressionStyle.Wide);
-
-			var members = new List<Expression>
-			{
-				this.Visit(expression.Body),
-				CreateDeserialiseStreamMethod(),
-				CreateDeserialiseReaderMethod(),
-				CreateDeserialiseArrayMethod(),
-				CreateSerialiseMethod()
-			};
+			var header = new Expression[] { comment, namespaceExpression, headerGroup }.ToStatementisedGroupedExpression(GroupedExpressionsExpressionStyle.Wide);
 
 			var body = fieldDefinitionsForProperties.Concat(members).ToStatementisedGroupedExpression(GroupedExpressionsExpressionStyle.Wide);
 
 			return new TypeDefinitionExpression(expression.Type, header, body, false);
 		}
+
+		private void GetServiceModelResponseTypes()
+		{
+			serviceModelResponseTypes = codeGenerationContext.ServiceModel.Gateways.SelectMany(c => c.Methods).Select(c => codeGenerationContext.ServiceModel.GetTypeFromName(c.Returns)).ToHashSet();
+		}
+
+		private bool CurrentTypeIsResponseType()
+		{
+			return serviceModelResponseTypes.Contains(currentType) || currentType.Name.EndsWith("ValueResponse");
+		}
 	}
 }
+
