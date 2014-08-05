@@ -80,7 +80,13 @@ namespace Dryice.Generators.Java.Binders
 
 				methodVariables.Add(payloadVar);
 
-				var payloadAssign = Expression.Assign(payloadVar, DryExpression.StaticCall(contentParam.Type, typeof(String), "serialize", contentParam));
+				var jsonBuilder = DryType.Define("DefaultJsonBuilder");
+
+				var jsonBuilderInstance = DryExpression.StaticCall(jsonBuilder, "instance");
+
+				var toJsonCall = DryExpression.Call(jsonBuilderInstance, typeof(String), "toJson", contentParam);
+
+				var payloadAssign = Expression.Assign(payloadVar, toJsonCall);
 
 				methodStatements.Add(payloadAssign);
 
@@ -131,7 +137,7 @@ namespace Dryice.Generators.Java.Binders
 				methodStatements.ToArray()
 			);
 
-			return new MethodDefinitionExpression(methodName, methodParameters.ToReadOnlyCollection(), typeof(void), methodBody, false, null);
+			return new MethodDefinitionExpression(methodName, methodParameters.ToReadOnlyCollection(), AccessModifiers.Public, typeof(void), methodBody, false, null);
 		}
 
 		private Expression CreateDefaultConstructor()
@@ -142,7 +148,7 @@ namespace Dryice.Generators.Java.Binders
 
 			var body = DryExpression.Block(Expression.Assign(client, valParam).ToStatement());
 
-			return new MethodDefinitionExpression(currentTypeDefinitionExpression.Type.Name, new Expression[] { }.ToReadOnlyCollection(), null, body, false, null, null);
+			return new MethodDefinitionExpression(currentTypeDefinitionExpression.Type.Name, new Expression[] { }.ToReadOnlyCollection(), AccessModifiers.Public, null, body, false, null, null);
 		}
 
 		private Expression CreateParameterisedConstructor()
@@ -158,7 +164,7 @@ namespace Dryice.Generators.Java.Binders
 
 			var body = DryExpression.Block(Expression.Assign(client, valParam).ToStatement());
 
-			return new MethodDefinitionExpression(currentTypeDefinitionExpression.Type.Name, parameters.ToReadOnlyCollection(), null, body, false, null, null);
+			return new MethodDefinitionExpression(currentTypeDefinitionExpression.Type.Name, parameters.ToReadOnlyCollection(), AccessModifiers.Public, null, body, false, null, null);
 		}
 
 		protected override Expression VisitTypeDefinitionExpression(TypeDefinitionExpression expression)
@@ -168,6 +174,8 @@ namespace Dryice.Generators.Java.Binders
 
 			var includeExpressions = new List<IncludeExpression>
 			{
+				DryExpression.Include("java.util.ArrayList"),
+				DryExpression.Include("com.jaigo.androiddevkit.DefaultJsonBuilder"),
 				DryExpression.Include("com.jaigo.androiddevkit.RequestCallback"),
 				DryExpression.Include("com.jaigo.androiddevkit.utils.ConvertUtils"),
 				DryExpression.Include("com.jaigo.androiddevkit.WebServiceClient")

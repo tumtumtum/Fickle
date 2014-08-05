@@ -18,6 +18,7 @@ class Person
 	Name : string
 	Sexes : Sex[]
 	SexesNullable : Sex?[]
+	Partner : Person
 	
 class User
 	@extends Person

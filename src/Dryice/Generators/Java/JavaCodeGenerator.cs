@@ -137,8 +137,16 @@ namespace Dryice.Generators.Java
 				if (node.Type == typeof(Guid) || node.Type == typeof(Guid?))
 				{
 					this.Write(typeof(Guid), true);
-					this.Write(".uuidFromString");
+					this.Write(".fromString(");
 					this.Visit(node.Operand);
+					this.Write(")");
+				}
+				else if (node.Type == typeof(TimeSpan) || node.Type == typeof(TimeSpan?))
+				{
+					this.Write(typeof(TimeSpan), true);
+					this.Write(".parse(");
+					this.Visit(node.Operand);
+					this.Write(")");
 				}
 				else if (node.Type == typeof(object))
 				{

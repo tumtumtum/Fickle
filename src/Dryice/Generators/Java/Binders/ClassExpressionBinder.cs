@@ -57,8 +57,8 @@ namespace Dryice.Generators.Java.Binders
 				new Expression[] { Expression.Assign(thisProperty, setterParam) }
 			);
 
-			var propertyGetter = new MethodDefinitionExpression("get" + property.PropertyName, new List<Expression>(), property.PropertyType, getterBody, false);
-			var propertySetter = new MethodDefinitionExpression("set" + property.PropertyName, new List<Expression> { setterParam }, typeof(void), setterBody, false);
+			var propertyGetter = new MethodDefinitionExpression("get" + property.PropertyName, new List<Expression>(), AccessModifiers.Public, property.PropertyType, getterBody, false);
+			var propertySetter = new MethodDefinitionExpression("set" + property.PropertyName, new List<Expression> { setterParam }, AccessModifiers.Public, typeof(void), setterBody, false);
 
 			return new Expression[] { propertyGetter, propertySetter }.ToStatementisedGroupedExpression();
 		}
@@ -199,8 +199,68 @@ namespace Dryice.Generators.Java.Binders
 						listItemType = listItemType.GetUnderlyingType();
 					}
 
-					var convertDtoCall = DryExpression.StaticCall(listItemType.Name, "deserializeArray", jsonReader);
-					action = DryExpression.Block(DryExpression.Call(self, "set" + serviceProperty.Name, convertDtoCall));
+					if (listItemType.IsEnum)
+					{
+						var convertDtoCall = DryExpression.StaticCall(listItemType.Name, "deserializeArray", jsonReader);
+						action = DryExpression.Block(DryExpression.Call(self, "set" + serviceProperty.Name, convertDtoCall));
+					}
+					else
+					{
+						var result = DryExpression.Variable(new DryListType(listItemType), serviceProperty.Name.Uncapitalize());
+
+						var resultNew = DryExpression.New(new DryListType(listItemType), "DryListType", null);
+
+						var jsonReaderNextString = DryExpression.Call(jsonReader, typeof(String), "nextString", null);
+
+						Expression whileBody;
+
+						if (TypeSystem.IsPrimitiveType(listItemType))
+						{
+							whileBody = DryExpression.Block(
+								DryExpression.Call(result, "add", Expression.Convert(Expression.Convert(jsonReaderNextString, typeof(Object)), listItemType))
+								);
+						}
+						else
+						{
+							var objectToDeserialize = DryExpression.Variable(listItemType, listItemType.Name.Uncapitalize());
+
+							var objectNew = Expression.Assign(objectToDeserialize, Expression.New(listItemType));
+
+							var whileVariables = new List<ParameterExpression>
+							{
+								objectToDeserialize
+							};
+
+							var whileStatements = new List<Expression>
+							{
+								objectNew,
+								DryExpression.Call(objectToDeserialize, "deserialize", jsonReader),
+								DryExpression.Call(result, "add", objectToDeserialize)
+							};
+
+							whileBody = DryExpression.Block(whileVariables.ToArray(), whileStatements.ToArray());
+						}
+
+						var whileExpression = DryExpression.While(DryExpression.Call(jsonReader, "hasNext", null), whileBody);
+
+						var setResult = DryExpression.Call(self, "set" + serviceProperty.Name, result).ToStatement();
+
+						var variables = new List<ParameterExpression>
+						{
+							result
+						};
+
+						var statements = new List<Expression>
+						{
+							Expression.Assign(result, resultNew).ToStatement(),
+							DryExpression.Call(jsonReader, "beginArray", null),
+							whileExpression,
+							DryExpression.Call(jsonReader, "endArray", null),
+							setResult
+						};
+
+						action = DryExpression.Block(variables.ToArray(), statements.ToArray());
+					}
 				}
 				else if (TypeSystem.IsNotPrimitiveType(propertyType))
 				{

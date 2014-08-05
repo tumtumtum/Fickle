@@ -130,13 +130,12 @@ namespace Dryice.Generators.Java.Binders
 
 				Expression ifThenElseExpression = DryExpression.Block(DryExpression.Return(Expression.Constant(null)));
 
-				foreach (var enumMemberExpression in ((GroupedExpressionsExpression)currentTypeDefinition.Body).Expressions)
+				foreach (var enumMemberExpression in ((DryType)currentTypeDefinition.Type).ServiceEnum.Values)
 				{
-					var enumMemberNameExpression = ((BinaryExpression) enumMemberExpression).Left;
+					var enumMemberName = enumMemberExpression.Name;
+					var enumMemberValue = Expression.Variable(typeof(int), enumMemberName + ".value");
 
-					var enumMemberName = ((ParameterExpression)enumMemberNameExpression).Name;
-
-					var enumMemberValue = Expression.Variable(typeof (int), enumMemberName + ".value");
+					var enumMemberNameExpression = Expression.Variable(typeof(int), enumMemberName);
 
 					var condition = Expression.Equal(intValue, enumMemberValue);
 					var action = DryExpression.Block(DryExpression.Return(enumMemberNameExpression));
