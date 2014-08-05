@@ -437,10 +437,39 @@ namespace Dryice.Generators.Objective
 
 		protected virtual void WriteVariableDeclaration(ParameterExpression node)
 		{
-			this.Write(node.Type);	
-			this.Write(' ');
-			this.Write(node.Name);
-			this.WriteLine(';');
+			if (node.Type is DryDelegateType)
+			{
+				var delegateType = (DryDelegateType)node.Type;
+
+				if (delegateType.ReturnType != null)
+				{
+					this.Write(delegateType.ReturnType);
+				}
+				this.Write("(^");
+				this.Write(node.Name);
+				this.Write(")");
+				this.Write("(");
+				for (var i = 0; i < delegateType.Parameters.Length; i++)
+				{
+					this.Write(delegateType.Parameters[i].ParameterType, false);
+					this.Write(' ');
+					this.Write(delegateType.Parameters[i].Name);
+
+					if (i != delegateType.Parameters.Length - 1)
+					{
+						this.Write(", ");
+					}
+				}
+				this.Write(")");
+				this.WriteLine(';');
+			}
+			else
+			{
+				this.Write(node.Type);
+				this.Write(' ');
+				this.Write(node.Name);
+				this.WriteLine(';');
+			}
 		}
 
 		protected override Expression VisitBlock(BlockExpression node)

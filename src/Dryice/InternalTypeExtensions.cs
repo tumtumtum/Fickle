@@ -19,6 +19,11 @@ namespace Dryice
 			return DryNullable.GetUnderlyingType(type) ?? type;
 		}
 
+		public static bool IsServiceType(this Type type)
+		{
+			return (type is DryType && ((DryType)type).ServiceClass != null);
+		}
+
 		public static Type GetDryiceListElementType(this Type type)
 		{
 			var listType = type as DryListType;

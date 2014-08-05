@@ -159,7 +159,7 @@ namespace Dryice
 
 			if (body != expression.Body || parameters != expression.Parameters)
 			{
-				return new SimpleLambdaExpression(body, parameters);
+				return new SimpleLambdaExpression(expression.ReturnType, body, expression.Variables, parameters);
 			}
 
 			return expression;

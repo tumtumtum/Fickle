@@ -29,9 +29,9 @@ namespace Dryice.Expressions
 			return Block(null, expressions);
 		}
 
-		public static SimpleLambdaExpression SimpleLambda(Expression body, params Expression[] parameters)
+		public static SimpleLambdaExpression SimpleLambda(Type returnType, Expression body, Expression[] variables, params Expression[] parameters)
 		{
-			return new SimpleLambdaExpression(body, parameters);
+			return new SimpleLambdaExpression(returnType, body, variables, parameters);
 		}
 
 		public static BlockExpression Block(IEnumerable<ParameterExpression> variables, params Expression[] expressions)
@@ -196,20 +196,8 @@ namespace Dryice.Expressions
 		{
 			var result = GetParametersAndArguments(arguments);
 
-			var types = result.Item1.Select(c => c.ParameterType).ToArray();
-
-			MethodInfo methodInfo = null;
-
-			if (type != null)
-			{
-				methodInfo = type.GetMethod(methodName, types);
-			}
-
-			if (methodInfo == null || methodInfo is DryMethodInfo)
-			{
-				methodInfo = new DryMethodInfo(type, returnType, methodName, result.Item1, isStatic);
-			}
-
+			var methodInfo = new DryMethodInfo(type, returnType, methodName, result.Item1, isStatic);
+		
 			return Expression.Call(instance, methodInfo, result.Item2);
 		}
 

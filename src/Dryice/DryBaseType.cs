@@ -73,11 +73,6 @@ namespace Dryice
 			throw new NotImplementedException();
 		}
 
-		protected override MethodInfo GetMethodImpl(string name, BindingFlags bindingAttr, Binder binder, CallingConventions callConvention, Type[] types, ParameterModifier[] modifiers)
-		{
-			return typeof(object).GetMethod(name, bindingAttr, binder, callConvention, types, modifiers);
-		}
-
 		public override MethodInfo[] GetMethods(BindingFlags bindingAttr)
 		{
 			return new MethodInfo[0];
@@ -144,6 +139,11 @@ namespace Dryice
 		}
 
 		#endregion
+
+		protected override MethodInfo GetMethodImpl(string name, BindingFlags bindingAttr, Binder binder, CallingConventions callConvention, Type[] types, ParameterModifier[] modifiers)
+		{
+			return typeof(object).GetMethod(name, bindingAttr, binder, callConvention, types, modifiers);
+		}
 
 		public override Type GetElementType()
 		{
