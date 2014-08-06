@@ -9,7 +9,9 @@ namespace Dryice.Expressions
 	public class SimpleLambdaExpression
 		: BaseExpression
 	{
+		public Type ReturnType { get; private set; }
 		public Expression Body { get; private set; }
+		public ReadOnlyCollection<Expression> Variables { get; private set; }
 		public ReadOnlyCollection<Expression> Parameters { get; private set; }
 
 		public override ExpressionType NodeType
@@ -28,7 +30,7 @@ namespace Dryice.Expressions
 				{
 					var i = 0;
 
-					type = new DryDelegateType(this.Body.Type, this.Parameters.Select(c => new DryParameterInfo(c.Type, "arg" + i++)).ToArray());
+					type = new DryDelegateType(this.ReturnType ?? this.Body.Type, this.Parameters.Select(c => new DryParameterInfo(c.Type, "arg" + i++)).ToArray());
 				}
 
 				return type;
@@ -37,16 +39,20 @@ namespace Dryice.Expressions
 
 		private Type type;
 
-		public SimpleLambdaExpression(Expression body, IEnumerable<Expression> parameters)
+		public SimpleLambdaExpression(Type returnType, Expression body, IEnumerable<Expression> variables, IEnumerable<Expression> parameters)
 		{
+			this.ReturnType = returnType;
 			this.Body = body;
+			this.Variables = variables.ToReadOnlyCollection();
 			this.Parameters = parameters.ToReadOnlyCollection<Expression>();
 		}
 
-		public SimpleLambdaExpression(Expression body, params Expression[] parameters)
+		public SimpleLambdaExpression(Type returnType, Expression body, IEnumerable<Expression> variables, params Expression[] parameters)
 		{
+			this.ReturnType = returnType;
 			this.Body = body;
-			this.Parameters = parameters.ToReadOnlyCollection<Expression>();
+			this.Variables = variables.ToReadOnlyCollection();
+			this.Parameters = parameters.ToReadOnlyCollection();
 		}
 	}
 }

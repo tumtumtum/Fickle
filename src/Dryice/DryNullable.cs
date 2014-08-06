@@ -3,7 +3,7 @@
 namespace Dryice
 {
 	public class DryNullable
-	: DryBaseType
+		: DryBaseType
 	{
 		public Type UnderlyingType { get; private set; }
 

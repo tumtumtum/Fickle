@@ -437,10 +437,39 @@ namespace Dryice.Generators.Objective
 
 		protected virtual void WriteVariableDeclaration(ParameterExpression node)
 		{
-			this.Write(node.Type);	
-			this.Write(' ');
-			this.Write(node.Name);
-			this.WriteLine(';');
+			if (node.Type is DryDelegateType)
+			{
+				var delegateType = (DryDelegateType)node.Type;
+
+				if (delegateType.ReturnType != null)
+				{
+					this.Write(delegateType.ReturnType);
+				}
+				this.Write("(^");
+				this.Write(node.Name);
+				this.Write(")");
+				this.Write("(");
+				for (var i = 0; i < delegateType.Parameters.Length; i++)
+				{
+					this.Write(delegateType.Parameters[i].ParameterType, false);
+					this.Write(' ');
+					this.Write(delegateType.Parameters[i].Name);
+
+					if (i != delegateType.Parameters.Length - 1)
+					{
+						this.Write(", ");
+					}
+				}
+				this.Write(")");
+				this.WriteLine(';');
+			}
+			else
+			{
+				this.Write(node.Type);
+				this.Write(' ');
+				this.Write(node.Name);
+				this.WriteLine(';');
+			}
 		}
 
 		protected override Expression VisitBlock(BlockExpression node)
@@ -545,6 +574,20 @@ namespace Dryice.Generators.Objective
 			if (expression.Type == typeof(string))
 			{
 				this.Visit(expression);
+			}
+			else if (expression.Type.IsEnum)
+			{
+				this.Write(expression.Type);
+				this.Write("ToString(");
+				this.Visit(expression);
+				this.Write(")");
+			}
+			else if (expression.Type.GetUnwrappedNullableType().IsEnum)
+			{
+				this.Write(expression.Type.GetUnwrappedNullableType());
+				this.Write("ToString([");
+				this.Visit(expression);
+				this.Write(" intValue])");
 			}
 			else if (expression.Type == typeof(Guid) || expression.Type == typeof(Guid?))
 			{
@@ -702,6 +745,20 @@ namespace Dryice.Generators.Objective
 		{
 			switch (node.NodeType)
 			{
+				case ExpressionType.Or:
+					this.Write("((");
+					this.Visit(node.Left);
+					this.Write(") || (");
+					this.Visit(node.Right);
+					this.Write(")");
+					break;
+				case ExpressionType.And:
+					this.Write("((");
+					this.Visit(node.Left);
+					this.Write(") && (");
+					this.Visit(node.Right);
+					this.Write(")");
+					break;
 				case ExpressionType.Assign:
 					if (node.Left.Type.IsByRef && !node.Right.Type.IsByRef)
 					{
@@ -794,6 +851,10 @@ namespace Dryice.Generators.Objective
 					this.Write("return ");
 					this.Visit(node.Value);
 				}
+			}
+			else if (node.Kind == GotoExpressionKind.Continue)
+			{
+				this.Write("continue");
 			}
 
 			return node;
@@ -1031,6 +1092,12 @@ namespace Dryice.Generators.Objective
 		protected override Expression VisitSimpleLambdaExpression(SimpleLambdaExpression node)
 		{
 			this.Write("^");
+
+			if (node.ReturnType != null)
+			{
+				this.Write(node.ReturnType);
+			}
+
 			this.Write("(");
 
 			foreach (ParameterExpression parameter in node.Parameters)
@@ -1046,6 +1113,16 @@ namespace Dryice.Generators.Objective
 			{
 				using (this.AcquireIndentationContext(BraceLanguageStyleIndentationOptions.IncludeBraces))
 				{
+					if (node.Variables.Count > 0)
+					{	
+						foreach (var variable in node.Variables)
+						{
+							this.WriteVariableDeclaration((ParameterExpression)variable);
+						}
+
+						this.WriteLine();
+					}
+
 					this.Visit(node.Body);
 				}
 			}
