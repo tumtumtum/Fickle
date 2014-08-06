@@ -1,8 +1,8 @@
-# Sublimate CodeGen Tool
+# DryIce CodeGen tool
 
-A tool for generating cross-platform type-safe and asnchronous APIs for HTTP based services.
+DryIce is a tool for generating cross-platform type-safe and asnchronous APIs for HTTP based services.
 
-_Sublimate is a work in progress and is not complete_
+_DryIce is a work in progress and is not complete_
 
 
 ## The problem
@@ -19,9 +19,9 @@ If you're an app developer, you should not have to care that these web service c
  * They break slow down your development cycle as new backend services can't be tested immediately
 
 
-## Sublimate the solution
+## DryIce the solution
 
-Sublimate will will automatically generate C#, QT/C++, Objective-C, Java, Android and HTML/Javascript APIs for XML and JSON based HTTP based web services. Don't worry about needing to use WebRequest, QSocket, NSURLConnection, HttpClient or XMLHTTPRequest for RPC calls ever again.
+DryIce will automatically generate C#, QT/C++, Objective-C, Java, Android and HTML/Javascript APIs for XML and JSON based HTTP based web services. Don't worry about needing to use WebRequest, QSocket, NSURLConnection, HttpClient or XMLHTTPRequest for RPC calls ever again.
 
 If you have a web service accessible at the URL: http://www.example.com/SearchService/Search?query=Hello that returns a strongly typed object named SearchResult, you can will be able to use the following code:
 
