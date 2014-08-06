@@ -337,6 +337,49 @@ namespace Dryice.Generators.Java.Binders
 			return new MethodDefinitionExpression("serialize", new List<Expression>() , AccessModifiers.Public, typeof(string), body, false, null);
 		}
 
+		protected virtual MethodDefinitionExpression CreateCreateErrorResponseMethod()
+		{
+			var errorCode = Expression.Parameter(typeof(string), "errorCode");
+			var message = Expression.Parameter(typeof(string), "errorMessage");
+			var stackTrace = Expression.Parameter(typeof(string), "stackTrace");
+
+			var parameters = new Expression[]
+			{
+				errorCode,
+				message,
+				stackTrace
+			};
+
+			var responseStatusType = DryType.Define("ResponseStatus");
+
+			var result = DryExpression.Variable(currentType, "result");
+			var responseStatus = DryExpression.Variable(responseStatusType, "responseStatus");
+
+			var newResult = Expression.Assign(result, Expression.New(currentType));
+			var newResponseStatus = Expression.Assign(responseStatus, Expression.New(responseStatusType));
+
+			var methodVariables = new List<ParameterExpression>
+			{
+				result,
+				responseStatus
+			};
+
+			var methodStatements = new List<Expression>
+			{
+				newResponseStatus,
+				DryExpression.Call(responseStatus, "setErrorCode", errorCode),
+				DryExpression.Call(responseStatus, "setMessage", message),
+				DryExpression.Call(responseStatus, "setStackTrace", stackTrace),
+				newResult,
+				DryExpression.Call(result, "setResponseStatus", responseStatus),
+				Expression.Return(Expression.Label(), result)
+			};
+
+			var body = DryExpression.Block(methodVariables.ToArray(), methodStatements.ToArray());
+
+			return new MethodDefinitionExpression("createErrorResponse", new ReadOnlyCollection<Expression>(parameters), AccessModifiers.Public | AccessModifiers.Static, currentType, body, false, null);
+		}
+
 		protected override Expression VisitTypeDefinitionExpression(TypeDefinitionExpression expression)
 		{
 			currentTypeDefinition = expression;
@@ -378,6 +421,11 @@ namespace Dryice.Generators.Java.Binders
 				members.Add(CreateDeserializeReaderMethod());
 				members.Add(CreateDeserializeElementMethod());
 				members.Add(CreateSerializeMethod());
+			}
+
+			if (CurrentTypeIsResponseType())
+			{
+				members.Add(CreateCreateErrorResponseMethod());
 			}
 
 			var headerGroup = includeExpressions.ToStatementisedGroupedExpression();

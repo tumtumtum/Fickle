@@ -673,8 +673,6 @@ namespace Dryice.Generators.Java
 
 			this.Visit(method.Body);
 
-			this.WriteLine();
-
 			return method;
 		}
 

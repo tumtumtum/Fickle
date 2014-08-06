@@ -48,42 +48,5 @@ namespace Dryice.Generators.Java
 
 			return new MethodDefinitionExpression("serializeArray", new List<Expression>() { array }, AccessModifiers.Public | AccessModifiers.Static, typeof(string), body, false, null);
 		}
-
-		private static Expression CreateDeserializeArrayMethod()
-		{
-			/*
-			var jsonReader = Expression.Parameter(DryType.Define("JsonReader"), "reader");
-
-			var result = DryExpression.Variable(new DryListType(currentType), "result");
-
-			var resultNew = DryExpression.New(new DryListType(currentType), "DryListType", null);
-
-			var whileBody = DryExpression.Block(DryExpression.Call(result, "add", DryExpression.StaticCall(currentType, "deserialize", jsonReader)));
-
-			var whileExpression = DryExpression.While(DryExpression.Call(jsonReader, "hasNext", null), whileBody);
-
-			var returnResult = Expression.Return(Expression.Label(), result).ToStatement();
-
-			var methodVariables = new List<ParameterExpression>
-			{
-				result
-			};
-
-			var methodStatements = new List<Expression>
-			{
-				Expression.Assign(result, resultNew).ToStatement(),
-				DryExpression.Call(jsonReader, "beginArray", null),
-				whileExpression,
-				DryExpression.Call(jsonReader, "endArray", null),
-				returnResult
-			};
-
-			var body = DryExpression.Block(methodVariables.ToArray(), methodStatements.ToArray());
-			
-			return new MethodDefinitionExpression("deserializeArray", new List<Expression>() { jsonReader }, AccessModifiers.Public | AccessModifiers.Static, new DryListType(currentType), body, false, null, null, new List<Exception>() { new Exception() });
-			 */
-
-			return null;
-		}
 	}
 }
