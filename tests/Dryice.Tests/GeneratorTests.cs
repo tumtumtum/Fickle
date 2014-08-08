@@ -14,7 +14,8 @@ namespace Dryice.Tests
 			var options = new CodeGenerationOptions
 			{
 				GenerateClasses = true,
-				TypeNamePrefix = "TN"
+				TypeNamePrefix = "TN",
+				SerializeEnumsAsStrings = true
 			};
 
 			var outputDir = FileSystemManager.Default.ResolveDirectory("./" + new StackTrace().GetFrame(0).GetMethod().Name);

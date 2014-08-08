@@ -2,6 +2,19 @@
 	Male : 1
 	Female : 2
 
+enum Color
+	Black : 0
+	White : 1
+	Red : 2
+	Green : 3
+	Blue : 4
+	Yellow : 5
+	Orange : 6
+	Pink : 7
+	Violet : 8
+	Brown : 9
+	Purple : 10
+
 class ResponseStatus
 	Message : string
 	ErrorCode : string
@@ -21,10 +34,13 @@ class Person
 	
 class User
 	@extends Person
+	BestFriend : Person
 	CashBalance : double
 	Birthdate : datetime
 	Password : string
 	Age : int
+	LuckyUuids : uuid[]
+	LuckyUuidsNullable : uuid?[]
 	Friends : User[]
 	TimeSinceLastLogin : timespan
 	LoginTimes : timespan[]
@@ -68,17 +84,47 @@ gateway UserService
 		@method get
 		@returns Response
 
+	GetUserLastLoginTime(id:uuid)
+		@format json
+		@path /api/UserService/GetUserLastLoginTime?id={id}
+		@method get
+		@returns timespan
+
+	GetUserIds(name:string)
+		@format json
+		@path /api/UserService/GetUserId?name={name}
+		@method get
+		@returns uuid[]
+
+	GetUserName(id:uuid)
+		@format json
+		@path /api/UserService/GetUserName?id={id}
+		@method get
+		@returns string
+
 	GetUserSex(id:uuid)
 		@format json
 		@path /api/UserService/GetUserSex?UserId={id}
 		@method get
 		@returns Sex
 
-	GetUserNullableSex(id:uuid)
-		@format json	
-		@path /api/UserService/GetUserSex?UserId={id}
+	GetUserSexMaybe(id:uuid)
+		@format json
+		@path /api/UserService/GetUserSexMaybe?UserId={id}
 		@method get
 		@returns Sex?
+
+	GetUserSexes(id:uuid)
+		@format json
+		@path /api/UserService/GetUserSexes?UserId={id}
+		@method get
+		@returns Sex[]
+
+	GetUserFriends(id:uuid)
+		@format json
+		@path /api/UserService/GetUserFriends?UserId={id}
+		@method get
+		@returns User[]
 
 	SetUserSex(id:uuid value:Sex)
 		@format json
@@ -109,11 +155,6 @@ gateway UserService
 		@path /api/UserService/User/{id}/{fromDate}
 		@method get
 		@returns UserResponse
-
-	GetUserSexes(id:uuid)
-		@path /api/UserService/GetUserSexes?id={id}
-		@method get
-		@returns Sex[]
 
 	SetPassword(id:uuid password:String)
 		@secure true
