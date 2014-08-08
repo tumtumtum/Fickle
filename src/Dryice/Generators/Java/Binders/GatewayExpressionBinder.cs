@@ -80,7 +80,13 @@ namespace Dryice.Generators.Java.Binders
 
 				methodVariables.Add(payloadVar);
 
-				var payloadAssign = Expression.Assign(payloadVar, DryExpression.StaticCall(contentParam.Type, typeof(String), "serialize", contentParam));
+				var jsonBuilder = DryType.Define("DefaultJsonBuilder");
+
+				var jsonBuilderInstance = DryExpression.StaticCall(jsonBuilder, "instance");
+
+				var toJsonCall = DryExpression.Call(jsonBuilderInstance, typeof(String), "toJson", contentParam);
+
+				var payloadAssign = Expression.Assign(payloadVar, toJsonCall);
 
 				methodStatements.Add(payloadAssign);
 
@@ -112,7 +118,7 @@ namespace Dryice.Generators.Java.Binders
 				}
 
 				var valueToReplace = Expression.Constant("{" + param.Name + "}", typeof(String));
-				var valueAsString = DryExpression.Call(param, param.Type, typeof(String), "toString", parameter);
+				var valueAsString = DryExpression.Call(param, param.Type, typeof(String), SourceCodeGenerator.ToStringMethod, parameter);
 
 				var replaceArgs = new
 				{
@@ -131,7 +137,7 @@ namespace Dryice.Generators.Java.Binders
 				methodStatements.ToArray()
 			);
 
-			return new MethodDefinitionExpression(methodName, methodParameters.ToReadOnlyCollection(), typeof(void), methodBody, false, null);
+			return new MethodDefinitionExpression(methodName, methodParameters.ToReadOnlyCollection(), AccessModifiers.Public, typeof(void), methodBody, false, null);
 		}
 
 		private Expression CreateDefaultConstructor()
@@ -142,7 +148,7 @@ namespace Dryice.Generators.Java.Binders
 
 			var body = DryExpression.Block(Expression.Assign(client, valParam).ToStatement());
 
-			return new MethodDefinitionExpression(currentTypeDefinitionExpression.Type.Name, new Expression[] { }.ToReadOnlyCollection(), null, body, false, null, null);
+			return new MethodDefinitionExpression(currentTypeDefinitionExpression.Type.Name, new Expression[] { }.ToReadOnlyCollection(), AccessModifiers.Public, null, body, false, null, null);
 		}
 
 		private Expression CreateParameterisedConstructor()
@@ -158,7 +164,7 @@ namespace Dryice.Generators.Java.Binders
 
 			var body = DryExpression.Block(Expression.Assign(client, valParam).ToStatement());
 
-			return new MethodDefinitionExpression(currentTypeDefinitionExpression.Type.Name, parameters.ToReadOnlyCollection(), null, body, false, null, null);
+			return new MethodDefinitionExpression(currentTypeDefinitionExpression.Type.Name, parameters.ToReadOnlyCollection(), AccessModifiers.Public, null, body, false, null, null);
 		}
 
 		protected override Expression VisitTypeDefinitionExpression(TypeDefinitionExpression expression)
@@ -168,8 +174,8 @@ namespace Dryice.Generators.Java.Binders
 
 			var includeExpressions = new List<IncludeExpression>
 			{
-				DryExpression.Include(expression.Type.Name),
-				DryExpression.Include(this.CodeGenerationContext.Options.ResponseStatusTypeName),
+				DryExpression.Include("java.util.ArrayList"),
+				DryExpression.Include("com.jaigo.androiddevkit.DefaultJsonBuilder"),
 				DryExpression.Include("com.jaigo.androiddevkit.RequestCallback"),
 				DryExpression.Include("com.jaigo.androiddevkit.utils.ConvertUtils"),
 				DryExpression.Include("com.jaigo.androiddevkit.WebServiceClient")
@@ -193,13 +199,27 @@ namespace Dryice.Generators.Java.Binders
 			var referencedTypes = ReferencedTypesCollector.CollectReferencedTypes(body).Append(singleValueResponseTypes).Distinct().ToList();
 			referencedTypes.Sort((x, y) => String.Compare(x.Name, y.Name, StringComparison.InvariantCultureIgnoreCase));
 
-			foreach (var referencedType in referencedTypes.Where(c => c is DryType && ((DryType)c).ServiceClass != null))
+			var lookup = new HashSet<Type>(referencedTypes.Where(TypeSystem.IsPrimitiveType));
+
+			if (lookup.Contains(typeof(DryListType)))
 			{
-				includeExpressions.Add(DryExpression.Include(referencedType.Name));
+				includeExpressions.Add(DryExpression.Include("java.util.ArrayList"));
+			}
+
+			if (lookup.Contains(typeof(Guid)) || lookup.Contains(typeof(Guid?)))
+			{
+				includeExpressions.Add(DryExpression.Include("java.util.UUID"));
+			}
+
+			if (lookup.Contains(typeof(DateTime)) || lookup.Contains(typeof(DateTime?)))
+			{
+				includeExpressions.Add(DryExpression.Include("java.util.Date"));
 			}
 
 			var headerGroup = includeExpressions.Sorted(IncludeExpression.Compare).ToGroupedExpression();
-			var header = new Expression[] { comment, headerGroup }.ToGroupedExpression(GroupedExpressionsExpressionStyle.Wide);
+			var namespaceExpression = new NamespaceExpression(CodeGenerationContext.Options.Namespace);
+
+			var header = new Expression[] { comment, namespaceExpression, headerGroup }.ToGroupedExpression(GroupedExpressionsExpressionStyle.Wide);
 
 			return new TypeDefinitionExpression(expression.Type, header, body, false);
 		}

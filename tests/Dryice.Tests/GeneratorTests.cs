@@ -49,7 +49,8 @@ namespace Dryice.Tests
 			var options = new CodeGenerationOptions
 			{
 				GenerateClasses = true,
-				TypeNamePrefix = "TN"
+				TypeNamePrefix = "TN",
+				Namespace = "com.geronimo.globalradio.geronimo.servicemodel"
 			};
 
 			var outputDir = FileSystemManager.Default.ResolveDirectory("./" + new StackTrace().GetFrame(0).GetMethod().Name);
@@ -68,7 +69,8 @@ namespace Dryice.Tests
 			var options = new CodeGenerationOptions
 			{
 				GenerateClasses = false,
-				TypeNamePrefix = "TN"
+				TypeNamePrefix = "TN",
+				Namespace = "com.geronimo.globalradio.geronimo.servicemodel"
 			};
 
 			var serviceModel = DryFileParserTests.GetTestServiceModel();

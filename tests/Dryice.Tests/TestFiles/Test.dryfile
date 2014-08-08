@@ -31,6 +31,7 @@ class Person
 	Name : string
 	Sexes : Sex[]
 	SexesNullable : Sex?[]
+	Partner : Person
 	
 class User
 	@extends Person
@@ -128,13 +129,13 @@ gateway UserService
 
 	SetUserSex(id:uuid value:Sex)
 		@format json
-		@path /api/UserService/SetUserSex?UserId={id}&Sex=value
+		@path /api/UserService/SetUserSex?UserId={id}&Sex={value}
 		@method get
 		@returns User
 
 	SetUserNullableSex(id:uuid value:Sex?)
 		@format json
-		@path /api/UserService/SetUserSex?UserId={id}&Sex=value
+		@path /api/UserService/SetUserSex?UserId={id}&Sex={value}
 		@method get
 		@returns User
 
