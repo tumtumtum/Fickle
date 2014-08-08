@@ -13,6 +13,8 @@
 		ForEach = GroupedExpressions + 9,
 		CodeLiteral = GroupedExpressions + 10,
 		SimpleLambdaExpression = GroupedExpressions + 11,
-		FieldDefinition = GroupedExpressions + 12
+		FieldDefinition = GroupedExpressions + 12,
+		While = GroupedExpressions + 13,
+		Namespace = GroupedExpressions + 14,
 	}
 }
