@@ -94,6 +94,9 @@
     <Compile Include="CodeGenerationOptions.cs" />
     <Compile Include="DryDelegateType.cs" />
     <Compile Include="Generators\ExpressionTypeCounter.cs" />
+    <Compile Include="Generators\Javascript\Binders\GatewayExpressionBinder.cs" />
+    <Compile Include="Generators\Javascript\JavascriptCodeGenerator.cs" />
+    <Compile Include="Generators\Javascript\JavascriptServiceModelCodeGenerator.cs" />
     <Compile Include="Generators\Java\Binders\ClassExpressionBinder.cs" />
     <Compile Include="Generators\Java\Binders\EnumExpressionBinder.cs" />
     <Compile Include="Generators\Java\Binders\GatewayExpressionBinder.cs" />

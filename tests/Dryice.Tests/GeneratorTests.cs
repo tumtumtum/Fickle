@@ -78,5 +78,39 @@ namespace Dryice.Tests
 
 			serviceModelcodeGenerator.Generate(serviceModel);
 		}
+
+		[Test]
+		public void Test_Generate_Javascript_Files()
+		{
+			var options = new CodeGenerationOptions
+			{
+				GenerateClasses = false,
+				TypeNamePrefix = "TN"
+			};
+
+			var outputDir = FileSystemManager.Default.ResolveDirectory("./" + new StackTrace().GetFrame(0).GetMethod().Name);
+			var serviceModel = DryFileParserTests.GetTestServiceModel();
+
+			outputDir.Create(true);
+
+			var serviceModelcodeGenerator = ServiceModelCodeGenerator.GetCodeGenerator("javascript", outputDir, options);
+
+			serviceModelcodeGenerator.Generate(serviceModel);
+		}
+
+		[Test]
+		public void Test_Generate_Javascript_To_Console()
+		{
+			var options = new CodeGenerationOptions
+			{
+				GenerateClasses = false,
+				TypeNamePrefix = "TN"
+			};
+
+			var serviceModel = DryFileParserTests.GetTestServiceModel();
+			var serviceModelcodeGenerator = ServiceModelCodeGenerator.GetCodeGenerator("javascript", Console.Out, options);
+
+			serviceModelcodeGenerator.Generate(serviceModel);
+		}
 	}
 }
