@@ -156,9 +156,9 @@ namespace Fickle.Generators.Objective
 				return;
 			} 
 
-			var dryiceType = type as FickleType;
+			var fickleType = type as FickleType;
 
-			if (dryiceType != null)
+			if (fickleType != null)
 			{
 				base.Write(type, nameOnly);
 
@@ -169,11 +169,11 @@ namespace Fickle.Generators.Objective
 
 				if (!nameOnly)
 				{
-					if (dryiceType.IsEnum && dryiceType.IsByRef)
+					if (fickleType.IsEnum && fickleType.IsByRef)
 					{
 						this.Write("*");
 					}
-					else if (!(dryiceType.IsPrimitive || dryiceType.IsEnum))
+					else if (!(fickleType.IsPrimitive || fickleType.IsEnum))
 					{
 						this.Write("*");
 					}

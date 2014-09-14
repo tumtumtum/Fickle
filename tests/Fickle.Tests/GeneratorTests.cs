@@ -19,7 +19,7 @@ namespace Fickle.Tests
 			};
 
 			var outputDir = FileSystemManager.Default.ResolveDirectory("./" + new StackTrace().GetFrame(0).GetMethod().Name);
-			var serviceModel = DryFileParserTests.GetTestServiceModel();
+			var serviceModel = FicklefileParserTests.GetTestServiceModel();
 
 			outputDir.Create(true);
 
@@ -37,7 +37,7 @@ namespace Fickle.Tests
 				TypeNamePrefix = "TN"
 			};
 
-			var serviceModel = DryFileParserTests.GetTestServiceModel();
+			var serviceModel = FicklefileParserTests.GetTestServiceModel();
 			var serviceModelcodeGenerator = ServiceModelCodeGenerator.GetCodeGenerator("objc", Console.Out, options);
 
 			serviceModelcodeGenerator.Generate(serviceModel);
@@ -54,7 +54,7 @@ namespace Fickle.Tests
 			};
 
 			var outputDir = FileSystemManager.Default.ResolveDirectory("./" + new StackTrace().GetFrame(0).GetMethod().Name);
-			var serviceModel = DryFileParserTests.GetTestServiceModel();
+			var serviceModel = FicklefileParserTests.GetTestServiceModel();
 
 			outputDir.Create(true);
 
@@ -73,7 +73,7 @@ namespace Fickle.Tests
 				Namespace = "com.geronimo.globalradio.geronimo.servicemodel"
 			};
 
-			var serviceModel = DryFileParserTests.GetTestServiceModel();
+			var serviceModel = FicklefileParserTests.GetTestServiceModel();
 			var serviceModelcodeGenerator = ServiceModelCodeGenerator.GetCodeGenerator("java", Console.Out, options);
 
 			serviceModelcodeGenerator.Generate(serviceModel);
@@ -89,7 +89,7 @@ namespace Fickle.Tests
 			};
 
 			var outputDir = FileSystemManager.Default.ResolveDirectory("./" + new StackTrace().GetFrame(0).GetMethod().Name);
-			var serviceModel = DryFileParserTests.GetTestServiceModel();
+			var serviceModel = FicklefileParserTests.GetTestServiceModel();
 
 			outputDir.Create(true);
 
@@ -107,7 +107,7 @@ namespace Fickle.Tests
 				TypeNamePrefix = "TN"
 			};
 
-			var serviceModel = DryFileParserTests.GetTestServiceModel();
+			var serviceModel = FicklefileParserTests.GetTestServiceModel();
 			var serviceModelcodeGenerator = ServiceModelCodeGenerator.GetCodeGenerator("javascript", Console.Out, options);
 
 			serviceModelcodeGenerator.Generate(serviceModel);

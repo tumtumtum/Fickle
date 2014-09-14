@@ -1,25 +1,25 @@
 ﻿using System;
 using System.IO;
 using System.Reflection;
-using Fickle.Dryfile;
+using Fickle.Ficklefile;
 using NUnit.Framework;
 using Fickle.Model;
 
 namespace Fickle.Tests
 {
 	[TestFixture]
-	public class DryFileParserTests
+	public class FicklefileParserTests
 	{
 		internal static ServiceModel GetTestServiceModel()
 		{
 			var assembly = Assembly.GetExecutingAssembly();
-			var resourceName = typeof(DryFileParserTests).Namespace + ".TestFiles.Test.dryfile";
+			var resourceName = typeof(FicklefileParserTests).Namespace + ".TestFiles.Test.fickle";
 
 			using (var stream = assembly.GetManifestResourceStream(resourceName))
 			{
 				using (var reader = new StreamReader(stream))
 				{
-					return DryfileParser.Parse(reader);
+					return FicklefileParser.Parse(reader);
 				}
 			}
 		}
@@ -27,7 +27,7 @@ namespace Fickle.Tests
 		[Test]
 		public void Test_Parse_And_Generate_ObjectiveC()
 		{
-			var serviceModel = DryFileParserTests.GetTestServiceModel();
+			var serviceModel = FicklefileParserTests.GetTestServiceModel();
 			var codeGenerator = ServiceModelCodeGenerator.GetCodeGenerator("objc", Console.Out, CodeGenerationOptions.Default);
 
 			codeGenerator.Generate(serviceModel);

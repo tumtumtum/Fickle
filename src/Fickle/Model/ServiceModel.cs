@@ -93,14 +93,14 @@ namespace Fickle.Model
 
 		public virtual ServiceClass GetServiceClass(Type type)
 		{
-			var dryType = type as FickleType;
+			var fickleType = type as FickleType;
 
-			if (dryType == null)
+			if (fickleType == null)
 			{
 				return null;
 			}
 
-			return dryType.ServiceClass;
+			return fickleType.ServiceClass;
 		}
 
 		private void CreateIndex()

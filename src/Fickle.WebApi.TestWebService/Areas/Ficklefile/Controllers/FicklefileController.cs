@@ -27,7 +27,7 @@ namespace Fickle.WebApi.TestWebService.Areas.Ficklefile.Controllers
 			var serviceModel = reflector.Reflect();
 			var writer = new FicklefileWriter(this.Response.Output);
 
-			this.Response.ContentType = "text/dryfile";
+			this.Response.ContentType = "text/fickle";
 			
 			writer.Write(serviceModel);
 

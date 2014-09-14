@@ -455,9 +455,9 @@ namespace Fickle.Generators.Javascript
 				this.WriteLine();
 			}
 
-			var dryType = expression.Type as FickleType;
+			var fickleType = expression.Type as FickleType;
 
-			if (dryType != null && dryType.IsClass)
+			if (fickleType != null && fickleType.IsClass)
 			{
 				this.Write("public class ");
 				this.Write(expression.Type.Name, true);
@@ -476,7 +476,7 @@ namespace Fickle.Generators.Javascript
 					this.WriteLine();
 				}
 			}
-			else if (dryType != null && dryType.BaseType == typeof(Enum))
+			else if (fickleType != null && fickleType.BaseType == typeof(Enum))
 			{
 				this.WriteLine("public enum " + expression.Type.Name);
 
