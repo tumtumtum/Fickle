@@ -50,7 +50,7 @@ namespace Fickle.Tests
 			{
 				GenerateClasses = true,
 				TypeNamePrefix = "TN",
-				Namespace = "com.geronimo.globalradio.geronimo.servicemodel"
+				Namespace = "io.fickle.test.servicemodel"
 			};
 
 			var outputDir = FileSystemManager.Default.ResolveDirectory("./" + new StackTrace().GetFrame(0).GetMethod().Name);
@@ -70,7 +70,7 @@ namespace Fickle.Tests
 			{
 				GenerateClasses = false,
 				TypeNamePrefix = "TN",
-				Namespace = "com.geronimo.globalradio.geronimo.servicemodel"
+				Namespace = "io.fickle.test.servicemodel"
 			};
 
 			var serviceModel = FicklefileParserTests.GetTestServiceModel();
