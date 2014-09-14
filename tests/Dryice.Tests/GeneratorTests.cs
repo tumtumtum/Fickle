@@ -3,7 +3,7 @@ using System.Diagnostics;
 using NUnit.Framework;
 using Platform.VirtualFileSystem;
 
-namespace Dryice.Tests
+namespace Fickle.Tests
 {
 	[TestFixture]
 	public class GeneratorTests

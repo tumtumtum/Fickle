@@ -1,11 +1,11 @@
 ﻿using System;
 using System.IO;
 using System.Reflection;
-using Dryice.Dryfile;
+using Fickle.Dryfile;
 using NUnit.Framework;
-using Dryice.Model;
+using Fickle.Model;
 
-namespace Dryice.Tests
+namespace Fickle.Tests
 {
 	[TestFixture]
 	public class DryFileParserTests
