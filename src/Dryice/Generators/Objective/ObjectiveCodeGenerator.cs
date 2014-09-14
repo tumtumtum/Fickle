@@ -9,9 +9,9 @@ using System.Reflection;
 using Platform;
 using System.Linq;
 using System.Linq.Expressions;
-using Dryice.Expressions;
+using Fickle.Expressions;
 
-namespace Dryice.Generators.Objective
+namespace Fickle.Generators.Objective
 {
 	[PrimitiveTypeName(typeof(bool), "BOOL", false)]
 	[PrimitiveTypeName(typeof(bool?), "NSNumber", true)]

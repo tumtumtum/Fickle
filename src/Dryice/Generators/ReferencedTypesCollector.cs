@@ -7,10 +7,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using Dryice.Expressions;
+using Fickle.Expressions;
 using Platform;
 
-namespace Dryice.Generators
+namespace Fickle.Generators
 {
 	/// <summary>
 	/// Collects and returns a distinct list of all types referenced by the expression tree

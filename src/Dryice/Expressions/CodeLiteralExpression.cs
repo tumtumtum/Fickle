@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Linq.Expressions;
-using Dryice.Generators;
+using Fickle.Generators;
 
-namespace Dryice.Expressions
+namespace Fickle.Expressions
 {
 	public class CodeLiteralExpression
 		: BaseExpression

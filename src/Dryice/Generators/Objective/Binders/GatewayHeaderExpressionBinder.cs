@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Linq.Expressions;
-using Dryice.Expressions;
-using Dryice.Model;
+using Fickle.Expressions;
+using Fickle.Model;
 using Platform;
 
-namespace Dryice.Generators.Objective.Binders
+namespace Fickle.Generators.Objective.Binders
 {
 	public class GatewayHeaderExpressionBinder
 		: ServiceExpressionVisitor

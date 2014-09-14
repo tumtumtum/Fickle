@@ -11,7 +11,7 @@ using System.Web.Http.Description;
 using System.Xml.Serialization;
 using Newtonsoft.Json;
 
-namespace DryIce.WebApi.TestWebService.Areas.HelpPage.ModelDescriptions
+namespace Fickle.WebApi.TestWebService.Areas.HelpPage.ModelDescriptions
 {
     /// <summary>
     /// Generates model descriptions for given types.

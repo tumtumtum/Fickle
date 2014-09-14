@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Dryice.Model
+namespace Fickle.Model
 {
 	public class ServiceClass
 	{

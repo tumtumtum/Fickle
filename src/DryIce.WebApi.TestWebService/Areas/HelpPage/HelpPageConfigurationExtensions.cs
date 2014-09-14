@@ -11,10 +11,10 @@ using System.Net.Http.Headers;
 using System.Web.Http;
 using System.Web.Http.Controllers;
 using System.Web.Http.Description;
-using DryIce.WebApi.TestWebService.Areas.HelpPage.ModelDescriptions;
-using DryIce.WebApi.TestWebService.Areas.HelpPage.Models;
+using Fickle.WebApi.TestWebService.Areas.HelpPage.ModelDescriptions;
+using Fickle.WebApi.TestWebService.Areas.HelpPage.Models;
 
-namespace DryIce.WebApi.TestWebService.Areas.HelpPage
+namespace Fickle.WebApi.TestWebService.Areas.HelpPage
 {
     public static class HelpPageConfigurationExtensions
     {

@@ -1,4 +1,4 @@
-﻿namespace Dryice.Dryfile
+﻿namespace Fickle.Dryfile
 {
 	public enum DryfileToken
 	{

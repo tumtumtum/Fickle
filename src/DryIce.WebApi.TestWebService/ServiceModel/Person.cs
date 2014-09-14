@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace DryIce.WebApi.TestWebService.ServiceModel
+namespace Fickle.WebApi.TestWebService.ServiceModel
 {
 	public class Person
 	{

@@ -1,7 +1,7 @@
 ﻿using System;
 using Platform;
 
-namespace Dryice.Generators.Objective
+namespace Fickle.Generators.Objective
 {
 	internal static class ObjectiveBinderHelpers
 	{

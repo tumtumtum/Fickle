@@ -2,9 +2,9 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Net.Http.Headers;
 using System.Web.Http.Description;
-using DryIce.WebApi.TestWebService.Areas.HelpPage.ModelDescriptions;
+using Fickle.WebApi.TestWebService.Areas.HelpPage.ModelDescriptions;
 
-namespace DryIce.WebApi.TestWebService.Areas.HelpPage.Models
+namespace Fickle.WebApi.TestWebService.Areas.HelpPage.Models
 {
     /// <summary>
     /// The model that represents an API displayed on the help page.

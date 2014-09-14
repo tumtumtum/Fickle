@@ -1,10 +1,10 @@
 ﻿using System.IO;
 using System.Reflection;
-using Dryice.Generators;
-using Dryice.Model;
+using Fickle.Generators;
+using Fickle.Model;
 using Platform.Reflection;
 
-namespace Dryice.Dryfile
+namespace Fickle.Dryfile
 {
 	public class DryFileWriter
 		: SourceCodeGenerator

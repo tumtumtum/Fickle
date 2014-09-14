@@ -9,12 +9,12 @@ using System.Web;
 using System.Web.Http.Controllers;
 using System.Web.Http.Description;
 using System.Web.Http.Hosting;
-using Dryice.Model;
+using Fickle.Model;
 using System.Web.Http;
 using Platform;
 using Platform.Validation;
 
-namespace Dryice.Reflectors.WebApiRuntime
+namespace Fickle.Reflectors.WebApiRuntime
 {
 	public class WebApiRuntimeServiceModelReflector
 		: ServiceModelReflector

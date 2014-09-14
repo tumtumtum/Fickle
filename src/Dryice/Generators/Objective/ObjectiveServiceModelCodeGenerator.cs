@@ -1,12 +1,12 @@
 ﻿using System.IO;
 using System.IO.Ports;
 using System.Linq.Expressions;
-using Dryice.Expressions;
-using Dryice.Generators.Objective.Binders;
+using Fickle.Expressions;
+using Fickle.Generators.Objective.Binders;
 using Platform.VirtualFileSystem;
-using Dryice.Model;
+using Fickle.Model;
 
-namespace Dryice.Generators.Objective
+namespace Fickle.Generators.Objective
 {
 	[ServiceModelCodeGenerator("objc", "objective", "objective-c")]
 	public class ObjectiveServiceModelCodeGenerator

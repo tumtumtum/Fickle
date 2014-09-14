@@ -1,4 +1,4 @@
-﻿namespace Dryice.Model
+﻿namespace Fickle.Model
 {
 	public class ServiceEnumValue
 	{

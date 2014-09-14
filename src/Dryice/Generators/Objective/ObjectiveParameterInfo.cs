@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Dryice.Generators.Objective
+namespace Fickle.Generators.Objective
 {
 	public class ObjectiveParameterInfo
 		: DryParameterInfo

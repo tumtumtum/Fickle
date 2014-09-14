@@ -5,7 +5,7 @@ using System.Net;
 using System.Net.Http;
 using System.Web.Http;
 
-namespace DryIce.WebApi.TestWebService.Controllers
+namespace Fickle.WebApi.TestWebService.Controllers
 {
 	public class ValuesController : ApiController
 	{

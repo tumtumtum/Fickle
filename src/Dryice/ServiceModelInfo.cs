@@ -1,4 +1,4 @@
-﻿namespace Dryice
+﻿namespace Fickle
 {
 	public struct ServiceModelInfo
 	{

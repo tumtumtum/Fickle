@@ -1,6 +1,6 @@
 ﻿using System.Dynamic;
 
-namespace Dryice
+namespace Fickle
 {
 	public class CodeGenerationOptions
 	{

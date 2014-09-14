@@ -1,15 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Diagnostics;
 using System.IO;
-using System.Reflection;
 using Platform;
-using System.Linq;
 using System.Linq.Expressions;
-using Dryice.Expressions;
+using Fickle.Expressions;
 
-namespace Dryice.Generators.Java
+namespace Fickle.Generators.Java
 {
 	[PrimitiveTypeName(typeof(bool), "boolean", false)]
 	[PrimitiveTypeName(typeof(bool?), "Boolean", true)]
@@ -831,7 +826,7 @@ namespace Dryice.Generators.Java
 		protected override Expression VisitWhileExpression(WhileExpression expression)
 		{
 			this.Write("while (");
-			this.Visit(expression.Condition);
+			this.Visit(expression.Test);
 			this.WriteLine(")");
 			this.Visit(expression.Body);
 

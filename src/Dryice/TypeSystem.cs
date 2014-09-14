@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Platform;
 
-namespace Dryice
+namespace Fickle
 {
 	public class TypeSystem
 	{

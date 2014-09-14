@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Reflection;
 
-namespace Dryice
+namespace Fickle
 {
 	public class DryParameterInfo
 		: ParameterInfo

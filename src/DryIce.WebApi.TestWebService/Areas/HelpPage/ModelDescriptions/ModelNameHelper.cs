@@ -3,7 +3,7 @@ using System.Globalization;
 using System.Linq;
 using System.Reflection;
 
-namespace DryIce.WebApi.TestWebService.Areas.HelpPage.ModelDescriptions
+namespace Fickle.WebApi.TestWebService.Areas.HelpPage.ModelDescriptions
 {
     internal static class ModelNameHelper
     {

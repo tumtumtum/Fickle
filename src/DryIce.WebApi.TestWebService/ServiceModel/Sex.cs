@@ -1,4 +1,4 @@
-﻿namespace DryIce.WebApi.TestWebService.ServiceModel
+﻿namespace Fickle.WebApi.TestWebService.ServiceModel
 {
 	public enum Sex
 	{

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq.Expressions;
 
-namespace Dryice.Expressions
+namespace Fickle.Expressions
 {
 	public class TypeDefinitionExpression
 		: BaseExpression

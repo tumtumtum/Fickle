@@ -1,13 +1,13 @@
 ﻿using System;
 using System.Linq.Expressions;
 
-namespace Dryice.Expressions
+namespace Fickle.Expressions
 {
 	public class WhileExpression
 		: BaseExpression
 	{
 		public Expression Body { get; private set; }
-		public Expression Condition { get; private set; }
+		public Expression Test { get; private set; }
 		
 		public override Type Type
 		{
@@ -25,10 +25,10 @@ namespace Dryice.Expressions
 			}
 		}
 
-		public WhileExpression(Expression condition, Expression body)
+		public WhileExpression(Expression test, Expression body)
 		{
 			this.Body = body;
-			this.Condition = condition;
+			this.Test = test;
 		}
 	}
 }

@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using Dryice.Model;
+using Fickle.Model;
 using Platform;
 
-namespace Dryice.Generators.Objective
+namespace Fickle.Generators.Objective
 {
 	public class ObjectiveServiceModelResponseAmender
 		: ServiceModelResponseAmender

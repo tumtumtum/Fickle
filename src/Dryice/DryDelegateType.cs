@@ -3,7 +3,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 
-namespace Dryice
+namespace Fickle
 {
 	public class DryDelegateType
 		: DryType

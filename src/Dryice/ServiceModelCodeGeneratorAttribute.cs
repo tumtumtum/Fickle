@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Dryice
+namespace Fickle
 {
 	[AttributeUsage(AttributeTargets.Class)]
 	public class ServiceModelCodeGeneratorAttribute

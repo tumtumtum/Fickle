@@ -4,11 +4,11 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
-using Dryice.Expressions;
-using Dryice.Model;
+using Fickle.Expressions;
+using Fickle.Model;
 using Platform;
 
-namespace Dryice.Generators.Java
+namespace Fickle.Generators.Java
 {
 	internal static class JavaBinderHelpers
 	{

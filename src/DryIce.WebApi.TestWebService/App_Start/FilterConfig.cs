@@ -1,7 +1,7 @@
 ﻿using System.Web;
 using System.Web.Mvc;
 
-namespace DryIce.WebApi.TestWebService
+namespace Fickle.WebApi.TestWebService
 {
 	public class FilterConfig
 	{

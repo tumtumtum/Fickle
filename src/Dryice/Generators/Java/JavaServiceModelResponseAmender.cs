@@ -2,11 +2,11 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq.Expressions;
-using Dryice.Expressions;
-using Dryice.Model;
+using Fickle.Expressions;
+using Fickle.Model;
 using Platform;
 
-namespace Dryice.Generators.Java
+namespace Fickle.Generators.Java
 {
 	public class JavaServiceModelResponseAmender
 		: ServiceModelResponseAmender

@@ -5,9 +5,9 @@ using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
-using Dryice.Model;
+using Fickle.Model;
 
-namespace Dryice
+namespace Fickle
 {
 	public class DryType
 		: Type

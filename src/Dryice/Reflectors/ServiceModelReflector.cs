@@ -1,6 +1,6 @@
-﻿using Dryice.Model;
+﻿using Fickle.Model;
 
-namespace Dryice.Reflectors
+namespace Fickle.Reflectors
 {
 	public abstract class ServiceModelReflector
 	{

@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using Dryice.Expressions;
+using Fickle.Expressions;
 
-namespace Dryice.Generators
+namespace Fickle.Generators
 {
 	public class ParameterTypesCollector
 		: ServiceExpressionVisitor

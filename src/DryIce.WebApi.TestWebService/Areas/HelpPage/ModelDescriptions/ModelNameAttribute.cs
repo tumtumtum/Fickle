@@ -1,6 +1,6 @@
 using System;
 
-namespace DryIce.WebApi.TestWebService.Areas.HelpPage.ModelDescriptions
+namespace Fickle.WebApi.TestWebService.Areas.HelpPage.ModelDescriptions
 {
     /// <summary>
     /// Use this attribute to change the name of the <see cref="ModelDescription"/> generated for a type.

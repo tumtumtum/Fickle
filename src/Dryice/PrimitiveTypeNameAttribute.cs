@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Dryice
+namespace Fickle
 {
 	[AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
 	public class PrimitiveTypeNameAttribute

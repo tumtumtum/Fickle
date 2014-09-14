@@ -1,4 +1,4 @@
-namespace DryIce.WebApi.TestWebService.Areas.HelpPage
+namespace Fickle.WebApi.TestWebService.Areas.HelpPage
 {
     /// <summary>
     /// Indicates whether the sample is used for request or response

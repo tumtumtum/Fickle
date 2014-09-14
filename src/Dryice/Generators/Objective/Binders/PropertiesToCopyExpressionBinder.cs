@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
-using Dryice.Expressions;
-using Dryice.Model;
+using Fickle.Expressions;
+using Fickle.Model;
 
-namespace Dryice.Generators.Objective.Binders
+namespace Fickle.Generators.Objective.Binders
 {
 	public class PropertiesToCopyExpressionBinder
 		: ServiceExpressionVisitor

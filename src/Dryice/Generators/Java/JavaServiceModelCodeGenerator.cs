@@ -1,12 +1,12 @@
 ﻿using System.IO;
 using System.IO.Ports;
 using System.Linq.Expressions;
-using Dryice.Expressions;
-using Dryice.Generators.Java.Binders;
+using Fickle.Expressions;
+using Fickle.Generators.Java.Binders;
 using Platform.VirtualFileSystem;
-using Dryice.Model;
+using Fickle.Model;
 
-namespace Dryice.Generators.Java
+namespace Fickle.Generators.Java
 {
 	[ServiceModelCodeGenerator("java")]
 	public class JavaServiceModelCodeGenerator

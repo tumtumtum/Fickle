@@ -5,7 +5,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 
-namespace Dryice.Expressions
+namespace Fickle.Expressions
 {
 	public static class DryExpression
 	{

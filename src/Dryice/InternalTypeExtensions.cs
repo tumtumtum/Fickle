@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Dryice
+namespace Fickle
 {
 	internal static class InternalTypeExtensions
 	{

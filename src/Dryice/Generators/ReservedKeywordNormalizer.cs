@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Linq.Expressions;
-using Dryice.Expressions;
+using Fickle.Expressions;
 
-namespace Dryice.Generators
+namespace Fickle.Generators
 {
 	/// <summary>
 	/// Normalizes all user-defined names that conflict with keywords by prefixing them with a prefix string

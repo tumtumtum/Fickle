@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Dryice.Model
+namespace Fickle.Model
 {
 	[AttributeUsage(AttributeTargets.Class | AttributeTargets.Property)]
 	public class ServiceAnnotationAttribute

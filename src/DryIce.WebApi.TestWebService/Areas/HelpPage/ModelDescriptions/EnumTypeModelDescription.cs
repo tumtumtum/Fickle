@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 
-namespace DryIce.WebApi.TestWebService.Areas.HelpPage.ModelDescriptions
+namespace Fickle.WebApi.TestWebService.Areas.HelpPage.ModelDescriptions
 {
     public class EnumTypeModelDescription : ModelDescription
     {

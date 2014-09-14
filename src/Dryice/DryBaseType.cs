@@ -4,7 +4,7 @@ using System;
 using System.Globalization;
 using System.Reflection;
 
-namespace Dryice
+namespace Fickle
 {
 	public class DryBaseType
 		: Type

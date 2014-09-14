@@ -1,4 +1,4 @@
-namespace DryIce.WebApi.TestWebService.Areas.HelpPage.ModelDescriptions
+namespace Fickle.WebApi.TestWebService.Areas.HelpPage.ModelDescriptions
 {
     public class EnumValueDescription
     {

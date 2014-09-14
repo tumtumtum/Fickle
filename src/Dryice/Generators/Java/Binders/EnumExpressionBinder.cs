@@ -4,10 +4,10 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Windows.Markup;
-using Dryice.Expressions;
+using Fickle.Expressions;
 using Platform;
 
-namespace Dryice.Generators.Java.Binders
+namespace Fickle.Generators.Java.Binders
 {
 	public class EnumExpressionBinder
 		: ServiceExpressionVisitor

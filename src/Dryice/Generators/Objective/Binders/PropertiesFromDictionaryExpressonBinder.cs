@@ -7,10 +7,10 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq.Expressions;
 using System.Reflection;
-using Dryice.Expressions;
+using Fickle.Expressions;
 using Platform;
 
-namespace Dryice.Generators.Objective.Binders
+namespace Fickle.Generators.Objective.Binders
 {
 	public class PropertiesFromDictionaryExpressonBinder
 		: ServiceExpressionVisitor

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Web;
 using System.Web.Mvc;
 
-namespace DryIce.WebApi.TestWebService.Controllers
+namespace Fickle.WebApi.TestWebService.Controllers
 {
 	public class HomeController : Controller
 	{

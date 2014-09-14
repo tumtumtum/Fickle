@@ -1,10 +1,10 @@
 ﻿using System.Web.Http;
 using System.Web.Mvc;
-using Dryice.Dryfile;
-using Dryice.Reflectors;
-using Dryice.Reflectors.WebApiRuntime;
+using Fickle.Dryfile;
+using Fickle.Reflectors;
+using Fickle.Reflectors.WebApiRuntime;
 
-namespace DryIce.WebApi.TestWebService.Areas.Dryfile.Controllers
+namespace Fickle.WebApi.TestWebService.Areas.Dryfile.Controllers
 {
     public class DryfileController
 		: Controller

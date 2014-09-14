@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Dryice.Model;
+using Fickle.Model;
 
-namespace Dryice.Generators
+namespace Fickle.Generators
 {
 	public abstract class ServiceModelResponseAmender
 	{

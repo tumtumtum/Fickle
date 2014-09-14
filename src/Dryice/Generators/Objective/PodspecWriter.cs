@@ -1,6 +1,6 @@
 ﻿using System.IO;
 
-namespace Dryice.Generators.Objective
+namespace Fickle.Generators.Objective
 {
 	public class PodspecWriter
 		: SourceCodeGenerator

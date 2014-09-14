@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
 
-namespace Dryice
+namespace Fickle
 {
 	internal static class InternalEnumerableExtensions
 	{

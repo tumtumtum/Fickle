@@ -6,11 +6,11 @@ using System.Linq.Expressions;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using System.Text.RegularExpressions;
-using Dryice.Expressions;
-using Dryice.Model;
+using Fickle.Expressions;
+using Fickle.Model;
 using Platform;
 
-namespace Dryice.Generators.Javascript.Binders
+namespace Fickle.Generators.Javascript.Binders
 {
 	public class GatewayExpressionBinder
 		: ServiceExpressionVisitor

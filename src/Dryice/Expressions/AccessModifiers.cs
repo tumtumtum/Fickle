@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Dryice.Expressions
+namespace Fickle.Expressions
 {
 	[Flags]
 	public enum AccessModifiers

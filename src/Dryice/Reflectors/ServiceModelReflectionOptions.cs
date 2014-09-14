@@ -1,4 +1,4 @@
-﻿namespace Dryice.Reflectors
+﻿namespace Fickle.Reflectors
 {
 	public class ServiceModelReflectionOptions
 	{

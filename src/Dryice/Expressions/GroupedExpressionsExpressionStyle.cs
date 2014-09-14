@@ -1,4 +1,4 @@
-﻿namespace Dryice.Expressions
+﻿namespace Fickle.Expressions
 {
 	public enum GroupedExpressionsExpressionStyle
 	{

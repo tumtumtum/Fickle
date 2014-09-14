@@ -7,11 +7,11 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Security.Cryptography;
 using System.Text.RegularExpressions;
-using Dryice.Expressions;
+using Fickle.Expressions;
 using Newtonsoft.Json.Converters;
 using Platform;
 
-namespace Dryice.Generators.Objective.Binders
+namespace Fickle.Generators.Objective.Binders
 {
 	public class GatewaySourceExpressionBinder
 		: ServiceExpressionVisitor

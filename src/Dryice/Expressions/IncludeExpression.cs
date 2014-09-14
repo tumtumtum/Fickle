@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq.Expressions;
 
-namespace Dryice.Expressions
+namespace Fickle.Expressions
 {
 	public class IncludeExpression
 		: BaseExpression

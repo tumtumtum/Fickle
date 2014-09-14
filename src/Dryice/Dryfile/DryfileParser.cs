@@ -4,10 +4,10 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
-using Dryice.Model;
+using Fickle.Model;
 using Platform.Reflection;
 
-namespace Dryice.Dryfile
+namespace Fickle.Dryfile
 {
 	public class DryfileParser
 	{

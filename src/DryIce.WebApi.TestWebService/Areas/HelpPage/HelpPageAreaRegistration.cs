@@ -1,7 +1,7 @@
 using System.Web.Http;
 using System.Web.Mvc;
 
-namespace DryIce.WebApi.TestWebService.Areas.HelpPage
+namespace Fickle.WebApi.TestWebService.Areas.HelpPage
 {
     public class HelpPageAreaRegistration : AreaRegistration
     {

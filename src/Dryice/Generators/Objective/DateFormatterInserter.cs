@@ -4,9 +4,9 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
-using Dryice.Expressions;
+using Fickle.Expressions;
 
-namespace Dryice.Generators.Objective
+namespace Fickle.Generators.Objective
 {
 	public class DateFormatterInserter
 		: ServiceExpressionVisitor

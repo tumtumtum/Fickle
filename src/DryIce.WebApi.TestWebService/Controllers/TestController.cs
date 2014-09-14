@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Web.Http;
-using DryIce.WebApi.TestWebService.ServiceModel;
+using Fickle.WebApi.TestWebService.ServiceModel;
 
-namespace DryIce.WebApi.TestWebService.Controllers
+namespace Fickle.WebApi.TestWebService.Controllers
 {
 	public class TestController
 		: ApiController

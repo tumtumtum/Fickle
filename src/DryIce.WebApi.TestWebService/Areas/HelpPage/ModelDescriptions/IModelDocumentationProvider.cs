@@ -1,7 +1,7 @@
 using System;
 using System.Reflection;
 
-namespace DryIce.WebApi.TestWebService.Areas.HelpPage.ModelDescriptions
+namespace Fickle.WebApi.TestWebService.Areas.HelpPage.ModelDescriptions
 {
     public interface IModelDocumentationProvider
     {

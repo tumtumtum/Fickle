@@ -1,7 +1,7 @@
 ﻿using System.Net.Http.Headers;
 using System.Web.Http;
 
-namespace DryIce.WebApi.TestWebService
+namespace Fickle.WebApi.TestWebService
 {
 	public static class WebApiConfig
 	{

@@ -5,15 +5,15 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
-using Dryice.Dryfile;
-using Dryice.Expressions;
-using Dryice.Generators;
+using Fickle.Dryfile;
+using Fickle.Expressions;
+using Fickle.Generators;
 using Platform.IO;
 using Platform.Reflection;
 using Platform.VirtualFileSystem;
-using Dryice.Model;
+using Fickle.Model;
 
-namespace Dryice
+namespace Fickle
 {
 	public abstract class ServiceModelCodeGenerator
 		: IDisposable

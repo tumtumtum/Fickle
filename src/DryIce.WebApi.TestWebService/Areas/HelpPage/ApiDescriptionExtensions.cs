@@ -3,7 +3,7 @@ using System.Text;
 using System.Web;
 using System.Web.Http.Description;
 
-namespace DryIce.WebApi.TestWebService.Areas.HelpPage
+namespace Fickle.WebApi.TestWebService.Areas.HelpPage
 {
     public static class ApiDescriptionExtensions
     {

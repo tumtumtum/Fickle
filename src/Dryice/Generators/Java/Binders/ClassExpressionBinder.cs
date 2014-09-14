@@ -6,13 +6,13 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Runtime.InteropServices;
-using Dryice.Expressions;
-using Dryice.Generators.Objective;
-using Dryice.Model;
+using Fickle.Expressions;
+using Fickle.Generators.Objective;
+using Fickle.Model;
 using Platform;
 using Platform.Text;
 
-namespace Dryice.Generators.Java.Binders
+namespace Fickle.Generators.Java.Binders
 {
 	public class ClassExpressionBinder
 		: ServiceExpressionVisitor

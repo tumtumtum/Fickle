@@ -1,6 +1,6 @@
 ﻿using System.Linq;
 
-namespace Dryice.Dryfile
+namespace Fickle.Dryfile
 {
 	public class UnexpectedDryfileTokenException
 		: DryfileParserException

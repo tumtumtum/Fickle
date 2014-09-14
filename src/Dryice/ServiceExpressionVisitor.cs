@@ -4,9 +4,9 @@
 
 using System.Collections.ObjectModel;
 using System.Linq.Expressions;
-using Dryice.Expressions;
+using Fickle.Expressions;
 
-namespace Dryice
+namespace Fickle
 {
 	public class ServiceExpressionVisitor
 		: ExpressionVisitor

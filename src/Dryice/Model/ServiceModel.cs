@@ -3,7 +3,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Collections.Generic;
 
-namespace Dryice.Model
+namespace Fickle.Model
 {
 	public class ServiceModel
 	{

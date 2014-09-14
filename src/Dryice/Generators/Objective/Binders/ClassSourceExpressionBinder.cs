@@ -8,9 +8,9 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using Dryice.Expressions;
+using Fickle.Expressions;
 
-namespace Dryice.Generators.Objective.Binders
+namespace Fickle.Generators.Objective.Binders
 {
 	public class ClassSourceExpressionBinder
 		: ServiceExpressionVisitor

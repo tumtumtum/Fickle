@@ -1,7 +1,7 @@
 ﻿using System.Web;
 using System.Web.Optimization;
 
-namespace DryIce.WebApi.TestWebService
+namespace Fickle.WebApi.TestWebService
 {
 	public class BundleConfig
 	{

@@ -1,12 +1,12 @@
 ﻿using System.IO;
 using System.IO.Ports;
 using System.Linq.Expressions;
-using Dryice.Expressions;
-using Dryice.Generators.Javascript.Binders;
+using Fickle.Expressions;
+using Fickle.Generators.Javascript.Binders;
 using Platform.VirtualFileSystem;
-using Dryice.Model;
+using Fickle.Model;
 
-namespace Dryice.Generators.Javascript
+namespace Fickle.Generators.Javascript
 {
 	[ServiceModelCodeGenerator("javascript")]
 	public class JavascriptServiceModelCodeGenerator

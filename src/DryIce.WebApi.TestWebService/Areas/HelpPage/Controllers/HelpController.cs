@@ -1,10 +1,10 @@
 using System;
 using System.Web.Http;
 using System.Web.Mvc;
-using DryIce.WebApi.TestWebService.Areas.HelpPage.ModelDescriptions;
-using DryIce.WebApi.TestWebService.Areas.HelpPage.Models;
+using Fickle.WebApi.TestWebService.Areas.HelpPage.ModelDescriptions;
+using Fickle.WebApi.TestWebService.Areas.HelpPage.Models;
 
-namespace DryIce.WebApi.TestWebService.Areas.HelpPage.Controllers
+namespace Fickle.WebApi.TestWebService.Areas.HelpPage.Controllers
 {
     /// <summary>
     /// The controller that will handle requests for the help page.
@@ -28,8 +28,6 @@ namespace DryIce.WebApi.TestWebService.Areas.HelpPage.Controllers
         public ActionResult Index()
         {
             ViewBag.DocumentationProvider = Configuration.Services.GetDocumentationProvider();
-	        var v = Configuration.Services.GetApiExplorer().ApiDescriptions;
-
             return View(Configuration.Services.GetApiExplorer().ApiDescriptions);
         }
 

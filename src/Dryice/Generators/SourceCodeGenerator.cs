@@ -7,10 +7,10 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
-using Dryice.Expressions;
+using Fickle.Expressions;
 using Platform.VirtualFileSystem.Providers.View;
 
-namespace Dryice.Generators
+namespace Fickle.Generators
 {
 	public abstract class SourceCodeGenerator
 		: ServiceExpressionVisitor

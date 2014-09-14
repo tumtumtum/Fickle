@@ -1,6 +1,6 @@
 ﻿using CommandLine;
 
-namespace Dryice.Tool
+namespace Fickle.Tool
 {
 	internal class CommandLineOptions
 	{

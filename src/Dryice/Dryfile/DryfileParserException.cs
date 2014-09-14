@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Dryice.Dryfile
+namespace Fickle.Dryfile
 {
 	public class DryfileParserException
 		: Exception

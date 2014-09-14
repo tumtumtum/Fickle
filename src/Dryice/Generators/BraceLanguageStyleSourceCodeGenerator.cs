@@ -5,9 +5,9 @@
 using System;
 using System.IO;
 using System.Linq.Expressions;
-using Dryice.Expressions;
+using Fickle.Expressions;
 
-namespace Dryice.Generators
+namespace Fickle.Generators
 {
 	public class BraceLanguageStyleSourceCodeGenerator
 		: SourceCodeGenerator

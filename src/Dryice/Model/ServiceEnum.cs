@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Dryice.Model
+namespace Fickle.Model
 {
 	public class ServiceEnum
 	{

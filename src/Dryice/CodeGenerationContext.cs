@@ -1,6 +1,6 @@
-﻿using Dryice.Model;
+﻿using Fickle.Model;
 
-namespace Dryice
+namespace Fickle
 {
 	public class CodeGenerationContext
 	{

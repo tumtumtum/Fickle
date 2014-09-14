@@ -5,10 +5,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
-using Dryice.Expressions;
+using Fickle.Expressions;
 using Platform;
 
-namespace Dryice.Generators.Objective.Binders
+namespace Fickle.Generators.Objective.Binders
 {
 	public class PropertiesToDictionaryExpressionBinder
 		: ServiceExpressionVisitor
