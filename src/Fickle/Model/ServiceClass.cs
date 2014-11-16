@@ -43,5 +43,10 @@ namespace Fickle.Model
 		}
 
 		#endregion
+
+		public override string ToString()
+		{
+			return this.Name;
+		}
 	}
 }

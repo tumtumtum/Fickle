@@ -74,10 +74,11 @@ namespace Fickle.Generators
 				additionalClasses.Add(responseStatusClass);
 			} 
 			
-			foreach (var type in returnTypes.Where(c => TypeSystem.IsPrimitiveType(c) || c is FickleListType).ToHashSet())
-			{ 
-				var valueResponse = CreateValueResponseServiceClass(type);
-
+			foreach (var valueResponse in returnTypes
+				.Where(c => TypeSystem.IsPrimitiveType(c) || c is FickleListType)
+				.Distinct()
+				.Select(this.CreateValueResponseServiceClass))
+			{
 				additionalClasses.Add(valueResponse);
 			}
 

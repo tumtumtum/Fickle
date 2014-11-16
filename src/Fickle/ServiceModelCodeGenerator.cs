@@ -160,7 +160,8 @@ namespace Fickle
 
 			if (this.Options.GenerateClasses)
 			{
-				foreach (var expression in serviceModel.Classes.Select(serviceExpressionBuilder.Build).Cast<TypeDefinitionExpression>())
+				foreach (var expression in serviceModel.Classes.Select(serviceExpressionBuilder.Build)
+					.Cast<TypeDefinitionExpression>())
 				{
 					var currentExpression = expression;
 
@@ -170,7 +171,8 @@ namespace Fickle
 
 			if (this.Options.GenerateGateways)
 			{
-				foreach (var expression in serviceModel.Gateways.Select(serviceExpressionBuilder.Build).Cast<TypeDefinitionExpression>())
+				foreach (var expression in serviceModel.Gateways.Select(serviceExpressionBuilder.Build)
+					.Cast<TypeDefinitionExpression>())
 				{
 					var currentExpression = expression;
 

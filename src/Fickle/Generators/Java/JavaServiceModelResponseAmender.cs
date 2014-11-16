@@ -18,15 +18,21 @@ namespace Fickle.Generators.Java
 
 		protected override ServiceClass CreateValueResponseServiceClass(Type type)
 		{
-			var isNullable = FickleNullable.GetUnderlyingType(type) != null;
+			string typeName;
 
-			if (isNullable)
+			type = type.GetUnwrappedNullableType();
+
+			if (type is FickleListType)
 			{
-				type = FickleNullable.GetUnderlyingType(type);
+				var elementType = type.GetFickleListElementType();
+
+				typeName = TypeSystem.GetPrimitiveName(elementType) + "?[]";
 			}
-
-			var typeName = TypeSystem.GetPrimitiveName(type, true);
-
+			else
+			{
+				typeName = TypeSystem.GetPrimitiveName(type);
+			}
+			
 			var properties = new List<ServiceProperty>
 			{
 				new ServiceProperty()

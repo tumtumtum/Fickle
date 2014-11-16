@@ -1,12 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
-using System.Text;
-using System.Threading.Tasks;
 using Fickle.Expressions;
-using Fickle.Model;
-using Platform;
 
 namespace Fickle.Generators.Java
 {
@@ -14,6 +9,13 @@ namespace Fickle.Generators.Java
 	{
 		public static string GetValueResponseWrapperTypeName(Type type)
 		{
+			var unwrappedType = type.GetUnwrappedNullableType();
+
+			if (unwrappedType is FickleListType)
+			{
+				return TypeSystem.GetPrimitiveName(type.GetFickleListElementType(), true) + "ListValueResponse";
+			}
+
 			return TypeSystem.GetPrimitiveName(type, true) + "ValueResponse";
 		}
 
