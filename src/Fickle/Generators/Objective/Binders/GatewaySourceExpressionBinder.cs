@@ -597,7 +597,7 @@ namespace Fickle.Generators.Objective.Binders
 
 			var singleValueResponseTypes = currentReturnTypes.Where(c => c.GetUnwrappedNullableType().IsPrimitive).Select(c => FickleType.Define(ObjectiveBinderHelpers.GetValueResponseWrapperTypeName(c))).ToList();
 
-			var referencedTypes = ReferencedTypesCollector.CollectReferencedTypes(body).Append(singleValueResponseTypes).Distinct().ToList();
+			var referencedTypes = ReferencedTypesCollector.CollectReferencedTypes(body).Concat(singleValueResponseTypes).Distinct().ToList();
 			referencedTypes.Sort((x, y) => String.Compare(x.Name, y.Name, StringComparison.InvariantCultureIgnoreCase));
 
 			foreach (var referencedType in referencedTypes.Where(c => c is FickleType && ((FickleType)c).ServiceClass != null))

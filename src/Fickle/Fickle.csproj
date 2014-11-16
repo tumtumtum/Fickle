@@ -45,23 +45,23 @@
     </Reference>
     <Reference Include="Newtonsoft.Json, Version=6.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\Newtonsoft.Json.6.0.5\lib\net45\Newtonsoft.Json.dll</HintPath>
+      <HintPath>..\packages\Newtonsoft.Json.6.0.6\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
-    <Reference Include="Platform">
-      <HintPath>..\packages\Platform.NET.1.0.0.136\lib\35\Platform.dll</HintPath>
-      <Private>True</Private>
+    <Reference Include="Platform, Version=1.1.0.189, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\Platform.NET.1.1.0.189\lib\net40\Platform.dll</HintPath>
     </Reference>
-    <Reference Include="Platform.VirtualFileSystem">
-      <HintPath>..\packages\Platform.VirtualFileSystem.1.0.0.76\lib\35\Platform.VirtualFileSystem.dll</HintPath>
-      <Private>True</Private>
+    <Reference Include="Platform.VirtualFileSystem, Version=1.1.0.102, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\Platform.VirtualFileSystem.1.1.0.102\lib\net40\Platform.VirtualFileSystem.dll</HintPath>
     </Reference>
-    <Reference Include="Platform.VirtualFileSystem.Providers.Zip">
-      <HintPath>..\packages\Platform.VirtualFileSystem.Providers.Zip.1.0.0.76\lib\35\Platform.VirtualFileSystem.Providers.Zip.dll</HintPath>
-      <Private>True</Private>
+    <Reference Include="Platform.VirtualFileSystem.Providers.Zip, Version=1.1.0.102, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\Platform.VirtualFileSystem.Providers.Zip.1.1.0.102\lib\net40\Platform.VirtualFileSystem.Providers.Zip.dll</HintPath>
     </Reference>
-    <Reference Include="Platform.Xml.Serialization">
-      <HintPath>..\packages\Platform.Xml.Serialization.1.0.0.136\lib\35\Platform.Xml.Serialization.dll</HintPath>
-      <Private>True</Private>
+    <Reference Include="Platform.Xml.Serialization, Version=1.1.0.189, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\Platform.Xml.Serialization.1.1.0.189\lib\net40\Platform.Xml.Serialization.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />

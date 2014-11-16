@@ -196,7 +196,7 @@ namespace Fickle.Generators.Java.Binders
 
 			var singleValueResponseTypes = currentReturnTypes.Where(c => c.GetUnwrappedNullableType().IsPrimitive).Select(c => FickleType.Define(JavaBinderHelpers.GetValueResponseWrapperTypeName(c))).ToList();
 
-			var referencedTypes = ReferencedTypesCollector.CollectReferencedTypes(body).Append(singleValueResponseTypes).Distinct().ToList();
+			var referencedTypes = ReferencedTypesCollector.CollectReferencedTypes(body).Concat(singleValueResponseTypes).Distinct().ToList();
 			referencedTypes.Sort((x, y) => String.Compare(x.Name, y.Name, StringComparison.InvariantCultureIgnoreCase));
 
 			var lookup = new HashSet<Type>(referencedTypes.Where(TypeSystem.IsPrimitiveType));
