@@ -4,15 +4,13 @@ using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Formatting;
 using System.Reflection;
-using System.Security.Cryptography;
 using System.Web;
+using System.Web.Http;
 using System.Web.Http.Controllers;
 using System.Web.Http.Description;
 using System.Web.Http.Hosting;
 using Fickle.Model;
-using System.Web.Http;
 using Platform;
-using Platform.Validation;
 
 namespace Fickle.Reflectors.WebApiRuntime
 {

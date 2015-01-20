@@ -1,4 +1,8 @@
-﻿enum Sex
+﻿info
+	@name Test
+	@author Fickle
+
+enum Sex
 	Male : 1
 	Female : 2
 
