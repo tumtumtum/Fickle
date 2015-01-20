@@ -12,6 +12,7 @@ namespace Fickle.Ficklefile
 	public class FicklefileParser
 	{
 		private readonly FicklefileTokenizer tokenizer;
+		private ServiceModelInfo serviceModelInfo;
 		private readonly List<ServiceEnum> enums = new List<ServiceEnum>();
 		private readonly List<ServiceClass> classes = new List<ServiceClass>();
 		private readonly List<ServiceGateway> gateways = new List<ServiceGateway>();
@@ -41,15 +42,18 @@ namespace Fickle.Ficklefile
 			{
 				switch (this.tokenizer.CurrentKeyword)
 				{
-					case Ficklefile.Class:
-						this.classes.Add(this.ProcessClass());
-						break;
-					case Ficklefile.Enum:
-						this.enums.Add(this.ProcessEnum());
-						break;
-					case Ficklefile.Gateway:
-						this.gateways.Add(this.ProcessGateway());
-						break;
+				case FicklefileKeyword.Info:
+					this.serviceModelInfo = this.ProcessInfo();
+					break;
+				case FicklefileKeyword.Class:
+					this.classes.Add(this.ProcessClass());
+					break;
+				case FicklefileKeyword.Enum:
+					this.enums.Add(this.ProcessEnum());
+					break;
+				case FicklefileKeyword.Gateway:
+					this.gateways.Add(this.ProcessGateway());
+					break;
 				}
 			}
 			else
@@ -184,6 +188,45 @@ namespace Fickle.Ficklefile
 
 			retval.TypeName = this.ParseTypeName();
 			
+			return retval;
+		}
+
+
+		protected virtual ServiceModelInfo ProcessInfo()
+		{
+			this.ReadNextToken();
+
+			var retval = new ServiceModelInfo();
+
+			if (this.tokenizer.CurrentToken == FicklefileToken.Indent)
+			{
+				this.ReadNextToken();
+
+				while (true)
+				{
+					if (this.tokenizer.CurrentToken == FicklefileToken.Annotation)
+					{
+						var annotation = this.ProcessAnnotation();
+
+						var property = retval.GetType().GetProperty(annotation.Key, BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase);
+
+						if (property == null)
+						{
+							throw new FicklefileParserException(string.Format("Unexpected annotation: {0}={1}", annotation.Key, annotation.Value));
+						}
+
+						property.SetValue(retval, Convert.ChangeType(annotation.Value, property.PropertyType));
+					}
+					else
+					{
+						break;
+					}
+				}
+
+				this.Expect(FicklefileToken.Dedent);
+				this.ReadNextToken();
+			}
+
 			return retval;
 		}
 
@@ -418,7 +461,7 @@ namespace Fickle.Ficklefile
 				this.ProcessTopLevel();
 			}
 
-			return new ServiceModel(this.enums, this.classes, this.gateways);
+			return new ServiceModel(this.serviceModelInfo, this.enums, this.classes, this.gateways);
 		}
 	}
 }

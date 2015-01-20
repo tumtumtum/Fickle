@@ -13,12 +13,12 @@ namespace Fickle.Ficklefile
 		private readonly StringBuilder stringBuilder;
 		private readonly Stack<int> indentStack; 
 		public TextReader Reader { get; set; }
-		public Ficklefile CurrentKeyword { get; private set; }
+		public FicklefileKeyword CurrentKeyword { get; private set; }
 		public FicklefileToken CurrentToken { get; private set; }
 		public string CurrentString { get; private set; }
 		public long CurrentInteger { get; private set; }
 		public double CurrentFloat { get; private set; }
-		private readonly Dictionary<string, Ficklefile> keywordsByName = new Dictionary<string, Ficklefile>(StringComparer.InvariantCultureIgnoreCase);
+		private readonly Dictionary<string, FicklefileKeyword> keywordsByName = new Dictionary<string, FicklefileKeyword>(StringComparer.InvariantCultureIgnoreCase);
 		
 		public FicklefileTokenizer(TextReader reader)
 		{
@@ -27,9 +27,9 @@ namespace Fickle.Ficklefile
 			this.CurrentToken = FicklefileToken.None;
 			this.stringBuilder = new StringBuilder();
 
-			foreach (var name in Enum.GetNames(typeof(Ficklefile)))
+			foreach (var name in Enum.GetNames(typeof(FicklefileKeyword)))
 			{
-				this.keywordsByName[name] = (Ficklefile)Enum.Parse(typeof(Ficklefile), name);
+				this.keywordsByName[name] = (FicklefileKeyword)Enum.Parse(typeof(FicklefileKeyword), name);
 			}
 
 			this.indentStack = new Stack<int>();
@@ -282,8 +282,9 @@ namespace Fickle.Ficklefile
 					this.CurrentInteger = Int64.Parse(this.stringBuilder.ToString());
 				}
 			}
-			else if ((char)this.currentChar == '@' || char.IsLetter((char)this.currentChar))
+			else if ((char)this.currentChar == '@' || (char)this.currentChar == '$' || char.IsLetter((char)this.currentChar))
 			{
+				var isIdentifier = this.currentChar == '$';
 				var isAnnotation = this.currentChar == '@';
 
 				if (isAnnotation)
@@ -302,13 +303,13 @@ namespace Fickle.Ficklefile
 
 				this.CurrentString = this.stringBuilder.ToString();
 
-				Ficklefile keyword;
+				FicklefileKeyword keyword;
 
 				if (isAnnotation)
 				{
 					this.CurrentToken = FicklefileToken.Annotation;
 				}
-				else if (this.keywordsByName.TryGetValue(this.CurrentString, out keyword))
+				else if (!isIdentifier && this.keywordsByName.TryGetValue(this.CurrentString, out keyword))
 				{
 					this.CurrentKeyword = keyword;
 					this.CurrentToken = FicklefileToken.Keyword;

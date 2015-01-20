@@ -200,7 +200,7 @@ namespace Fickle.Reflectors.WebApiRuntime
 				gateways.Add(serviceGateway);
 			}
 
-			return new ServiceModel(enums, classes, gateways);
+			return new ServiceModel(new ServiceModelInfo(), enums, classes, gateways);
 		}
 	}
 }

@@ -7,14 +7,16 @@ namespace Fickle.Model
 {
 	public class ServiceModel
 	{
+		public ServiceModelInfo ServiceModelInfo { get; private set; }
 		public ReadOnlyCollection<ServiceEnum> Enums { get; private set; }
 		public ReadOnlyCollection<ServiceClass> Classes { get; private set; }
 		public ReadOnlyCollection<ServiceGateway> Gateways { get; private set; }
 
 		private Dictionary<string, Type> serviceTypesByName;
 
-		public ServiceModel(IEnumerable<ServiceEnum> enums, IEnumerable<ServiceClass> classes, IEnumerable<ServiceGateway> gateways)
+		public ServiceModel(ServiceModelInfo serviceModelInfo, IEnumerable<ServiceEnum> enums, IEnumerable<ServiceClass> classes, IEnumerable<ServiceGateway> gateways)
 		{
+			this.ServiceModelInfo = serviceModelInfo;
 			this.Enums = enums.ToReadOnlyCollection();
 			this.Classes = classes.ToReadOnlyCollection();
 			this.Gateways = gateways.ToReadOnlyCollection();

@@ -94,7 +94,7 @@ namespace Fickle.Generators
 				}
 			}
 
-			return new ServiceModel(serviceModel.Enums, serviceModel.Classes.Concat(additionalClasses), serviceModel.Gateways);
+			return new ServiceModel(this.serviceModel.ServiceModelInfo, serviceModel.Enums, serviceModel.Classes.Concat(additionalClasses), serviceModel.Gateways);
 		}
 	}
 }

@@ -1,4 +1,6 @@
-﻿using System.IO;
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Reflection;
 using Fickle.Generators;
 using Fickle.Model;
@@ -9,11 +11,26 @@ namespace Fickle.Ficklefile
 	public class FicklefileWriter
 		: SourceCodeGenerator
 	{
+		private readonly HashSet<string> keywords = new HashSet<string>(typeof(FicklefileKeyword).GetEnumNames(), StringComparer.InvariantCultureIgnoreCase);
+
 		public FicklefileWriter(TextWriter writer)
 			: base(writer)
 		{
 		}
-		
+
+		protected virtual void WriteIdentifier(string name)
+		{
+			if (keywords.Contains(name))
+			{
+				this.Write("$");
+				this.Write(name);
+			}
+			else
+			{
+				this.Write(name);
+			}
+		}
+
 		protected virtual void WriteAnnotations<T>(T obj)
 		{
 			var properties = obj.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance);
@@ -47,7 +64,9 @@ namespace Fickle.Ficklefile
 
 		protected virtual void Write(ServiceEnum serviceEnum)
 		{
-			this.WriteLine("enum {0}", serviceEnum.Name);
+			this.Write("enum ");
+			this.WriteIdentifier(serviceEnum.Name);
+			this.WriteLine();
 
 			using (this.AcquireIndentationContext())
 			{
@@ -60,7 +79,9 @@ namespace Fickle.Ficklefile
 
 		protected virtual void Write(ServiceClass serviceClass)
 		{
-			this.WriteLine("class {0}", serviceClass.Name);
+			this.Write("class ");
+			this.WriteIdentifier(serviceClass.Name);
+			this.WriteLine();
 
 			using (this.AcquireIndentationContext())
 			{
@@ -71,22 +92,26 @@ namespace Fickle.Ficklefile
 
 				foreach (var value in serviceClass.Properties)
 				{
-					this.WriteLine("{0}:{1}", value.Name, value.TypeName);
+					this.WriteIdentifier(value.Name);
+					this.Write(":");
+					this.WriteIdentifier(value.TypeName);
+					this.WriteLine();
 				}
 			}
 		}
 
 		protected virtual void Write(ServiceMethod serviceMethod)
 		{
-			this.Write("{0}(");
+			this.WriteIdentifier(serviceMethod.Name);
+			this.Write("(");
 
 			var i = 0;
 
 			foreach (var parameter in serviceMethod.Parameters)
 			{
-				this.Write(parameter.Name);
+				this.WriteIdentifier(parameter.Name);
 				this.Write(":");
-				this.Write(parameter.TypeName);
+				this.WriteIdentifier(parameter.TypeName);
 
 				if (i++ < serviceMethod.Parameters.Count - 1)
 				{
@@ -106,7 +131,8 @@ namespace Fickle.Ficklefile
 
 		protected virtual void Write(ServiceGateway serviceGateway)
 		{
-			this.WriteLine("gateway {0}", serviceGateway.Name);
+			this.Write("gateway ");
+			this.WriteIdentifier(serviceGateway.Name);
 
 			using (this.AcquireIndentationContext())
 			{
@@ -114,7 +140,7 @@ namespace Fickle.Ficklefile
 
 				foreach (var method in serviceGateway.Methods)
 				{
-					this.Write(method.Name);
+					this.WriteIdentifier(method.Name);
 
 					this.Write("(");
 
@@ -122,9 +148,9 @@ namespace Fickle.Ficklefile
 
 					foreach (var parameter in method.Parameters)
 					{
-						this.Write(parameter.Name);
+						this.WriteIdentifier(parameter.Name);
 						this.Write(":");
-						this.Write(parameter.TypeName);
+						this.WriteIdentifier(parameter.TypeName);
 
 						if (i++ < method.Parameters.Count - 1)
 						{
@@ -146,17 +172,7 @@ namespace Fickle.Ficklefile
 		{
 			this.ListAction(serviceModel.Enums, this.Write);
 			
-			if (serviceModel.Enums.Count > 0)
-			{
-				this.WriteLine();
-			}
-
 			this.ListAction(serviceModel.Classes, this.Write);
-
-			if (serviceModel.Classes.Count > 0)
-			{
-				this.WriteLine();
-			}
 
 			this.ListAction(serviceModel.Gateways, this.Write);
 		}

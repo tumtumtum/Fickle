@@ -56,23 +56,24 @@ namespace Fickle
 
 		public static ServiceModelCodeGenerator GetCodeGenerator(string language, IDirectory directory, CodeGenerationOptions options)
 		{
-			return ServiceModelCodeGenerator.GetCodeGenerator(language, (object)directory, options);
+			return GetCodeGenerator(language, (object)directory, options);
 		}
 
 		public static ServiceModelCodeGenerator GetCodeGenerator(string language, IFile file, CodeGenerationOptions options)
 		{
-			return ServiceModelCodeGenerator.GetCodeGenerator(language, (object)file, options);
+			return GetCodeGenerator(language, (object)file, options);
 		}
 
 		public static ServiceModelCodeGenerator GetCodeGenerator(string language, TextWriter writer, CodeGenerationOptions options)
 		{
-			return ServiceModelCodeGenerator.GetCodeGenerator(language, (object)writer, options);
+			return GetCodeGenerator(language, (object)writer, options);
 		}
 
 		public static ServiceModelCodeGenerator GetCodeGenerator(string language, object param, CodeGenerationOptions options)
 		{
 			var types = typeof(ServiceModelCodeGenerator).Assembly.GetTypes();
 			var serviceModelCodeGeneratorTypes = types.Where(c => typeof(ServiceModelCodeGenerator).IsAssignableFrom(c));
+
 			var generatorType = serviceModelCodeGeneratorTypes.FirstOrDefault(delegate(Type type)
 			{
 				if (Regex.Match(type.Name, language + "ServiceModelCodeGenerator$", RegexOptions.IgnoreCase).Success)
@@ -82,17 +83,12 @@ namespace Fickle
 
 				var attribute = type.GetFirstCustomAttribute<ServiceModelCodeGeneratorAttribute>(true);
 
-				if (attribute != null && attribute.Aliases.FirstOrDefault(c => c.Equals(language, StringComparison.InvariantCultureIgnoreCase)) != null)
-				{	
-					return true;
-				}
-
-				return false;
+				return attribute != null && attribute.Aliases.FirstOrDefault(c => c.Equals(language, StringComparison.InvariantCultureIgnoreCase)) != null;
 			});
 
 			if (generatorType != null)
 			{
-				return (ServiceModelCodeGenerator)Activator.CreateInstance(generatorType, new [] { param, options });
+				return (ServiceModelCodeGenerator)Activator.CreateInstance(generatorType, param, options);
 			}
 
 			return null;

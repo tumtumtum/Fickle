@@ -1,8 +1,4 @@
-﻿info
-	@name Test
-	@author Fickle
-
-enum Sex
+﻿enum Sex
 	Male : 1
 	Female : 2
 

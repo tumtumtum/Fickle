@@ -236,14 +236,14 @@ namespace Fickle.Generators
 			{
 				action(item);
 
-				if (insertLinesInbetween && i++ < items.Count - 1)
+				if (insertLinesInbetween && i++ < items.Count)
 				{
 					this.WriteLine();
 				}
 			}
 		}
 
-		protected String getTypeNameFromPrimitiveType(Type primitiveType)
+		protected String GetTypeNameFromPrimitiveType(Type primitiveType)
 		{
 			if (!typeNameByPrimitiveType.Keys.Contains(primitiveType))
 			{

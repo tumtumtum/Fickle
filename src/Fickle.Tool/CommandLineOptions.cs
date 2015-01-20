@@ -5,18 +5,21 @@ namespace Fickle.Tool
 	internal class CommandLineOptions
 	{
 		[Option('i', "input")]
-		public string InputFile { get; set; }
+		public string Input { get; set; }
+
+		[Option('o', "outputdir")]
+		public string Output { get; set; }
+
+		[Option('l', "lang")]
+		public string Language { get; set; }
 
 		[Option('n', "name")]
 		public string Name { get; set; }
-		
+
 		[Option('s', "summary")]
 		public string Summary { get; set; }
 
 		[Option('a', "author")]
 		public string Author { get; set; }
-
-		[Option("podspec-platforms")]
-		public string PodspecPlatforms { get; set; }
 	}
 }

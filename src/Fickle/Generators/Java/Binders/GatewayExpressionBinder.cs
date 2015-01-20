@@ -71,7 +71,7 @@ namespace Fickle.Generators.Java.Binders
 
 				if (contentParam == null)
 				{
-					throw new Exception("Post or Put method defined with null Content. You must define a @content field in your Ficklefile");
+					throw new Exception("Post or Put method defined with null Content. You must define a @content field in your FicklefileKeyword");
 				}
 
 				requestParameters = requestParameters.Where(x => x != contentParam).ToList();

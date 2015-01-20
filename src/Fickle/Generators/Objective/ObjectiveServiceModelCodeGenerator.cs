@@ -35,7 +35,11 @@ namespace Fickle.Generators.Objective
 
 		protected virtual void GeneratePodspec(ServiceModel serviceModel)
 		{
-			using (var writer = this.GetTextWriterForFile(this.Options.ServiceModelInfo.Name + ".podspec"))
+			var serviceModelInfo = serviceModel.ServiceModelInfo;
+			
+			serviceModelInfo.Import(this.Options.ServiceModelInfo);
+
+			using (var writer = this.GetTextWriterForFile(serviceModelInfo.Name + ".podspec"))
 			{
 				var podspecWriter = new PodspecWriter(writer);
 
