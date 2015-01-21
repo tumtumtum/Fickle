@@ -34,6 +34,11 @@ namespace Fickle.WebApi
 
 		private static void AddType(ISet<Type> set, Type type)
 		{
+			if (type == null)
+			{
+				return;
+			}
+
 			if (Nullable.GetUnderlyingType(type) != null)
 			{
 				type = Nullable.GetUnderlyingType(type);
@@ -196,12 +201,19 @@ namespace Fickle.WebApi
 						Returns = GetTypeName(api.ActionDescriptor.ReturnType),
 						Format = "json",
 						Method = api.HttpMethod.Method.ToLower(),
-						Parameters = api.ActionDescriptor.GetParameters().Select(d => new ServiceParameter
+						Parameters = api.ParameterDescriptions.Where(c => c.Source == ApiParameterSource.FromUri).Select(d => new ServiceParameter
 						{
-							Name = d.ParameterName,
-							TypeName = GetTypeName(d.ParameterType)
+							Name = d.ParameterDescriptor.ParameterName,
+							TypeName = GetTypeName(d.ParameterDescriptor.ParameterType)
 						}).ToList()
 					};
+
+					var content = api.ParameterDescriptions.SingleOrDefault(c => c.Source == ApiParameterSource.FromBody);
+					
+					if (content != null)
+					{
+						serviceMethod.Content = GetTypeName(content.ParameterDescriptor.ParameterType);
+					}
 
 					var bodyParameter = api.ParameterDescriptions.FirstOrDefault(c => c.ParameterDescriptor.ParameterBinderAttribute is FromBodyAttribute);
 
