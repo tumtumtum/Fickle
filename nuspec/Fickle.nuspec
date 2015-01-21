@@ -16,10 +16,10 @@
     <tags>sdk code generation web service wsdl</tags>
     <dependencies>
       <dependency id="log4net"/>
+      <dependency id="Microsoft.AspNet.WebApi" version="5.2.2"/>
       <dependency id="Microsoft.AspNet.WebApi.Client" version="5.2.2"/>
       <dependency id="Microsoft.AspNet.WebApi.Core" version="5.2.2"/>
       <dependency id="Newtonsoft.Json" version="6.0.6"/>
-      <dependency id="Microsoft.Net.Http" version="2.2.28" />
       <dependency id="Platform.NET" version="1.1.0.189"/>
       <dependency id="Platform.VirtualFileSystem" version="1.1.0.102"/>
       <dependency id="Platform.VirtualFileSystem.Providers.Zip" version="1.1.0.102"/>
