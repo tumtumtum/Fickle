@@ -34,6 +34,11 @@ namespace Fickle.WebApi
 
 		private static void AddType(ISet<Type> set, Type type)
 		{
+			if (Nullable.GetUnderlyingType(type) != null)
+			{
+				type = Nullable.GetUnderlyingType(type);
+			}
+
 			if (set.Contains(type))
 			{
 				return;
@@ -47,6 +52,16 @@ namespace Fickle.WebApi
 			while (!IsBaseType(type))
 			{
 				set.Add(type);
+
+				if (typeof(IEnumerable<>).IsAssignableFromIgnoreGenericParameters(type))
+				{
+					var elementType = type.GetSequenceElementType();
+
+					if (elementType != null)
+					{
+						AddType(set, elementType);
+					}
+				}
 
 				foreach (var property in type.GetProperties(BindingFlags.Public | BindingFlags.Instance))
 				{
