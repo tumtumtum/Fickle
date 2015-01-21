@@ -34,6 +34,11 @@ namespace Fickle.WebApi
 
 		private static void AddType(ISet<Type> set, Type type)
 		{
+			if (set.Contains(type))
+			{
+				return;
+			}
+
 			if (IsBaseType(type))
 			{
 				return;
