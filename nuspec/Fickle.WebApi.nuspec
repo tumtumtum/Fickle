@@ -1,16 +1,16 @@
 <?xml version="1.0"?>
 <package >
   <metadata>
-    <id>Fickle</id>
+    <id>Fickle.WebApi</id>
     <version>$version$</version>
-    <title>Ficklefile generator for WebApi projects</title>
+    <title>Ficklefile reflector for WebApi projects</title>
     <summary>Supports generating Fickle web service descriptors (Ficklefile) for WebApi projects</summary>
     <authors>Thong Nguyen</authors>
     <owners>Thong Nguyen</owners>
     <licenseUrl>https://raw.github.com/tumtumtum/Fickle/master/LICENSE.txt</licenseUrl>
     <projectUrl>https://github.com/tumtumtum/Fickle</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
-    <description>A library for generating web service SDKs for Objective-C, Java and Javascript</description>
+    <description>Adds a Ficklefile controller that enables Ficklefile generation for your WebApi project</description>
     <releaseNotes>$releasenotes$</releaseNotes>
     <copyright>Copyright (c) 2007-2015 Thong Nguyen (tumtumtum@gmail.com)</copyright>
     <tags>sdk code generation web service wsdl fickle ficklefile</tags>
