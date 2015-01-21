@@ -133,6 +133,7 @@ namespace Fickle.Ficklefile
 		{
 			this.Write("gateway ");
 			this.WriteIdentifier(serviceGateway.Name);
+			this.WriteLine();
 
 			using (this.AcquireIndentationContext())
 			{

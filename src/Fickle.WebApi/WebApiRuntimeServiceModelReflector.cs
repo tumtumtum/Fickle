@@ -192,6 +192,7 @@ namespace Fickle.WebApi
 				var serviceGateway = new ServiceGateway
 				{
 					BaseTypeName = null,
+					Name = controller.ControllerName,
 					Hostname = hostname,
 					Methods = methods
 				};
