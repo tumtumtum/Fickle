@@ -39,9 +39,14 @@ namespace Fickle.WebApi
 				return;
 			}
 
-			 while (!IsBaseType(type))
+			while (!IsBaseType(type))
 			{
 				set.Add(type);
+
+				foreach (var property in type.GetProperties(BindingFlags.Public | BindingFlags.Instance))
+				{
+					AddType(set, property.PropertyType);
+				}
 
 				type = type.BaseType;
 			}
@@ -54,7 +59,7 @@ namespace Fickle.WebApi
 			foreach (var description in descriptions)
 			{
 				AddType(types, description.ActionDescriptor.ReturnType);
-
+				
 				foreach (var type in description.ParameterDescriptions.Select(c => c.ParameterDescriptor.ParameterType))
 				{
 					AddType(types, type);
