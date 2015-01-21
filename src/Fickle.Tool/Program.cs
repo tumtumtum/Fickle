@@ -15,7 +15,12 @@ namespace Fickle.Tool
 
 			CommandLine.Parser.Default.ParseArguments(args, options);
 
-			using (var stream = new FileStream(options.Input, FileMode.Open, FileAccess.Read))
+			if (options.Input.IndexOf(":", StringComparison.Ordinal) <= 0)
+			{
+				options.Input = "./" + options.Input;
+			}
+
+			using (var stream = FileSystemManager.Default.ResolveFile(options.Input).GetContent().GetInputStream(FileShare.Read))
 			{
 				using (var reader = new StreamReader(stream))
 				{
