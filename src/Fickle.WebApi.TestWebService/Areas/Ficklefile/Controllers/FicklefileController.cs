@@ -2,7 +2,7 @@
 using System.Web.Mvc;
 using Fickle.Ficklefile;
 using Fickle.Reflectors;
-using Fickle.Reflectors.WebApiRuntime;
+using Fickle.WebApi;
 
 namespace Fickle.WebApi.TestWebService.Areas.Ficklefile.Controllers
 {

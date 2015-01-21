@@ -231,6 +231,10 @@
     <None Include="Project_Readme.html" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Fickle.WebApi\Fickle.WebApi.csproj">
+      <Project>{a9600aed-c73a-4f5a-acad-6e1d157fd47a}</Project>
+      <Name>Fickle.WebApi</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Fickle\Fickle.csproj">
       <Project>{aa0ed558-3bf6-4ced-8897-415b4d0c858d}</Project>
       <Name>Fickle</Name>

@@ -10,9 +10,10 @@ using System.Web.Http.Controllers;
 using System.Web.Http.Description;
 using System.Web.Http.Hosting;
 using Fickle.Model;
+using Fickle.Reflectors;
 using Platform;
 
-namespace Fickle.Reflectors.WebApiRuntime
+namespace Fickle.WebApi
 {
 	public class WebApiRuntimeServiceModelReflector
 		: ServiceModelReflector
