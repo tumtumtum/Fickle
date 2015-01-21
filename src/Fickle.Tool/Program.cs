@@ -8,12 +8,24 @@ namespace Fickle.Tool
 {
 	class Program
 	{
-		static void Main(string[] args)
+		static int Main(string[] args)
 		{
 			ServiceModel serviceModel;
 			var options = new CommandLineOptions();
 
-			CommandLine.Parser.Default.ParseArguments(args, options);
+			if (!CommandLine.Parser.Default.ParseArguments(args, options))
+			{
+				Console.Error.WriteLine("Unable to parse command line arguments");
+
+				return 1;
+			}
+
+			if (options.Input == null)
+			{
+				Console.Error.WriteLine("Must specify input file");
+
+				return 1;
+			}
 
 			if (options.Input.IndexOf(":", StringComparison.Ordinal) <= 0)
 			{
@@ -63,6 +75,8 @@ namespace Fickle.Tool
 			{
 				codeGenerator.Generate(serviceModel);
 			}
+
+			return 0;
 		}
 	}
 }
