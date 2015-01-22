@@ -18,11 +18,13 @@ namespace Fickle.WebApi
 	public class WebApiRuntimeServiceModelReflector
 		: ServiceModelReflector
 	{
+		private readonly Assembly referencingAssembly;
 		public HttpConfiguration Configuration { get; private set; }
 		public ServiceModelReflectionOptions Options { get; private set; }
 
-		public WebApiRuntimeServiceModelReflector(ServiceModelReflectionOptions options, HttpConfiguration configuration)
+		public WebApiRuntimeServiceModelReflector(ServiceModelReflectionOptions options, HttpConfiguration configuration, Assembly referencingAssembly)
 		{
+			this.referencingAssembly = referencingAssembly;
 			this.Options = options;
 			this.Configuration = configuration;
 		}
@@ -145,6 +147,8 @@ namespace Fickle.WebApi
 			var referencedTypes = GetReferencedTypes(descriptions).ToList();
 			var controllers = descriptions.Select(c => c.ActionDescriptor.ControllerDescriptor).ToHashSet();
 
+			var serviceModelInfo = new ServiceModelInfo();
+
 			foreach (var enumType in referencedTypes.Where(c => c.BaseType == typeof(Enum)))
 			{
 				var serviceEnum = new ServiceEnum
@@ -219,10 +223,22 @@ namespace Fickle.WebApi
 					methods.Add(serviceMethod);
 				}
 
+				var serviceNameSuffix = "Service";
+				var attribute = this.referencingAssembly.GetCustomAttribute<FickleSdkInfoAttribute>();
+
+				if (attribute != null)
+				{
+					serviceNameSuffix = attribute.ServiceNameSuffix ?? serviceNameSuffix;
+					serviceModelInfo.Name = attribute.Name ?? serviceModelInfo.Name;
+					serviceModelInfo.Summary = attribute.Summary ?? serviceModelInfo.Summary;
+					serviceModelInfo.Author = attribute.Author ?? serviceModelInfo.Author;
+					serviceModelInfo.Version = attribute.Version ?? serviceModelInfo.Version;
+				}
+
 				var serviceGateway = new ServiceGateway
 				{
 					BaseTypeName = null,
-					Name = controller.ControllerName,
+					Name = controller.ControllerName + serviceNameSuffix,
 					Hostname = hostname,
 					Methods = methods
 				};
@@ -230,7 +246,7 @@ namespace Fickle.WebApi
 				gateways.Add(serviceGateway);
 			}
 
-			return new ServiceModel(new ServiceModelInfo(), enums, classes, gateways);
+			return new ServiceModel(serviceModelInfo, enums, classes, gateways);
 		}
 	}
 }

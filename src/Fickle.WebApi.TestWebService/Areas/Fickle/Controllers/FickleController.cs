@@ -22,7 +22,7 @@ namespace Fickle.WebApi.TestWebService.Areas.Fickle.Controllers
 
 		public ActionResult Index()
 		{
-			var reflector = new WebApiRuntimeServiceModelReflector(new ServiceModelReflectionOptions(), this.Configuration);
+			var reflector = new WebApiRuntimeServiceModelReflector(new ServiceModelReflectionOptions(), this.Configuration, this.GetType().Assembly);
 			var serviceModel = reflector.Reflect();
 			var writer = new FicklefileWriter(this.Response.Output);
 

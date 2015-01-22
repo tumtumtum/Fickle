@@ -69,6 +69,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="FickleSdkInfoAttribute.cs" />
     <Compile Include="InternalEnumerableExtensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="WebApiRuntimeServiceModelReflector.cs" />
