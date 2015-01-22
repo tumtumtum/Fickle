@@ -48,6 +48,9 @@
     <Reference Include="Platform.VirtualFileSystem">
       <HintPath>..\..\src\packages\Platform.VirtualFileSystem.1.1.0.102\lib\net40\Platform.VirtualFileSystem.dll</HintPath>
     </Reference>
+    <Reference Include="Platform.Xml.Serialization">
+      <HintPath>..\..\src\packages\Platform.Xml.Serialization.1.1.0.189\lib\net40\Platform.Xml.Serialization.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Web.Helpers, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
