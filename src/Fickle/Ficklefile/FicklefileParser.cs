@@ -404,7 +404,16 @@ namespace Fickle.Ficklefile
 					return false;
 				}
 
-				property.SetValue(target, Convert.ChangeType(annotation.Value.Trim(), property.PropertyType), null);
+				if (property.PropertyType.GetUnwrappedNullableType() == typeof(bool))
+				{
+					var s = annotation.Value.Trim();
+
+					property.SetValue(target, s == "yes" || s == "true" || s == "1", null);
+				}
+				else
+				{
+					property.SetValue(target, Convert.ChangeType(annotation.Value.Trim(), property.PropertyType), null);
+				}
 
 				return true;
 			}
