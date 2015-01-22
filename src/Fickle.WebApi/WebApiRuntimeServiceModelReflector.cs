@@ -129,7 +129,7 @@ namespace Fickle.WebApi
 		public override ServiceModel Reflect()
 		{
 			var descriptions = Configuration.Services.GetApiExplorer().ApiDescriptions;
-
+			
 			var httpRequestMessage = HttpContext.Current.Items["MS_HttpRequestMessage"] as HttpRequestMessage;
 			var httpRequestContext = httpRequestMessage.Properties[HttpPropertyKeys.RequestContextKey] as HttpRequestContext;
 

@@ -2,7 +2,7 @@
 
 namespace Fickle
 {
-	public struct ServiceModelInfo
+	public class ServiceModelInfo
 	{
 		public string Name { get; set; }
 		public string Version { get; set; }

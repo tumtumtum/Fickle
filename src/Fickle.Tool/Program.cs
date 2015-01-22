@@ -32,6 +32,11 @@ namespace Fickle.Tool
 				options.Input = "./" + options.Input;
 			}
 
+			if (!string.IsNullOrEmpty(options.Output) && options.Output.IndexOf(":", StringComparison.Ordinal) <= 0)
+			{
+				options.Output = "./" + options.Output;
+			}
+
 			using (var stream = FileSystemManager.Default.ResolveFile(options.Input).GetContent().GetInputStream(FileShare.Read))
 			{
 				using (var reader = new StreamReader(stream))

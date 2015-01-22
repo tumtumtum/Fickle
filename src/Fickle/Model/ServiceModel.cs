@@ -16,7 +16,7 @@ namespace Fickle.Model
 
 		public ServiceModel(ServiceModelInfo serviceModelInfo, IEnumerable<ServiceEnum> enums, IEnumerable<ServiceClass> classes, IEnumerable<ServiceGateway> gateways)
 		{
-			this.ServiceModelInfo = serviceModelInfo;
+			this.ServiceModelInfo = serviceModelInfo ?? new ServiceModelInfo();
 			this.Enums = enums.ToReadOnlyCollection();
 			this.Classes = classes.ToReadOnlyCollection();
 			this.Gateways = gateways.ToReadOnlyCollection();
