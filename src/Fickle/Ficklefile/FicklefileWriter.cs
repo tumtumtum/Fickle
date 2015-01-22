@@ -171,7 +171,7 @@ namespace Fickle.Ficklefile
 
 		protected virtual void WriteServiceModelInfo(ServiceModelInfo serviceModelInfo)
 		{
-			if (serviceModelInfo.HasAnyNonNullValues)
+			if (serviceModelInfo.HasAnyNonNullValues())
 			{
 				this.WriteLine("info");
 

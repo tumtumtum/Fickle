@@ -18,11 +18,14 @@ namespace Fickle
 		[ServiceAnnotation]
 		public string Author { get; set; }
 
-		public bool HasAnyNonNullValues { get { return this.GetType().GetProperties(BindingFlags.Instance | BindingFlags.Public).Select(property => property.GetValue(this)).Any(value => value != null); } }
+		public bool HasAnyNonNullValues()
+		{
+			return this.GetType().GetProperties(BindingFlags.Instance | BindingFlags.Public).Where(c => c.GetCustomAttribute<ServiceAnnotationAttribute>() != null).Select(property => property.GetValue(this)).Any(value => value != null);
+		}
 
 		public void Import(ServiceModelInfo serviceModelInfo)
 		{
-			foreach (var property in this.GetType().GetProperties(BindingFlags.Instance | BindingFlags.Public))
+			foreach (var property in this.GetType().GetProperties(BindingFlags.Instance | BindingFlags.Public).Where(c => c.GetCustomAttribute<ServiceAnnotationAttribute>() != null))
 			{
 				var value = property.GetValue(serviceModelInfo);
 
