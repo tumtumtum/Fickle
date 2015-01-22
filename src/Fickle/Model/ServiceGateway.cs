@@ -4,7 +4,6 @@ namespace Fickle.Model
 {
 	public class ServiceGateway
 	{
-		[ServiceAnnotation] 
 		public string Name { get; set; }
 		
 		[ServiceAnnotation] 

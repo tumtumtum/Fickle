@@ -4,19 +4,19 @@ using Fickle.Ficklefile;
 using Fickle.Reflectors;
 using Fickle.WebApi;
 
-namespace Fickle.WebApi.TestWebService.Areas.Ficklefile.Controllers
+namespace Fickle.WebApi.TestWebService.Areas.Fickle.Controllers
 {
-    public class FicklefileController
+    public class Fickle
 		: Controller
     {
 		public HttpConfiguration Configuration { get; private set; }
 
-		public FicklefileController()
+		public Fickle()
             : this(GlobalConfiguration.Configuration)
         {
         }
 
-		public FicklefileController(HttpConfiguration config)
+		public Fickle(HttpConfiguration config)
         {
             this.Configuration = config;
         }
