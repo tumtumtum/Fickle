@@ -169,12 +169,26 @@ namespace Fickle.Ficklefile
 			}
 		}
 
+		protected virtual void WriteServiceModelInfo(ServiceModelInfo serviceModelInfo)
+		{
+			if (serviceModelInfo.HasAnyNonNullValues)
+			{
+				this.WriteLine("info");
+
+				using (this.AcquireIndentationContext())
+				{
+					this.WriteAnnotations(serviceModelInfo);
+				}
+
+				this.WriteLine();
+			}
+		}
+
 		public virtual void Write(ServiceModel serviceModel)
 		{
+			this.WriteServiceModelInfo(serviceModel.ServiceModelInfo);
 			this.ListAction(serviceModel.Enums, this.Write);
-			
 			this.ListAction(serviceModel.Classes, this.Write);
-
 			this.ListAction(serviceModel.Gateways, this.Write);
 		}
 	}
