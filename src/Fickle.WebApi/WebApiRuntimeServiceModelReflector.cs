@@ -208,19 +208,12 @@ namespace Fickle.WebApi
 						}).ToList()
 					};
 
-					var content = api.ParameterDescriptions.SingleOrDefault(c => c.Source == ApiParameterSource.FromBody);
+					var contentParameter = api.ParameterDescriptions.SingleOrDefault(c => c.Source == ApiParameterSource.FromBody);
 					
-					if (content != null)
+					if (contentParameter != null)
 					{
-						serviceMethod.Content = GetTypeName(content.ParameterDescriptor.ParameterType);
-					}
-
-					var bodyParameter = api.ParameterDescriptions.FirstOrDefault(c => c.ParameterDescriptor.ParameterBinderAttribute is FromBodyAttribute);
-
-					if (bodyParameter != null)
-					{
-						serviceMethod.Content = bodyParameter.Name;
-						serviceMethod.ContentServiceParameter = serviceMethod.Parameters.FirstOrDefault(c => c.Name == bodyParameter.Name);
+						serviceMethod.Content = contentParameter.Name;
+						serviceMethod.ContentServiceParameter = serviceMethod.Parameters.FirstOrDefault(c => c.Name == contentParameter.Name);
 					}
 
 					methods.Add(serviceMethod);
