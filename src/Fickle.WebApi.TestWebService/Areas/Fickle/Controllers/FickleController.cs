@@ -6,17 +6,17 @@ using Fickle.WebApi;
 
 namespace Fickle.WebApi.TestWebService.Areas.Fickle.Controllers
 {
-    public class Fickle
+    public class FickleController
 		: Controller
     {
 		public HttpConfiguration Configuration { get; private set; }
 
-		public Fickle()
+		public FickleController()
             : this(GlobalConfiguration.Configuration)
         {
         }
 
-		public Fickle(HttpConfiguration config)
+		public FickleController(HttpConfiguration config)
         {
             this.Configuration = config;
         }
