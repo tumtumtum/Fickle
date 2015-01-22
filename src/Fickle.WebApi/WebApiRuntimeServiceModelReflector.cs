@@ -201,7 +201,7 @@ namespace Fickle.WebApi
 						Returns = GetTypeName(api.ActionDescriptor.ReturnType),
 						Format = "json",
 						Method = api.HttpMethod.Method.ToLower(),
-						Parameters = api.ParameterDescriptions.Where(c => c.Source == ApiParameterSource.FromUri).Select(d => new ServiceParameter
+						Parameters = api.ParameterDescriptions.Select(d => new ServiceParameter
 						{
 							Name = d.ParameterDescriptor.ParameterName,
 							TypeName = GetTypeName(d.ParameterDescriptor.ParameterType)
