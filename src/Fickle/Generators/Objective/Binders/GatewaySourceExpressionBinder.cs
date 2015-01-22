@@ -176,13 +176,25 @@ namespace Fickle.Generators.Objective.Binders
 			else
 			{
 				var contentParameterName = method.Attributes["Content"];
-				var content = parametersByName[contentParameterName];
 
-				clientCallExpression = FickleExpression.Call(client, "postWithRequestObject", new
+				if (string.IsNullOrEmpty(contentParameterName))
 				{
-					requestObject = FickleExpression.Call(self, typeof(object), this.GetNormalizeRequestMethodName(content.Type), Expression.Convert(content, typeof(object))),
-					andCallback = conversionBlock
-				});
+					clientCallExpression = FickleExpression.Call(client, "postWithRequestObject", new
+					{
+						requestObject = Expression.Constant(null, typeof(object)),
+						andCallback = conversionBlock
+					});
+				}
+				else
+				{
+					var content = parametersByName[contentParameterName];
+
+					clientCallExpression = FickleExpression.Call(client, "postWithRequestObject", new
+					{
+						requestObject = FickleExpression.Call(self, typeof(object), this.GetNormalizeRequestMethodName(content.Type), Expression.Convert(content, typeof(object))),
+						andCallback = conversionBlock
+					});
+				}
 			}
 
 			var error = FickleExpression.Variable("NSError", "error");

@@ -52,7 +52,7 @@ namespace Fickle.Ficklefile
 
 					if (value is bool)
 					{
-						this.WriteLine(value.ToString().ToLower());
+						this.WriteLine((bool)value ? "yes" : "no");
 					}
 					else
 					{
