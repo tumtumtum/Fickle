@@ -24,5 +24,8 @@ namespace Fickle.Tool
 
 		[Option('v', "version")]
 		public string Version { get; set; }
+
+		[Option("podspecsource")]
+		public string PodspecSource { get; set; }
 	}
 }

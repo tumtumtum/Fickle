@@ -20,6 +20,14 @@ namespace Fickle.Generators.Objective
 				this.WriteLine("s.version = '{0}'", serviceModelInfo.Version);
 				this.WriteLine("s.summary = '{0}'", serviceModelInfo.Summary);
 				this.WriteLine("s.author = '{0}'", serviceModelInfo.Author);
+
+				string value;
+
+				if (serviceModelInfo.ExtendedValues.TryGetValue("podspec.source", out value))
+				{
+					this.WriteLine("s.source = { :git => \"" + value + "\", :tag => s.version.to_s}");
+				}
+
 				this.WriteLine("s.ios.deployment_target = '5.1'");
 				this.WriteLine("s.osx.deployment_target = '10.7'");
 				this.WriteLine("s.requires_arc = true");
