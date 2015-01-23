@@ -29,19 +29,17 @@ namespace Fickle.Generators.Objective
 
 		public override void Generate(ServiceModel serviceModel)
 		{
-			serviceModel.ServiceModelInfo.Import(this.Options.ServiceModelInfo);
-
 			base.Generate(serviceModel);
 			this.GeneratePodspec(serviceModel);
 		}
 
 		protected virtual void GeneratePodspec(ServiceModel serviceModel)
 		{
-			using (var writer = this.GetTextWriterForFile(serviceModel.ServiceModelInfo.Name + ".podspec"))
+			using (var writer = this.GetTextWriterForFile(this.Options.ServiceModelInfo.Name + ".podspec"))
 			{
 				var podspecWriter = new PodspecWriter(writer);
 
-				podspecWriter.Write(serviceModel.ServiceModelInfo);
+				podspecWriter.Write(this.Options.ServiceModelInfo);
 			}
 		}
 

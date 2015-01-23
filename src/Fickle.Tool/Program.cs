@@ -57,7 +57,11 @@ namespace Fickle.Tool
 			}
 
 			var codeGenerationOptions = new CodeGenerationOptions();
-			var serviceModelInfo = codeGenerationOptions.ServiceModelInfo;
+			var defaultServiceModelInfo = codeGenerationOptions.ServiceModelInfo;
+			var serviceModelInfo = new ServiceModelInfo();
+
+			serviceModelInfo.Import(defaultServiceModelInfo);
+			serviceModelInfo.Import(serviceModel.ServiceModelInfo);
 			
 			if (options.Author != null)
 			{
@@ -72,6 +76,11 @@ namespace Fickle.Tool
 			if (options.Summary != null)
 			{
 				serviceModelInfo.Summary = options.Summary;
+			}
+
+			if (options.Version != null)
+			{
+				serviceModelInfo.Version = options.Version;
 			}
 
 			codeGenerationOptions.ServiceModelInfo = serviceModelInfo;

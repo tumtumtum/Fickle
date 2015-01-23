@@ -21,5 +21,8 @@ namespace Fickle.Tool
 
 		[Option('a', "author")]
 		public string Author { get; set; }
+
+		[Option('v', "version")]
+		public string Version { get; set; }
 	}
 }
