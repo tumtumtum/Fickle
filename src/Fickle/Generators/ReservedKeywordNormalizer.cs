@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
 using Fickle.Expressions;
@@ -65,6 +66,16 @@ namespace Fickle.Generators
 			return memberInfo;
 		}
 
+		protected override Expression VisitMethodDefinitionExpression(MethodDefinitionExpression method)
+		{
+			if (method.Name == "allPropertiesAsDictionary")
+			{
+				Console.WriteLine();
+			}
+
+			return base.VisitMethodDefinitionExpression(method);
+		}
+
 		protected override MemberAssignment VisitMemberAssignment(MemberAssignment node)
 		{
 			var replacement = this.Normalize(node.Member);
@@ -77,6 +88,16 @@ namespace Fickle.Generators
 			{
 				return base.VisitMemberAssignment(node);
 			}
+		}
+
+		protected override Expression VisitTypeDefinitionExpression(TypeDefinitionExpression expression)
+		{
+			if (expression.Type.Name == "AssetFileInfo")
+			{
+				Console.WriteLine();
+			}
+
+			return base.VisitTypeDefinitionExpression(expression);
 		}
 
 		protected override Expression VisitMember(MemberExpression node)

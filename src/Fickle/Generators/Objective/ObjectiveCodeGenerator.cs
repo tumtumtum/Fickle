@@ -515,14 +515,7 @@ namespace Fickle.Generators.Objective
 				this.Visit(node.Expression);
 				this.Write('.');
 
-				if (node.Member is PropertyInfo)
-				{
-					this.Write(node.Member.Name.Uncapitalize());
-				}
-				else
-				{
-					this.Write(node.Member.Name);
-				}
+				this.Write(node.Member.Name);
 			}
 
 			return node;

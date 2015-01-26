@@ -131,12 +131,12 @@ namespace Fickle.Generators.Objective.Binders
 		{
 			var self = Expression.Variable(this.type, "self");
 			var retval = FickleExpression.Variable("NSDictionary", "retval");
-			var propertyExpression = FickleExpression.Property(self, property.PropertyType, property.PropertyName);
+			var propertyExpression = FickleExpression.Property(self, property.PropertyType, property.PropertyName.Uncapitalize());
 
 			var expression = GetSerializeExpression(property.PropertyType, propertyExpression, context.Options, false, c => FickleExpression.Call(retval, "setObject", new
 			{
 				obj = Expression.Convert(c, typeof(object)),
-				forKey = Expression.Constant(property.PropertyName)
+				forKey = Expression.Constant(property.PropertyName.Uncapitalize())
 			}).ToStatement());
 
 			this.propertySetterExpressions.Add(new [] { FickleExpression.Comment(property.PropertyName), expression }.ToGroupedExpression(GroupedExpressionsExpressionStyle.Wide));
