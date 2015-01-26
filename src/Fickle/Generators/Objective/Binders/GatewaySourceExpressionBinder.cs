@@ -12,6 +12,7 @@ namespace Fickle.Generators.Objective.Binders
 	public class GatewaySourceExpressionBinder
 		: ServiceExpressionVisitor
 	{
+		private int methodCount = 0;
 		private Type currentType;
 		private HashSet<Type> currentReturnTypes; 
 		private TypeDefinitionExpression currentTypeDefinitionExpression;
@@ -60,6 +61,8 @@ namespace Fickle.Generators.Objective.Binders
 		protected override Expression VisitMethodDefinitionExpression(MethodDefinitionExpression method)
 		{
 			var methodName = method.Name.Uncapitalize();
+
+			methodCount++;
 			
 			var self = Expression.Variable(currentType, "self");
 			var hostname = Expression.Variable(typeof(string), "hostname");
@@ -596,8 +599,7 @@ namespace Fickle.Generators.Objective.Binders
 			var expressions = new List<Expression>
 			{
 				CreateCreateClientMethod(),
-				CreateInitWithOptionsMethod(),
-				this.CreateCreateErrorResponseWithErrorCodeMethod(),
+				CreateInitWithOptionsMethod()
 			};
 
 			var rawParameterTypes = ParameterTypesCollector.Collect(expression, c => c.Attributes["Method"].EqualsIgnoreCase("post") && c.Attributes.ContainsKey("Content")).Select(c => c.GetFickleListElementType() ?? c).Select(c => c.GetUnwrappedNullableType()).Distinct();
@@ -608,8 +610,15 @@ namespace Fickle.Generators.Objective.Binders
 			}
 
 			expressions.Add(this.Visit(expression.Body));
+			
+			if (methodCount > 0)
+			{
+				expressions.Add(this.CreateCreateErrorResponseWithErrorCodeMethod());
+				expressions.Add(this.CreateParseResultMethod());
+			}
+
 			expressions.Add(this.CreateSerializeRequestMethod());
-			expressions.Add(this.CreateParseResultMethod());
+			
 
 			var body = GroupedExpressionsExpression.FlatConcat
 			(
