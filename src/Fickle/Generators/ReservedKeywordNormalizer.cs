@@ -71,7 +71,7 @@ namespace Fickle.Generators
 
 			if (replacement != node.Member)
 			{
-				return Expression.Bind(replacement, node.Expression);
+				return Expression.Bind(replacement, this.Visit(node.Expression));
 			}
 			else
 			{
@@ -81,7 +81,7 @@ namespace Fickle.Generators
 
 		protected override Expression VisitMember(MemberExpression node)
 		{
-			if (node.NodeType == ExpressionType.MemberAccess && (reservedKeywords.Contains(node.Member.Name)))
+			if (node.NodeType == ExpressionType.MemberAccess)
 			{
 				var replacement = this.Normalize(node.Member);
 
@@ -89,11 +89,11 @@ namespace Fickle.Generators
 				{
 					if (node.Member is FickleMethodInfo)
 					{
-						return Expression.MakeMemberAccess(node.Expression, replacement);
+						return Expression.MakeMemberAccess(this.Visit(node.Expression), replacement);
 					}
 					else if (node.Member is FicklePropertyInfo)
 					{
-						return Expression.MakeMemberAccess(node.Expression, replacement);
+						return Expression.MakeMemberAccess(this.Visit(node.Expression), replacement);
 					}
 				}
 			}
