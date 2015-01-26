@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 using Fickle.Expressions;
 using Fickle.Model;
+using Platform;
 
 namespace Fickle.Generators.Objective.Binders
 {
@@ -36,8 +37,8 @@ namespace Fickle.Generators.Objective.Binders
 		{
 			var self = Expression.Parameter(this.theCopy.Type, "self");
 
-			var propertyOnTheCopy = Expression.Property(this.theCopy, property.PropertyName);
-			var propertyOnSelf = (Expression)Expression.Property(self, property.PropertyName);
+			var propertyOnTheCopy = Expression.Property(this.theCopy, property.PropertyName.Uncapitalize());
+			var propertyOnSelf = (Expression)Expression.Property(self, property.PropertyName.Uncapitalize());
 
 			var propertyType = propertyOnTheCopy.Type;
 
