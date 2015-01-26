@@ -75,7 +75,7 @@ namespace Fickle.Generators
 			}
 			else
 			{
-				return node;
+				return base.VisitMemberAssignment(node);
 			}
 		}
 
