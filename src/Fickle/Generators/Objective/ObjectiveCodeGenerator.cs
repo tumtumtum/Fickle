@@ -204,6 +204,11 @@ namespace Fickle.Generators.Objective
 				if ((node.Type == typeof(Guid) || node.Type == typeof(Guid?))
 					&& node.Operand.Type != FickleType.Define("id"))
 				{
+					if (node.Operand.Type.GetUnwrappedNullableType() == typeof(Guid))
+					{
+						return node;
+					}
+
 					this.Write("[");
 					this.Write(typeof(Guid), true);
 					this.Write(" uuidFromString:");

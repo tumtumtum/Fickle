@@ -8,15 +8,14 @@ using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
 using Fickle.Expressions;
-using Platform.VirtualFileSystem.Providers.View;
 
 namespace Fickle.Generators
 {
 	public abstract class SourceCodeGenerator
 		: ServiceExpressionVisitor
 	{
-		public static String ToStringMethod = "toStringType";
-		public static String ToObjectMethod = "toObjectType";
+		public static String ToStringMethod = "ToString";
+		public static String ToObjectMethod = "ToObject";
 
 		public int CurrentIndent { get; protected internal set; }
 
