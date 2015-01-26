@@ -1039,7 +1039,7 @@ namespace Fickle.Generators.Objective
 			}
 			else
 			{
-				if ((method.AccessModifiers | AccessModifiers.Static) == AccessModifiers.Static)
+				if ((method.AccessModifiers & AccessModifiers.Static) == AccessModifiers.Static)
 				{
 					this.Write("+");
 				}
