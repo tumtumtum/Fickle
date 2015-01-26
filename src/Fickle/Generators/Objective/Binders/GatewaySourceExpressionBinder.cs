@@ -87,7 +87,7 @@ namespace Fickle.Generators.Objective.Binders
 				var parameter = parametersByName[name];
 				var type = parameter.Type;
 
-				if (type == typeof(byte) || type == typeof(short) || type == typeof(int) || type == typeof(long))
+				if (type == typeof(byte) || type == typeof(short) || type == typeof(int))
 				{
 					parameters.Add(Expression.Parameter(parameter.Type, parameter.Name));
 					args.Add(parameter);
