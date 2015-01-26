@@ -206,6 +206,8 @@ namespace Fickle.Generators.Objective
 				{
 					if (node.Operand.Type.GetUnwrappedNullableType() == typeof(Guid))
 					{
+						this.Visit(node.Operand);
+
 						return node;
 					}
 
@@ -1037,7 +1039,7 @@ namespace Fickle.Generators.Objective
 			}
 			else
 			{
-				if ((method.AccessModifiers & AccessModifiers.Static) != 0)
+				if ((method.AccessModifiers | AccessModifiers.Static) == AccessModifiers.Static)
 				{
 					this.Write("+");
 				}
