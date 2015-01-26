@@ -45,7 +45,13 @@ namespace Fickle.Generators.Objective
 			"class",
 			"void",
 			"public",
-			"property"
+			"property",
+			"description",
+			"interface",
+			"protocol",
+			"end",
+			"readwrite",
+			"copy"
 		};
 
 		public ObjectiveCodeGenerator(TextWriter writer)

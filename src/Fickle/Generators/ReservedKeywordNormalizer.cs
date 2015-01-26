@@ -11,7 +11,7 @@ namespace Fickle.Generators
 		: ServiceExpressionVisitor
 	{
 		private readonly string replacementPrefix;
-		private readonly HashSet<string> reservedKeywords = new HashSet<string>();
+		private readonly HashSet<string> reservedKeywords;
 
 		private ReservedKeywordNormalizer(string  replacementPrefix, IEnumerable<string> reservedKeywords)
 		{
