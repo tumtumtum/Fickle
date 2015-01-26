@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq.Expressions;
+using System.Reflection;
 using Fickle.Expressions;
 
 namespace Fickle.Generators
@@ -28,12 +29,76 @@ namespace Fickle.Generators
 		{
 			if (reservedKeywords.Contains(property.PropertyName))
 			{
-				return new PropertyDefinitionExpression(property.PropertyName, property.PropertyType, property.IsPredeclatation);
+				return new PropertyDefinitionExpression(replacementPrefix + property.PropertyName, property.PropertyType, property.IsPredeclatation);
 			}
 			else
 			{
 				return base.VisitPropertyDefinitionExpression(property);
 			}
+		}
+
+		protected MemberInfo Normalize(MemberInfo memberInfo)
+		{
+			if (memberInfo is FickleMethodInfo)
+			{
+				var methodInfo = (FickleMethodInfo)memberInfo;
+
+				if (reservedKeywords.Contains(methodInfo.Name))
+				{
+					methodInfo = new FickleMethodInfo(methodInfo.DeclaringType, methodInfo.ReturnType, replacementPrefix + methodInfo.Name, methodInfo.GetParameters(), methodInfo.IsStatic);
+
+					return methodInfo;
+				}
+			}
+			else if (memberInfo is FicklePropertyInfo)
+			{
+				var propertyInfo = (FicklePropertyInfo)memberInfo;
+
+				if (reservedKeywords.Contains(propertyInfo.Name))
+				{
+					propertyInfo = new FicklePropertyInfo(propertyInfo.DeclaringType, propertyInfo.PropertyType, replacementPrefix + propertyInfo.Name);
+
+					return propertyInfo;
+				}
+			}
+
+			return memberInfo;
+		}
+
+		protected override MemberAssignment VisitMemberAssignment(MemberAssignment node)
+		{
+			var replacement = this.Normalize(node.Member);
+
+			if (replacement != node.Member)
+			{
+				return Expression.Bind(replacement, node.Expression);
+			}
+			else
+			{
+				return node;
+			}
+		}
+
+		protected override Expression VisitMember(MemberExpression node)
+		{
+			if (node.NodeType == ExpressionType.MemberAccess && (reservedKeywords.Contains(node.Member.Name)))
+			{
+				var replacement = this.Normalize(node.Member);
+
+				if (replacement != node.Member)
+				{
+					if (node.Member is FickleMethodInfo)
+					{
+						return Expression.MakeMemberAccess(node.Expression, replacement);
+					}
+					else if (node.Member is FicklePropertyInfo)
+					{
+						return Expression.MakeMemberAccess(node.Expression, replacement);
+					}
+				}
+			}
+
+			return base.VisitMember(node);
 		}
 
 		protected override Expression VisitParameter(ParameterExpression node)

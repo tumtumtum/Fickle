@@ -94,6 +94,20 @@ namespace Fickle.Generators.Objective.Binders
 
 					return "%d";
 				}
+				else if (type == typeof(long))
+				{
+					parameters.Add(Expression.Parameter(parameter.Type, parameter.Name));
+					args.Add(parameter);
+
+					return "%ld";
+				}
+				else if (type == typeof(float) || type == typeof(double))
+				{
+					parameters.Add(Expression.Parameter(parameter.Type, parameter.Name));
+					args.Add(parameter);
+
+					return "%f";
+				}
 				else if (type == typeof(char))
 				{
 					parameters.Add(Expression.Parameter(parameter.Type, parameter.Name));
