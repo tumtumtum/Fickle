@@ -192,9 +192,11 @@ namespace Fickle.WebApi
 				{
 					var formatters = api.ActionDescriptor.ControllerDescriptor.Configuration.Formatters;
 
+					var returnType = api.ActionDescriptor.ReturnType;
+
 					if (!formatters.Any(c => c is JsonMediaTypeFormatter))
 					{
-						continue;
+						returnType = typeof(string);
 					}
 
 					var serviceMethod = new ServiceMethod
@@ -202,7 +204,7 @@ namespace Fickle.WebApi
 						Authenticated = api.ActionDescriptor.GetCustomAttributes<AuthorizeAttribute>(true).Count > 0,
 						Name = api.ActionDescriptor.ActionName,
 						Path = StringUriUtils.Combine(applicationRoot, api.RelativePath),
-						Returns = GetTypeName(api.ActionDescriptor.ReturnType),
+						Returns = GetTypeName(returnType),
 						Format = "json",
 						Method = api.HttpMethod.Method.ToLower(),
 						Parameters = api.ParameterDescriptions.Select(d => new ServiceParameter
