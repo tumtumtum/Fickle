@@ -102,7 +102,7 @@ namespace Fickle.Generators.Objective.Binders
 					parameters.Add(Expression.Parameter(parameter.Type, parameter.Name));
 					args.Add(parameter);
 
-					return "%ld";
+					return "%lld";
 				}
 				else if (type == typeof(float) || type == typeof(double))
 				{
@@ -438,7 +438,7 @@ namespace Fickle.Generators.Objective.Binders
 			{
 				processing = Expression.Condition
 				(
-					Expression.Equal(Expression.Convert(item, typeof(object)), Expression.Convert(Expression.Constant(true), typeof(object))),
+					Expression.Equal(FickleExpression.Call(item, typeof(bool), "boolValue", null), Expression.Constant(true)),
 					Expression.Constant("true"),
 					Expression.Constant("false")
 				);
