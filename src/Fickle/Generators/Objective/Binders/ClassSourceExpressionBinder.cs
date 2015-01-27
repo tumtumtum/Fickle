@@ -62,15 +62,22 @@ namespace Fickle.Generators.Objective.Binders
 
 			var assignExpression = Expression.Assign(Expression.Parameter(type, "self"), superInitExpression);
 			var compareToNullExpression = Expression.ReferenceEqual(assignExpression, Expression.Constant(null, type));
+			int count;
 
 			methodBodyExpressions.Add(Expression.IfThen(compareToNullExpression, Expression.Block(Expression.Return(Expression.Label(), Expression.Constant(null)).ToStatement())));
-			methodBodyExpressions.Add(PropertiesFromDictionaryExpressonBinder.Bind(expression));
+			methodBodyExpressions.Add(PropertiesFromDictionaryExpressonBinder.Bind(expression, out count));
 			methodBodyExpressions.Add(Expression.Return(Expression.Label(), Expression.Parameter(type, "self")).ToStatement());
 
-			IEnumerable<ParameterExpression> variables = new ParameterExpression[]
+			IEnumerable<ParameterExpression> variables;
+			
+			if (count > 0)
 			{
-				Expression.Parameter(FickleType.Define("id"), "currentValueFromDictionary")
-			};
+				variables = new[] { Expression.Parameter(FickleType.Define("id"), "currentValueFromDictionary") };
+			}
+			else
+			{
+				variables = new ParameterExpression[0];
+			}
 
 			var methodBody = Expression.Block(variables, (Expression)methodBodyExpressions.ToStatementisedGroupedExpression(GroupedExpressionsExpressionStyle.Wide));
 

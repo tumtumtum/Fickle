@@ -23,11 +23,13 @@ namespace Fickle.Generators.Objective.Binders
 			this.type = type;
 		}
 
-		public static Expression Bind(TypeDefinitionExpression expression)
+		public static Expression Bind(TypeDefinitionExpression expression, out int count)
 		{
 			var builder = new PropertiesFromDictionaryExpressonBinder(expression.Type);
 
 			builder.Visit(expression);
+
+			count = builder.propertyGetterExpressions.Count;
 
 			return builder.propertyGetterExpressions.ToStatementisedGroupedExpression(GroupedExpressionsExpressionStyle.Wide);
 		}
