@@ -129,6 +129,8 @@ namespace Fickle.Generators.Objective.Binders
 				{
 					parameters.Add(Expression.Parameter(parameter.Type, parameter.Name));
 					args.Add(parameter);
+
+					args.Add(Expression.Condition(Expression.Equal(parameter, Expression.Constant(null)), Expression.Constant(""), parameter));
 					
 					return "%@";
 				}
@@ -137,7 +139,7 @@ namespace Fickle.Generators.Objective.Binders
 					parameters.Add(Expression.Parameter(typeof(string), parameter.Name));
 					var arg = FickleExpression.Call(parameter, typeof(string), "ToString", null);
 
-					args.Add(arg);
+					args.Add(Expression.Condition(Expression.Equal(arg, Expression.Constant(null)), Expression.Constant(""), arg));
 
 					return "%@";
 				}
@@ -148,7 +150,7 @@ namespace Fickle.Generators.Objective.Binders
 
 					arg = FickleExpression.Call(arg, typeof(string), "stringByAddingPercentEscapesUsingEncoding", Expression.Variable(typeof(int), "NSUTF8StringEncoding"));
 
-					args.Add(arg);
+					args.Add(Expression.Condition(Expression.Equal(arg, Expression.Constant(null)), Expression.Constant(""), arg));
 
 					return "%@";
 				}
