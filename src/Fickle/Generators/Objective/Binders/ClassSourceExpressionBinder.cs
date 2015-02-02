@@ -51,6 +51,7 @@ namespace Fickle.Generators.Objective.Binders
 		private MethodDefinitionExpression CreateInitMethod(TypeDefinitionExpression expression)
 		{
 			var type = expression.Type;
+			Expression superInitExpression;
 
 			var parameters = new List<Expression>
 			{
@@ -58,7 +59,15 @@ namespace Fickle.Generators.Objective.Binders
 			};
 
 			var methodBodyExpressions = new List<Expression>();
-			var superInitExpression = Expression.Call(Expression.Parameter(type.BaseType, "super"), new FickleMethodInfo(type.BaseType, type, "init", new ParameterInfo[0]));
+
+			if (type.BaseType.IsServiceType())
+			{
+				superInitExpression = Expression.Call(Expression.Parameter(type.BaseType, "super"), new FickleMethodInfo(type.BaseType, type, "initWithDictionary", new [] { new FickleParameterInfo(parameters[0].Type, "dictionary")}), parameters[0]);
+			}
+			else
+			{
+				superInitExpression = Expression.Call(Expression.Parameter(type.BaseType, "super"), new FickleMethodInfo(type.BaseType, type, "init", new ParameterInfo[0]));
+			}
 
 			var assignExpression = Expression.Assign(Expression.Parameter(type, "self"), superInitExpression);
 			var compareToNullExpression = Expression.ReferenceEqual(assignExpression, Expression.Constant(null, type));

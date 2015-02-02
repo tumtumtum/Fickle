@@ -297,7 +297,7 @@ namespace Fickle.Generators.Objective.Binders
 					zone = Expression.Constant(null, FickleType.Define("NSZone"))
 				})),
 				FickleExpression.Call(options, typeof(void), "setObject", new { value = FickleExpression.StaticCall(responseType, "class", null), forKey = "$ResponseClass" }).ToStatement(),
-				Expression.Assign(hostname, FickleExpression.Call(options, typeof(string), "objectForKey", Expression.Constant("Hostname"))),
+				Expression.Assign(hostname, FickleExpression.Call(options, typeof(string), "objectForKey", Expression.Constant("hostname"))),
 				Expression.IfThen(Expression.Equal(hostname, Expression.Constant(null)), Expression.Assign(hostname, Expression.Constant(declaredHostname)).ToStatement().ToBlock()),
 				FickleExpression.Grouped
 				(

@@ -105,13 +105,13 @@ static NSOperationQueue* defaultOperationQueue;
 
     NSString* value;
     
-    value = [options objectForKey:@"Header-Content-Type"] ?: @"application/json";
+    value = [options objectForKey:@"Header/ContentType"] ?: @"application/json";
     CFHTTPMessageSetHeaderFieldValue(message, CFSTR("Content-Type"), (__bridge CFStringRef)value);
     
-    value = [options objectForKey:@"Header-Accept"] ?: @"application/json,*/*;";
+    value = [options objectForKey:@"Header/Accept"] ?: @"application/json,*/*;";
     CFHTTPMessageSetHeaderFieldValue(message, CFSTR("Accept"), (__bridge CFStringRef)value);
     
-    value = [options objectForKey:@"Header-Accept-Encoding"] ?: @"gzip";
+    value = [options objectForKey:@"Header/Accept-Encoding"] ?: @"gzip";
     CFHTTPMessageSetHeaderFieldValue(message, CFSTR("Accept-Encoding"), (__bridge CFStringRef)value);
 
     if (postData)
@@ -144,13 +144,18 @@ static NSOperationQueue* defaultOperationQueue;
 
     if ([url.scheme caseInsensitiveCompare:@"https"] == NSOrderedSame)
     {
-        NSDictionary* sslSettings = [NSDictionary dictionaryWithObjectsAndKeys:
+		id enableSsl = [options objectForKey:@"SSL/Validate-Certificate-Chain"];
+
+		if (enableSsl)
+		{
+			NSDictionary* sslSettings = [NSDictionary dictionaryWithObjectsAndKeys:
                                      (NSString*)kCFStreamSocketSecurityLevelNegotiatedSSL, kCFStreamSSLLevel,
                                      [NSNumber numberWithBool:NO], kCFStreamSSLValidatesCertificateChain,
                                      [NSNull null], kCFStreamSSLPeerName,
                                      nil];
 		
-        CFReadStreamSetProperty(stream, kCFStreamPropertySSLSettings, (CFTypeRef)sslSettings);
+			CFReadStreamSetProperty(stream, kCFStreamPropertySSLSettings, (CFTypeRef)sslSettings);
+		}
     }
 
     CFRelease(message);
