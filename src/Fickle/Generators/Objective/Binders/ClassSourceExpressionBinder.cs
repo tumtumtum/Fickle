@@ -62,7 +62,7 @@ namespace Fickle.Generators.Objective.Binders
 
 			if (type.BaseType.IsServiceType())
 			{
-				superInitExpression = Expression.Call(Expression.Parameter(type.BaseType, "super"), new FickleMethodInfo(type.BaseType, type, "initWithDictionary", new [] { new FickleParameterInfo(parameters[0].Type, "dictionary")}), parameters[0]);
+				superInitExpression = Expression.Call(Expression.Parameter(type.BaseType, "super"), new FickleMethodInfo(type.BaseType, type, "initWithPropertyDictionary", new [] { new FickleParameterInfo(parameters[0].Type, "dictionary")}), parameters[0]);
 			}
 			else
 			{
