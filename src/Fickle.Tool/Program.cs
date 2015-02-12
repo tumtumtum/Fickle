@@ -88,6 +88,11 @@ namespace Fickle.Tool
 				serviceModelInfo.ExtendedValues["podspec.source"] = options.PodspecSource;
 			}
 
+			if (options.PodspecSource != null)
+			{
+				serviceModelInfo.ExtendedValues["podspec.source_files"] = options.PodspecSourceFiles;
+			}
+
 			codeGenerationOptions.ServiceModelInfo = serviceModelInfo;
 
 			using (var codeGenerator = ServiceModelCodeGenerator.GetCodeGenerator(options.Language, outputObject, codeGenerationOptions))

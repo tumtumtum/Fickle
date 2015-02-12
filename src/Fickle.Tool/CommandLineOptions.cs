@@ -27,5 +27,8 @@ namespace Fickle.Tool
 
 		[Option("podspecsource")]
 		public string PodspecSource { get; set; }
+
+		[Option("podspecsourcefiles")]
+		public string PodspecSourceFiles { get; set; }
 	}
 }

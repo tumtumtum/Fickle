@@ -32,7 +32,15 @@ namespace Fickle.Generators.Objective
 				this.WriteLine("s.osx.deployment_target = '10.7'");
 				this.WriteLine("s.requires_arc = true");
 				this.WriteLine("s.frameworks = 'CFNetwork', 'SystemConfiguration'", "'libz.dylib'");
-				this.WriteLine(@"s.source_files = '**/*.{h,m}'");
+
+				if (serviceModelInfo.ExtendedValues.TryGetValue("podspec.source_files", out value))
+				{
+					this.WriteLine(@"s.source_files = '{0}'", value);
+				}
+				else
+				{
+					this.WriteLine(@"s.source_files = '**/*.{h,m}'");
+				}
 			}
 
 			this.WriteLine(@"end");
