@@ -56,8 +56,8 @@ namespace Fickle.Generators.Objective
 				expressions.Add(Expression.Assign(dateFormatter, Expression.New(new FickleType("NSDateFormatter"))).ToStatement());
 				// [dateFormatter setTimeZone: [NSTimeZone timeZoneWithAbbreviation:@"UTC"]];
 				expressions.Add(FickleExpression.Call(dateFormatter, "setTimeZone", FickleExpression.StaticCall("NSTimeZone", "NSTimeZone", "timeZoneWithAbbreviation", "UTC")).ToStatement());
-				// [dateFormatter setDateFormat: @"yyyy-MM-ddTHH:mm:ss"];
-				expressions.Add(FickleExpression.Call(dateFormatter, "setDateFormat", "yyyy-MM-ddTHH:mm:ss").ToStatement());
+				// [dateFormatter setDateFormat: @"yyyy-MM-dd'T'HH:mm:ssZZZZZ"];
+				expressions.Add(FickleExpression.Call(dateFormatter, "setDateFormat", "yyyy-MM-dd'T'HH:mm:ssZZZZZ").ToStatement());
 				
 				expressions.AddRange(block.Expressions);
 
