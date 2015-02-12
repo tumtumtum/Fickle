@@ -156,7 +156,7 @@ namespace Fickle.Generators.Objective.Binders
 					FickleExpression.Block
 					(
 						variables,
-						Expression.Assign(arrayVar, FickleExpression.New("NSMutableArray", "initWithCapacity", FickleExpression.Call(value, typeof(int), "count", null))).ToStatement(),
+						Expression.Assign(arrayVar, FickleExpression.New("NSMutableArray", "initWithCapacity", FickleExpression.Call(Expression.Convert(value, FickleType.Define("NSArray")), typeof(int), "count", null))).ToStatement(),
 						FickleExpression.ForEach(arrayItem, value, FickleExpression.Block(forEachBody)),
 						processOutputValue(Expression.Convert(arrayVar, valueType))
 					)
