@@ -327,9 +327,13 @@ namespace Fickle.Generators.Objective
 				}
 				else if (node.Type == typeof(DateTime?) || node.Type == typeof(DateTime))
 				{
+					/*
 					this.Write("((NSString*)currentValueFromDictionary).length >= 16 ? [NSDate dateWithTimeIntervalSince1970:[[(NSString*)");
 					this.Visit(node.Operand);
 					this.Write(" substringWithRange:NSMakeRange(6, 10)] intValue]] : nil");
+					*/
+
+					this.Write("[dateFormatter dateFromString:(NSString*)currentValueFromDictionary]");
 				}
 				else if ((node.Type == typeof(TimeSpan?) || node.Type == typeof(TimeSpan))
 					&& node.Operand.Type != FickleType.Define("id"))

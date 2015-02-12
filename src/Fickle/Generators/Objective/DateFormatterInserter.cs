@@ -18,6 +18,16 @@ namespace Fickle.Generators.Objective
 			return new DateFormatterInserter().Visit(expression);
 		}
 
+		protected override Expression VisitUnary(UnaryExpression node)
+		{
+			if (node.NodeType == ExpressionType.Convert && (node.Type == typeof(DateTime?) || node.Type == typeof(DateTime)))
+			{
+				this.containsDateConversion = true;
+			}
+
+			return base.VisitUnary(node);
+		}
+
 		protected override Expression VisitMethodCall(MethodCallExpression node)
 		{
 			if (node.Method.Name == "ToString" && node.Object != null && (node.Object.Type == typeof(DateTime) || node.Object.Type == typeof(DateTime?)))
