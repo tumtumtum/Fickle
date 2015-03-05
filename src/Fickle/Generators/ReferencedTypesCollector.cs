@@ -85,6 +85,23 @@ namespace Fickle.Generators
 			return node;
 		}
 
+		protected override Expression VisitNew(NewExpression node)
+		{
+			if (node.Constructor.DeclaringType != null)
+			{
+				this.AddType(node.Constructor.DeclaringType);
+			}
+
+			this.AddType(node.Type);
+
+			return base.VisitNew(node);
+		}
+
+		protected override Expression VisitMethodCall(MethodCallExpression node)
+		{
+			return base.VisitMethodCall(node);
+		}
+
 		protected override Expression VisitMethodDefinitionExpression(MethodDefinitionExpression method)
 		{
 			AddType(method.ReturnType);
