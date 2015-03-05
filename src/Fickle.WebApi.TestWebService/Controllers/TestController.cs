@@ -15,7 +15,7 @@ namespace Fickle.WebApi.TestWebService.Controllers
 		    return x + 1;
 	    }
 
-		[AcceptVerbs("GET")]
+		[AcceptVerbs("GET", "HEAD")]
 		public Sex? GetUserSex(Guid userId)
 		{
 			return Sex.Female;

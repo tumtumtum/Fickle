@@ -184,14 +184,16 @@ namespace Fickle.WebApi
 				classes.Add(serviceClass);
 			}
 
+			var allowedMethods = new HashSet<string>(new [] { "GET", "POST" }, StringComparer.InvariantCultureIgnoreCase);
+
 			foreach (var controller in controllers)
 			{
 				var methods = new List<ServiceMethod>();
 
-				foreach (var api in descriptions.Where(c => c.ActionDescriptor.ControllerDescriptor == controller))
+				foreach (var api in descriptions.Where(c => c.ActionDescriptor.ControllerDescriptor == controller)
+					.Where(c => allowedMethods.Contains(c.HttpMethod.Method)))
 				{
 					var formatters = api.ActionDescriptor.ControllerDescriptor.Configuration.Formatters;
-
 					var returnType = api.ActionDescriptor.ReturnType;
 
 					if (!formatters.Any(c => c is JsonMediaTypeFormatter))
