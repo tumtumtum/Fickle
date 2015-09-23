@@ -19,7 +19,7 @@ namespace Fickle.WebApi.TestWebService.Areas.Fickle.Controllers
 				ControllersTypesToIgnore = new[] { this.GetType() }
 			};
 
-			var reflector = new WebApiRuntimeServiceModelReflector(options, this.Configuration, this.GetType().Assembly);
+			var reflector = new WebApiRuntimeServiceModelReflector(options, this.Configuration, this.GetType().Assembly, Request.RequestUri.Host);
 			var serviceModel = reflector.Reflect();
 
 			var content = new PushStreamContent(
