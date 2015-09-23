@@ -120,9 +120,23 @@ namespace Fickle.WebApi
 				return null;
 			}
 
-			if (type.ContainsGenericParameters && typeof(IEnumerable<>).IsAssignableFromIgnoreGenericParameters(type))
+			if (typeof (IEnumerable<>).IsAssignableFromIgnoreGenericParameters(type))
 			{
-				return GetTypeName(type.GetGenericArguments()[0]) + "[]";
+				Type enumerableType;
+
+				if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof (IEnumerable<>))
+				{
+					enumerableType = type;
+				}
+				else
+				{
+					enumerableType = type.GetInterfaces().FirstOrDefault(x => x.IsGenericType && x.GetGenericTypeDefinition() == typeof(IEnumerable<>));
+				}
+
+				if (enumerableType != null)
+				{
+					return GetTypeName(enumerableType.GetGenericArguments()[0]) + "[]";
+				}
 			}
 
 			return type.Name;
