@@ -120,7 +120,7 @@ namespace Fickle.WebApi
 				return null;
 			}
 
-			if (typeof(IEnumerable<>).IsAssignableFromIgnoreGenericParameters(type))
+			if (type.ContainsGenericParameters && typeof(IEnumerable<>).IsAssignableFromIgnoreGenericParameters(type))
 			{
 				return GetTypeName(type.GetGenericArguments()[0]) + "[]";
 			}
@@ -130,8 +130,13 @@ namespace Fickle.WebApi
 
 		public override ServiceModel Reflect()
 		{
-			var descriptions = Configuration.Services.GetApiExplorer().ApiDescriptions;
-			
+			var descriptions = Configuration.Services.GetApiExplorer().ApiDescriptions.AsEnumerable();
+
+			if (this.Options.ControllersTypesToIgnore != null)
+			{
+				descriptions = descriptions.Where(x => !this.Options.ControllersTypesToIgnore.Contains(x.ActionDescriptor.ControllerDescriptor.ControllerType));
+			}
+
 			var httpRequestMessage = HttpContext.Current.Items["MS_HttpRequestMessage"] as HttpRequestMessage;
 			var httpRequestContext = httpRequestMessage.Properties[HttpPropertyKeys.RequestContextKey] as HttpRequestContext;
 
