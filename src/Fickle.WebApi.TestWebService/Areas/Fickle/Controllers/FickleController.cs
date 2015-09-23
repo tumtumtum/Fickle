@@ -1,36 +1,44 @@
-﻿using System.Web.Http;
-using System.Web.Mvc;
+﻿using System.IO;
+using System.Net.Http;
+using System.Net.Http.Headers;
+using System.Web.Http;
 using Fickle.Ficklefile;
 using Fickle.Reflectors;
 
 namespace Fickle.WebApi.TestWebService.Areas.Fickle.Controllers
 {
-    public class FickleController
-		: Controller
-    {
-		public HttpConfiguration Configuration { get; private set; }
-
-		public FickleController()
-            : this(GlobalConfiguration.Configuration)
-        {
-        }
-
-		public FickleController(HttpConfiguration config)
-        {
-            this.Configuration = config;
-        }
-
-		public ActionResult Index()
+	public class FickleController
+		: ApiController
+	{
+		[Route("Fickle")]
+		[HttpGet]
+		public HttpResponseMessage Fickle()
 		{
-			var reflector = new WebApiRuntimeServiceModelReflector(new ServiceModelReflectionOptions(), this.Configuration, this.GetType().Assembly);
+			var options = new ServiceModelReflectionOptions
+			{
+				ControllersTypesToIgnore = new[] { this.GetType() }
+			};
+
+			var reflector = new WebApiRuntimeServiceModelReflector(options, this.Configuration, this.GetType().Assembly);
 			var serviceModel = reflector.Reflect();
-			var writer = new FicklefileWriter(this.Response.Output);
 
-			this.Response.ContentType = "text/fickle";
-			
-			writer.Write(serviceModel);
+			var content = new PushStreamContent(
+				(stream, httpContent, transportContext) =>
+				{
+					using (var streamWriter = new StreamWriter(stream))
+					{
+						var writer = new FicklefileWriter(streamWriter);
+						writer.Write(serviceModel);
+					}
+				},
+				new MediaTypeHeaderValue("text/fickle"));
 
-			return new EmptyResult();;
+			var response = new HttpResponseMessage
+			{
+				Content = content
+			};
+
+			return response;
 		}
-    }
+	}
 }
