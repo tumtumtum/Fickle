@@ -1,14 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net.Http;
 using System.Net.Http.Formatting;
 using System.Reflection;
-using System.Web;
 using System.Web.Http;
-using System.Web.Http.Controllers;
 using System.Web.Http.Description;
-using System.Web.Http.Hosting;
 using Fickle.Model;
 using Fickle.Reflectors;
 using Platform;
@@ -19,14 +15,16 @@ namespace Fickle.WebApi
 		: ServiceModelReflector
 	{
 		private readonly Assembly referencingAssembly;
-		public HttpConfiguration Configuration { get; private set; }
-		public ServiceModelReflectionOptions Options { get; private set; }
+		private readonly string hostname;
+		private readonly HttpConfiguration configuration;
+		private readonly ServiceModelReflectionOptions options;
 
-		public WebApiRuntimeServiceModelReflector(ServiceModelReflectionOptions options, HttpConfiguration configuration, Assembly referencingAssembly)
+		public WebApiRuntimeServiceModelReflector(ServiceModelReflectionOptions options, HttpConfiguration configuration, Assembly referencingAssembly, string hostname)
 		{
 			this.referencingAssembly = referencingAssembly;
-			this.Options = options;
-			this.Configuration = configuration;
+			this.hostname = hostname;
+			this.options = options;
+			this.configuration = configuration;
 		}
 
 		private static bool IsBaseType(Type type)
@@ -130,20 +128,12 @@ namespace Fickle.WebApi
 
 		public override ServiceModel Reflect()
 		{
-			var descriptions = Configuration.Services.GetApiExplorer().ApiDescriptions.AsEnumerable();
+			var descriptions = configuration.Services.GetApiExplorer().ApiDescriptions.AsEnumerable();
 
-			if (this.Options.ControllersTypesToIgnore != null)
+			if (this.options.ControllersTypesToIgnore != null)
 			{
-				descriptions = descriptions.Where(x => !this.Options.ControllersTypesToIgnore.Contains(x.ActionDescriptor.ControllerDescriptor.ControllerType));
+				descriptions = descriptions.Where(x => !this.options.ControllersTypesToIgnore.Contains(x.ActionDescriptor.ControllerDescriptor.ControllerType));
 			}
-
-			var httpRequestMessage = HttpContext.Current.Items["MS_HttpRequestMessage"] as HttpRequestMessage;
-			var httpRequestContext = httpRequestMessage.Properties[HttpPropertyKeys.RequestContextKey] as HttpRequestContext;
-
-			var url = HttpContext.Current.Request.Url;
-
-			var hostname = url.Host;
-			var applicationRoot = httpRequestContext.Configuration.VirtualPathRoot;
 
 			var enums = new List<ServiceEnum>();
 			var classes = new List<ServiceClass>();
@@ -210,7 +200,7 @@ namespace Fickle.WebApi
 					{
 						Authenticated = api.ActionDescriptor.GetCustomAttributes<AuthorizeAttribute>(true).Count > 0,
 						Name = api.ActionDescriptor.ActionName,
-						Path = StringUriUtils.Combine(applicationRoot, api.RelativePath),
+						Path = StringUriUtils.Combine(this.configuration.VirtualPathRoot, api.RelativePath),
 						Returns = GetTypeName(returnType),
 						Format = "json",
 						Method = api.HttpMethod.Method.ToLower(),
