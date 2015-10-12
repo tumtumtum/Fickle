@@ -203,7 +203,7 @@ namespace Fickle.WebApi
 					.Where(c => allowedMethods.Contains(c.HttpMethod.Method)))
 				{
 					var formatters = api.ActionDescriptor.ControllerDescriptor.Configuration.Formatters;
-					var returnType = api.ActionDescriptor.ReturnType;
+					var returnType = api.ResponseDescription.ResponseType ?? api.ResponseDescription.DeclaredType;
 
 					if (!formatters.Any(c => c is JsonMediaTypeFormatter))
 					{

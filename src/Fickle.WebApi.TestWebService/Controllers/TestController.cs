@@ -1,5 +1,8 @@
 ﻿using System;
+using System.Net.Http;
+using System.Threading.Tasks;
 using System.Web.Http;
+using System.Web.Http.Description;
 using Fickle.WebApi.TestWebService.ServiceModel;
 
 namespace Fickle.WebApi.TestWebService.Controllers
@@ -14,6 +17,24 @@ namespace Fickle.WebApi.TestWebService.Controllers
 	    {
 		    return x + 1;
 	    }
+
+		[ResponseType(typeof(Person))]
+		public IHttpActionResult TestActionResult()
+		{
+			throw new NotImplementedException();
+		}
+
+		[ResponseType(typeof(Person))]
+		public HttpResponseMessage TestResponseMessage()
+		{
+			throw new NotImplementedException();
+		}
+
+		[ResponseType(typeof(Person))]
+		public async Task<IHttpActionResult> HttpResponseMessageTestAsync()
+		{
+			throw new NotImplementedException();
+		}
 
 		[AcceptVerbs("GET", "HEAD")]
 		public Sex? GetUserSex(Guid userId)
