@@ -83,7 +83,7 @@ namespace Fickle.WebApi
 
 			foreach (var description in descriptions)
 			{
-				AddType(types, description.ActionDescriptor.ReturnType);
+				AddType(types, description.ResponseDescription.ResponseType ?? description.ResponseDescription.DeclaredType);
 				
 				foreach (var type in description.ParameterDescriptions.Select(c => c.ParameterDescriptor.ParameterType))
 				{
