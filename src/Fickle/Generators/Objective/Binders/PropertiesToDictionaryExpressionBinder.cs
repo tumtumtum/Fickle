@@ -99,7 +99,7 @@ namespace Fickle.Generators.Objective.Binders
 
 			if (!skipIfNull)
 			{
-				if (!TypeSystem.IsPrimitiveType(valueType) || valueType.IsNullable())
+				if (!TypeSystem.IsPrimitiveType(valueType) || valueType.IsNullable() || valueType.IsClass)
 				{
 					if (value.Type == FickleType.Define("id") || value.Type == typeof(object))
 					{
