@@ -282,7 +282,7 @@ namespace Fickle.Ficklefile
 					this.CurrentInteger = Int64.Parse(this.stringBuilder.ToString());
 				}
 			}
-			else if ((char)this.currentChar == '@' || (char)this.currentChar == '$' || char.IsLetter((char)this.currentChar))
+			else if ((char)this.currentChar == '@' || (char)this.currentChar == '$' || char.IsLetter((char)this.currentChar) || this.currentChar == '_')
 			{
 				var isIdentifier = this.currentChar == '$';
 				var isAnnotation = this.currentChar == '@';
@@ -294,7 +294,7 @@ namespace Fickle.Ficklefile
 
 				this.stringBuilder.Clear();
 
-				while (this.currentChar != -1 && (char.IsLetterOrDigit((char)this.currentChar) || (char)this.currentChar == '-'))
+				while (this.currentChar != -1 && (char.IsLetterOrDigit((char)this.currentChar) || (char)this.currentChar == '-') || this.currentChar == '-')
 				{
 					this.stringBuilder.Append((char)this.currentChar);
 
