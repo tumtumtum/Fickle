@@ -35,7 +35,7 @@ namespace Fickle.Generators.Objective.Binders
 			var self = Expression.Parameter(expression.Type, "self");
 			var properties = ExpressionGatherer.Gather(expression, (ExpressionType)ServiceExpressionType.PropertyDefinition).Where(c => !(c.Type is FickleListType)).ToList();
 			var parameters = properties.OfType<PropertyDefinitionExpression>().ToDictionary(c => c.PropertyName, c => Expression.Property(self, c.PropertyName));
-			var path = string.Join("", properties.OfType<PropertyDefinitionExpression>().Select(c => "{" + c.PropertyName + "}"));
+			var path = string.Join("", properties.OfType<PropertyDefinitionExpression>().Select(c => c.PropertyName.ToCamelCase() + "={" + c.PropertyName + "}"));
 
 			var formatInfo = ObjectiveStringFormatInfo.GetObjectiveStringFormatInfo
 			(
