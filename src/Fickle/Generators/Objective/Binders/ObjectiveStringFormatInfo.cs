@@ -21,10 +21,15 @@ namespace Fickle.Generators.Objective.Binders
 			this.ParameterExpressions = parameterExpressions;
 		}
 
-		public static ObjectiveStringFormatInfo GetObjectiveStringFormatInfo(string path, Func<string, Expression> valueByKey, Func<Expression, Expression> transformStringArg = null)
+		public static ObjectiveStringFormatInfo GetObjectiveStringFormatInfo(string path, Func<string, Expression> valueByKey, Func<string, Type, string> transformFormatSpecifier = null, Func<Expression, Expression> transformStringArg = null)
 		{
 			var args = new List<Expression>();
 			var parameters = new List<ParameterExpression>();
+
+			if (transformFormatSpecifier == null)
+			{
+				transformFormatSpecifier = (s, t) => s;
+			}
 
 			var format = tempateStringRegex.Replace(path, delegate (Match match)
 			{
@@ -38,7 +43,7 @@ namespace Fickle.Generators.Objective.Binders
 					parameters.Add(Expression.Parameter(parameter.Type, name));
 					args.Add(parameter);
 
-					return "%d";
+					return transformFormatSpecifier("%d", type);
 				}
 				else if (type == typeof(long))
 				{
@@ -52,21 +57,21 @@ namespace Fickle.Generators.Objective.Binders
 					parameters.Add(Expression.Parameter(parameter.Type, name));
 					args.Add(parameter);
 
-					return "%f";
+					return transformFormatSpecifier("%f", type);
 				}
 				else if (type == typeof(char))
 				{
 					parameters.Add(Expression.Parameter(parameter.Type, name));
 					args.Add(parameter);
 
-					return "%C";
+					return transformFormatSpecifier("%C", type);
 				}
 				else if (type == typeof(int))
 				{
 					parameters.Add(Expression.Parameter(parameter.Type, name));
 					args.Add(parameter);
 
-					return "%d";
+					return transformFormatSpecifier("%d", type);
 				}
 				else if (type == typeof(Guid))
 				{
@@ -75,7 +80,7 @@ namespace Fickle.Generators.Objective.Binders
 
 					args.Add(Expression.Condition(Expression.Equal(arg, Expression.Constant(null)), Expression.Constant(""), arg));
 
-					return "%@";
+					return transformFormatSpecifier("%@", typeof(string));
 				}
 				else
 				{
@@ -91,7 +96,7 @@ namespace Fickle.Generators.Objective.Binders
 
 					args.Add(Expression.Condition(Expression.Equal(arg, Expression.Constant(null)), Expression.Constant(""), arg));
 
-					return "%@";
+					return transformFormatSpecifier("%@", typeof(string));
 				}
 			});
 

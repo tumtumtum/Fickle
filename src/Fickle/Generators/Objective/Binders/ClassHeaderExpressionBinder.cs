@@ -23,7 +23,7 @@ namespace Fickle.Generators.Objective.Binders
 
 		protected override Expression VisitPropertyDefinitionExpression(PropertyDefinitionExpression property)
 		{
-			var name = property.PropertyName.Uncapitalize();
+			var name = property.PropertyName.ToCamelCase();
 
 			var propertyDefinition = new PropertyDefinitionExpression(name, property.PropertyType, true);
 

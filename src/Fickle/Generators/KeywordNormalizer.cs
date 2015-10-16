@@ -9,28 +9,33 @@ namespace Fickle.Generators
 	/// <summary>
 	/// Normalizes all user-defined names that conflict with keywords by prefixing them with a prefix string
 	/// </summary>
-	public class ReservedKeywordNormalizer
+	public class KeywordNormalizer
 		: ServiceExpressionVisitor
 	{
 		private readonly string replacementPrefix;
+		private readonly Func<string, string> normalize;
 		private readonly HashSet<string> reservedKeywords;
 
-		private ReservedKeywordNormalizer(string  replacementPrefix, IEnumerable<string> reservedKeywords)
+		private KeywordNormalizer(string  replacementPrefix, IEnumerable<string> reservedKeywords, Func<string, string> normalize)
 		{
 			this.replacementPrefix = replacementPrefix;
+			this.normalize = normalize;
 			this.reservedKeywords = new HashSet<string>(reservedKeywords);
 		}
 
-		public static Expression Normalize(Expression expression, string replacementPrefix, IEnumerable<string> reservedKeywords)
+		public static Expression Normalize(Expression expression, string replacementPrefix, IEnumerable<string> reservedKeywords, Func<string, string> normalize)
 		{
-			return new ReservedKeywordNormalizer(replacementPrefix, reservedKeywords).Visit(expression);
+			return new KeywordNormalizer(replacementPrefix, reservedKeywords, normalize).Visit(expression);
 		}
 
 		protected override Expression VisitPropertyDefinitionExpression(PropertyDefinitionExpression property)
 		{
-			if (reservedKeywords.Contains(property.PropertyName))
+			var name = this.normalize(property.PropertyName);
+			var prefix = reservedKeywords.Contains(name) ? replacementPrefix : "";
+
+			if (name != property.PropertyName || prefix != "")
 			{
-				return new PropertyDefinitionExpression(replacementPrefix + property.PropertyName, property.PropertyType, property.IsPredeclatation);
+				return new PropertyDefinitionExpression(prefix + name, property.PropertyType, property.IsPredeclatation);
 			}
 			else
 			{
@@ -43,10 +48,12 @@ namespace Fickle.Generators
 			if (memberInfo is FickleMethodInfo)
 			{
 				var methodInfo = (FickleMethodInfo)memberInfo;
+				var name = this.normalize(methodInfo.Name);
+				var prefix = reservedKeywords.Contains(name) ? replacementPrefix : "";
 
-				if (reservedKeywords.Contains(methodInfo.Name))
+                if (name != methodInfo.Name || prefix != "")
 				{
-					methodInfo = new FickleMethodInfo(methodInfo.DeclaringType, methodInfo.ReturnType, replacementPrefix + methodInfo.Name, methodInfo.GetParameters(), methodInfo.IsStatic);
+					methodInfo = new FickleMethodInfo(methodInfo.DeclaringType, methodInfo.ReturnType, prefix + name, methodInfo.GetParameters(), methodInfo.IsStatic);
 
 					return methodInfo;
 				}
@@ -54,10 +61,12 @@ namespace Fickle.Generators
 			else if (memberInfo is FicklePropertyInfo)
 			{
 				var propertyInfo = (FicklePropertyInfo)memberInfo;
+				var name = this.normalize(propertyInfo.Name);
+				var prefix = reservedKeywords.Contains(name) ? replacementPrefix : "";
 
-				if (reservedKeywords.Contains(propertyInfo.Name))
+				if (name != propertyInfo.Name || prefix != "")
 				{
-					propertyInfo = new FicklePropertyInfo(propertyInfo.DeclaringType, propertyInfo.PropertyType, replacementPrefix + propertyInfo.Name);
+					propertyInfo = new FicklePropertyInfo(propertyInfo.DeclaringType, propertyInfo.PropertyType, prefix + name);
 
 					return propertyInfo;
 				}
@@ -104,9 +113,12 @@ namespace Fickle.Generators
 
 		protected override Expression VisitParameter(ParameterExpression node)
 		{
-			if (reservedKeywords.Contains(node.Name))
+			var name = this.normalize(node.Name);
+			var prefix = reservedKeywords.Contains(name) ? replacementPrefix : "";
+
+			if (name != node.Name || prefix != "")
 			{
-				return Expression.Parameter(node.Type, replacementPrefix + node.Name);
+				return Expression.Parameter(node.Type, prefix + node.Name);
 			}
 			else
 			{

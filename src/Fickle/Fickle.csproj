@@ -40,9 +40,9 @@
     <StartupObject />
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Platform, Version=1.1.0.197, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\Platform.NET.1.1.0.197\lib\net40\Platform.dll</HintPath>
+    <Reference Include="Platform, Version=1.1.0.209, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Platform.NET.1.1.0.209\lib\net40\Platform.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="Platform.VirtualFileSystem, Version=1.1.0.102, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -86,6 +86,7 @@
     <Compile Include="Generators\Objective\Binders\EnumHeaderExpressionBinder.cs" />
     <Compile Include="Expressions\ExpressionGatherer.cs" />
     <Compile Include="Generators\Objective\Binders\ObjectiveStringFormatInfo.cs" />
+    <Compile Include="Generators\Objective\ObjectiveStringExtensions.cs" />
     <Compile Include="Generators\Objective\PodspecWriter.cs" />
     <Compile Include="Generators\ParameterTypesCollector.cs" />
     <Compile Include="InternalEnumerableExtensions.cs" />
@@ -116,7 +117,7 @@
     <Compile Include="Generators\Objective\Binders\PropertiesToDictionaryExpressionBinder.cs" />
     <Compile Include="Generators\Objective\ObjectiveServiceModelResponseAmender.cs" />
     <Compile Include="Generators\PropertyTypeChanger.cs" />
-    <Compile Include="Generators\ReservedKeywordNormalizer.cs" />
+    <Compile Include="Generators\KeywordNormalizer.cs" />
     <Compile Include="Generators\ReturnTypesCollector.cs" />
     <Compile Include="Generators\ServiceModelResponseAmender.cs" />
     <Compile Include="Model\ServiceAnnotationAttribute.cs" />

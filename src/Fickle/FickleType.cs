@@ -15,30 +15,28 @@ namespace Fickle
 		private readonly bool byRef;
 		private readonly string name;
 		private readonly ServiceModel serviceModel;
-		public ServiceEnum ServiceEnum { get; private set; }
-		public bool Nullable { get; private set; }
-		public ServiceClass ServiceClass { get; private set; }
-		private static readonly Dictionary<string, FickleType> fickleTypeByName = new Dictionary<string, FickleType>();
+		public static readonly Dictionary<string, FickleType> FickleTypeByName = new Dictionary<string, FickleType>();
+		public override string Name => this.name;
+		public override string Namespace => null;
+		public override Type BaseType => this.baseType;
+		public bool Nullable { get; }
+		public ServiceEnum ServiceEnum { get; }
+		public ServiceClass ServiceClass { get; }
+		public override Type UnderlyingSystemType => this;
+		public override bool ContainsGenericParameters => false;
+		public override Assembly Assembly => typeof(FickleType).Assembly;
 
-		public override string Name { get { return name; } }
-		public override string Namespace { get { return null; } }
-		public override Type BaseType { get { return this.baseType; } }
-		public override Type UnderlyingSystemType { get { return this; } }
-		public override bool ContainsGenericParameters { get { return false; } }
-		public override Assembly Assembly { get { return typeof(FickleType).Assembly; } }
-		
 		public static FickleType Define(string name, bool byRef = false, bool isPrimitive = false)
 		{
 			FickleType retval;
 
-			if (!fickleTypeByName.TryGetValue(name, out retval))
+			if (!FickleTypeByName.TryGetValue(name, out retval))
 			{
 				retval = new FickleType(name, byRef, isPrimitive);	
 			}
 
 			return retval;
 		}
-
 		
 		public override Type MakeByRefType()
 		{

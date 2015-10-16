@@ -33,7 +33,7 @@ namespace Fickle.Generators.Objective.Binders
 
 		protected override Expression VisitMethodDefinitionExpression(MethodDefinitionExpression method)
 		{
-			var methodName = method.Name.Uncapitalize();
+			var methodName = method.Name.ToCamelCase();
 
 			var body = new Expression[]
 			{
@@ -60,8 +60,8 @@ namespace Fickle.Generators.Objective.Binders
 				optionsProperty,
 				FickleExpression.Grouped
 				(
-				this.CreateInitWithOptionsMethod(),
-				this.Visit(expression.Body)
+					this.CreateInitWithOptionsMethod(),
+					this.Visit(expression.Body)
 				)
 			);
 

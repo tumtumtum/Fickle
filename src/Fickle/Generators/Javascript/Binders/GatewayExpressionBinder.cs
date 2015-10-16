@@ -1,13 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Runtime.InteropServices;
-using System.Security.Cryptography;
-using System.Text.RegularExpressions;
 using Fickle.Expressions;
-using Fickle.Model;
 using Platform;
 
 namespace Fickle.Generators.Javascript.Binders
@@ -15,16 +10,15 @@ namespace Fickle.Generators.Javascript.Binders
 	public class GatewayExpressionBinder
 		: ServiceExpressionVisitor
 	{
-		private TypeDefinitionExpression currentTypeDefinitionExpression;
 		public CodeGenerationContext CodeGenerationContext { get; set; }
-
-		private FickleType webServiceClientType;
+		private readonly FickleType webServiceClientType;
+		private TypeDefinitionExpression currentTypeDefinitionExpression;
 
 		private GatewayExpressionBinder(CodeGenerationContext codeGenerationContext)
 		{
 			this.CodeGenerationContext = codeGenerationContext;
 
-			webServiceClientType = FickleType.Define(this.CodeGenerationContext.Options.ServiceClientTypeName ?? "WebServiceClient");
+			this.webServiceClientType = FickleType.Define(this.CodeGenerationContext.Options.ServiceClientTypeName ?? "WebServiceClient");
 		}
 
 		public static Expression Bind(CodeGenerationContext codeCodeGenerationContext, Expression expression)
@@ -48,7 +42,7 @@ namespace Fickle.Generators.Javascript.Binders
 			var path = "http://" + hostname + method.Attributes["Path"];
 
 			var client = Expression.Variable(webServiceClientType, "webServiceClient");
-			var callback = Expression.Parameter(typeof(Object), "onComplete");
+			var callback = Expression.Parameter(typeof(object), "onComplete");
 
 			methodParameters.Add(callback);
 

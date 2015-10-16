@@ -33,6 +33,7 @@ class UserResponse
 class Person
 	Id : uuid
 	Name : string
+	first_name : string
 	Sexes : Sex[]
 	SexesNullable : Sex?[]
 	Partner : Person

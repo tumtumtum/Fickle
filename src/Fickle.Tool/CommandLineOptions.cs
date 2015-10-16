@@ -4,8 +4,8 @@ namespace Fickle.Tool
 {
 	internal class CommandLineOptions
 	{
-		[Option('i', "input")]
-		public string Input { get; set; }
+		[OptionArray('i', "input", HelpText = "The input files")]
+		public string[] Input { get; set; }
 
 		[Option('o', "outputdir")]
 		public string Output { get; set; }

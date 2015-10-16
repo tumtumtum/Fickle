@@ -34,10 +34,16 @@ namespace Fickle.Generators.Objective.Binders
 		{
 			var self = Expression.Parameter(expression.Type, "self");
 			var properties = ExpressionGatherer.Gather(expression, (ExpressionType)ServiceExpressionType.PropertyDefinition).Where(c => !(c.Type is FickleListType)).ToList();
-			var path = string.Join("", properties.OfType<PropertyDefinitionExpression>().Select(c => "{" + c.PropertyName.Uncapitalize() + "}"));
-			var parameters = properties.OfType<PropertyDefinitionExpression>().ToDictionary(c => c.PropertyName.Uncapitalize(), c => Expression.Property(self, c.PropertyName.Uncapitalize()));
+			var parameters = properties.OfType<PropertyDefinitionExpression>().ToDictionary(c => c.PropertyName, c => Expression.Property(self, c.PropertyName));
+			var path = string.Join("", properties.OfType<PropertyDefinitionExpression>().Select(c => "{" + c.PropertyName + "}"));
 
-			var formatInfo = ObjectiveStringFormatInfo.GetObjectiveStringFormatInfo(path, c => parameters[c], c => FickleExpression.Call(Expression.Constant("&"), typeof(string), "stringByAppendingString", c));
+			var formatInfo = ObjectiveStringFormatInfo.GetObjectiveStringFormatInfo
+			(
+				path,
+				c => parameters[c],
+				(s, t) => t == typeof(string) ? s : s + "&",
+				c => FickleExpression.Call(c, typeof(string), "stringByAppendingString", Expression.Constant("&"))
+			);
 
 			var parameterInfos = new List<ParameterInfo>
 			{

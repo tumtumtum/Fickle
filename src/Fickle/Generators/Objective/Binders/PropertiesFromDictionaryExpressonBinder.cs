@@ -175,7 +175,7 @@ namespace Fickle.Generators.Objective.Binders
 			var dictionaryType = new FickleType("NSDictionary");
 			var currentValueFromDictionary = Expression.Parameter(typeof(object), "currentValueFromDictionary");
 			var objectForKeyCall = Expression.Call(Expression.Parameter(dictionaryType, "properties"), new FickleMethodInfo(dictionaryType, typeof(object), "objectForKey", new ParameterInfo[] { new FickleParameterInfo(typeof(string), "key") }), Expression.Constant(property.PropertyName));
-			var propertyExpression = Expression.Property(Expression.Parameter(this.type, "self"), new FicklePropertyInfo(this.type, property.PropertyType, property.PropertyName.Uncapitalize()));
+			var propertyExpression = Expression.Property(Expression.Parameter(this.type, "self"), new FicklePropertyInfo(this.type, property.PropertyType, property.PropertyName));
 			
 			var expressions = new List<Expression>
 			{

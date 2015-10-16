@@ -30,7 +30,15 @@ namespace Fickle.Generators.Objective.Binders
 			return binder.Visit(expression);
 		}
 
-		private MethodDefinitionExpression CreateInitWithOptionsMethod()
+		private MethodDefinitionExpression CreateInitMethod()
+		{
+			var self = FickleExpression.Variable(currentType, "self");
+			var body = FickleExpression.Return(FickleExpression.Call(self, "initWithOptions", Expression.New(FickleType.Define("NSDictionary")))).ToStatement().ToBlock();
+
+			return new MethodDefinitionExpression("init", new Expression[0], FickleType.Define("id"), body, false, null);
+		}
+
+        private MethodDefinitionExpression CreateInitWithOptionsMethod()
 		{
 			var self = FickleExpression.Variable(currentType, "self");
 			var super = FickleExpression.Variable(currentType, "super");
@@ -60,7 +68,7 @@ namespace Fickle.Generators.Objective.Binders
 
 		protected override Expression VisitMethodDefinitionExpression(MethodDefinitionExpression method)
 		{
-			var methodName = method.Name.Uncapitalize();
+			var methodName = method.Name.ToCamelCase();
 
 			methodCount++;
 			
@@ -345,6 +353,8 @@ namespace Fickle.Generators.Objective.Binders
 			var item = Expression.Variable(FickleType.Define("id"), "item");
 			var formatIsForm = format == "form";
 
+			var complexType = ((forType as FickleType)?.ServiceClass != null);
+
 			Expression processing;
 			
 			if (forType == typeof(TimeSpan))
@@ -398,12 +408,23 @@ namespace Fickle.Generators.Objective.Binders
 				}
 			}
 
-			var isArray = Expression.Variable(typeof(bool), "isArray");
+            var isArray = Expression.Variable(typeof(bool), "isArray");
 			var array = Expression.Variable(FickleType.Define("NSArray"), "array");
 			var urlEncodedValue = FickleExpression.Call(processing, typeof(string), "stringByAddingPercentEscapesUsingEncoding", Expression.Variable(typeof(int), "NSUTF8StringEncoding"));
-			var keyValue = FickleExpression.Call(FickleExpression.Call(paramName, "stringByAppendingString", Expression.Constant("=")), typeof(string), "stringByAppendingString", urlEncodedValue);
 			var joined = FickleExpression.Call(newArray, typeof(string), "componentsJoinedByString", Expression.Constant("&"));
-			
+
+			if (formatIsForm && !complexType)
+			{
+				processing = FickleExpression.Call(FickleExpression.Call(paramName, "stringByAppendingString", Expression.Constant("=")), typeof(string), "stringByAppendingString", urlEncodedValue);
+			}
+
+			var arrayProcessing = processing;
+
+			if (formatIsForm)
+			{
+				arrayProcessing = FickleExpression.Call(FickleExpression.Call(paramName, "stringByAppendingString", Expression.Constant("=")), typeof(string), "stringByAppendingString", urlEncodedValue);
+			}
+
 			processing = Expression.IfThenElse
 			(
 				isArray,
@@ -416,7 +437,7 @@ namespace Fickle.Generators.Objective.Binders
 					(
 						item,
 						array,
-						FickleExpression.Call(newArray, typeof(void), "addObject", formatIsForm ? keyValue : processing).ToStatement().ToBlock()
+						FickleExpression.Call(newArray, typeof(void), "addObject", arrayProcessing).ToStatement().ToBlock()
 					),
 					Expression.Assign(value, formatIsForm ? joined : (Expression)newArray),
 					FickleExpression.Return(value)
@@ -425,7 +446,7 @@ namespace Fickle.Generators.Objective.Binders
 				(
 					new [] { item },
 					Expression.Assign(item, requestObject),
-					Expression.Assign(value, formatIsForm ? keyValue : processing),
+					Expression.Assign(value, processing),
 					FickleExpression.Return(value)
 				)
 			);
@@ -552,7 +573,8 @@ namespace Fickle.Generators.Objective.Binders
 			var expressions = new List<Expression>
 			{
 				CreateCreateClientMethod(),
-				CreateInitWithOptionsMethod()
+				CreateInitMethod(),
+                CreateInitWithOptionsMethod()
 			};
 
 			var rawParameterTypes = ParameterTypesCollector

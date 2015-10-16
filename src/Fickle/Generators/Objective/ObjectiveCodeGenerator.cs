@@ -524,7 +524,7 @@ namespace Fickle.Generators.Objective
 				this.Visit(node.Expression);
 				this.Write('.');
 
-				this.Write(node.Member.Name);
+				this.Write((((node.Member.DeclaringType as FickleType)?.IsServiceType()) ?? false)  ? node.Member.Name : node.Member.Name);
 			}
 
 			return node;
@@ -579,7 +579,7 @@ namespace Fickle.Generators.Objective
 
 		public override void Generate(Expression expression)
 		{
-			var normalized = ReservedKeywordNormalizer.Normalize(expression, "$", reservedKeywords);
+			var normalized = KeywordNormalizer.Normalize(expression, "$", reservedKeywords, c => c.ToCamelCase());
 
 			base.Generate(DateFormatterInserter.Insert(normalized));
 		}

@@ -36,8 +36,8 @@ namespace Fickle.Generators.Objective.Binders
 		{
 			var self = Expression.Parameter(this.theCopy.Type, "self");
 
-			var propertyOnTheCopy = Expression.Property(this.theCopy, property.PropertyName.Uncapitalize());
-			var propertyOnSelf = (Expression)Expression.Property(self, property.PropertyName.Uncapitalize());
+			var propertyOnTheCopy = Expression.Property(this.theCopy, property.PropertyName);
+			var propertyOnSelf = (Expression)Expression.Property(self, property.PropertyName);
 
 			var propertyType = propertyOnTheCopy.Type;
 

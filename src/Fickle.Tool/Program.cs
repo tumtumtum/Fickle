@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using Fickle.Ficklefile;
 using Fickle.Model;
+using Platform.IO;
 using Platform.VirtualFileSystem;
 
 namespace Fickle.Tool
@@ -27,9 +29,20 @@ namespace Fickle.Tool
 				return 1;
 			}
 
-			if (options.Input.IndexOf(":", StringComparison.Ordinal) <= 0)
+			TextReader textReader = null;
+			
+			foreach (var url in options.Input)
 			{
-				options.Input = "./" + options.Input;
+				var currentUrl = url;
+
+				if (currentUrl.IndexOf(":", StringComparison.Ordinal) <= 0)
+				{
+					currentUrl = "./" + options.Input;
+				}
+				
+				var reader = FileSystemManager.Default.ResolveFile(currentUrl).GetContent().GetReader(FileShare.Read);
+
+				textReader = textReader == null ? reader : textReader.Concat(reader);
 			}
 
 			if (!string.IsNullOrEmpty(options.Output) && options.Output.IndexOf(":", StringComparison.Ordinal) <= 0)
@@ -37,12 +50,9 @@ namespace Fickle.Tool
 				options.Output = "./" + options.Output;
 			}
 
-			using (var stream = FileSystemManager.Default.ResolveFile(options.Input).GetContent().GetInputStream(FileShare.Read))
+			using (var reader = textReader)
 			{
-				using (var reader = new StreamReader(stream))
-				{
-					serviceModel = FicklefileParser.Parse(reader);
-				}
+				serviceModel = FicklefileParser.Parse(reader);
 			}
 
 			object outputObject = Console.Out;

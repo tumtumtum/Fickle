@@ -40,13 +40,12 @@
     <Reference Include="CommandLine">
       <HintPath>..\packages\CommandLineParser.1.9.71\lib\net45\CommandLine.dll</HintPath>
     </Reference>
-    <Reference Include="Platform, Version=1.1.0.197, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\Platform.NET.1.1.0.197\lib\net40\Platform.dll</HintPath>
+    <Reference Include="Platform">
+      <HintPath>..\packages\Platform.NET.1.1.0.209\lib\net40\Platform.dll</HintPath>
     </Reference>
-    <Reference Include="Platform.VirtualFileSystem, Version=1.1.0.102, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\Platform.VirtualFileSystem.1.1.0.102\lib\net40\Platform.VirtualFileSystem.dll</HintPath>
+    <Reference Include="Platform.VirtualFileSystem, Version=1.1.0.109, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Platform.VirtualFileSystem.1.1.0.109\lib\net40\Platform.VirtualFileSystem.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="Platform.Xml.Serialization, Version=1.1.0.197, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
