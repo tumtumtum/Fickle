@@ -294,7 +294,7 @@ namespace Fickle.Ficklefile
 
 				this.stringBuilder.Clear();
 
-				while (this.currentChar != -1 && (char.IsLetterOrDigit((char)this.currentChar) || (char)this.currentChar == '-') || this.currentChar == '-')
+				while (this.currentChar != -1 && (char.IsLetterOrDigit((char)this.currentChar) || (char)this.currentChar == '-') || this.currentChar == '_')
 				{
 					this.stringBuilder.Append((char)this.currentChar);
 
