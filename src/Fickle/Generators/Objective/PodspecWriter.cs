@@ -31,6 +31,7 @@ namespace Fickle.Generators.Objective
 				this.WriteLine("s.ios.deployment_target = '5.1'");
 				this.WriteLine("s.osx.deployment_target = '10.7'");
 				this.WriteLine("s.requires_arc = true");
+				this.WriteLine("s.libraries = 'z'");
 				this.WriteLine("s.frameworks = 'CFNetwork', 'SystemConfiguration'", "'libz.dylib'");
 
 				if (serviceModelInfo.ExtendedValues.TryGetValue("podspec.source_files", out value))
