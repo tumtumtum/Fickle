@@ -924,6 +924,7 @@ namespace Fickle.Generators.Objective
 				{
 					this.WriteLine("#pragma clang diagnostic push");
 					this.WriteLine("#pragma clang diagnostic ignored \"-Wparentheses\"");
+					this.WriteLine("#pragma clang diagnostic ignored \"-Wdeprecated-declarations\"");
 					this.WriteLine();
 				}
 
