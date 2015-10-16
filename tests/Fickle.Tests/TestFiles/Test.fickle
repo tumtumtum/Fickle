@@ -19,11 +19,6 @@ enum Color
 	Brown : 9
 	Purple : 10
 
-class ResponseStatus
-	Message : string
-	ErrorCode : string
-	StackTrace : string
-
 class Response
 	
 class UserResponse

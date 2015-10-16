@@ -37,7 +37,7 @@ namespace Fickle.Tool
 
 				if (currentUrl.IndexOf(":", StringComparison.Ordinal) <= 0)
 				{
-					currentUrl = "./" + options.Input;
+					currentUrl = "./" + url;
 				}
 				
 				var reader = FileSystemManager.Default.ResolveFile(currentUrl).GetContent().GetReader(FileShare.Read);

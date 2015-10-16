@@ -20,7 +20,17 @@ namespace Fickle.Generators
 
 		private ServiceClass AmmendOrCreateResponseStatusClass()
 		{
-			var retval = this.serviceModel.GetServiceClass(options.ResponseStatusTypeName);
+			ServiceClass retval;
+
+			try
+			{
+				retval = this.serviceModel.GetServiceClass(options.ResponseStatusTypeName);
+			}
+			catch
+			{
+				retval = null;	
+			}
+
 			var properties = new List<ServiceProperty>
 			{
 				new ServiceProperty
@@ -61,11 +71,21 @@ namespace Fickle.Generators
 
 		public virtual ServiceModel Ammend()
 		{
+			bool containsResponseStatus;
 			var returnTypes = serviceModel.Gateways.SelectMany(c => c.Methods).Select(c => serviceModel.GetTypeFromName(c.Returns)).ToHashSet();
 			var returnServiceClasses = returnTypes.Where(c => TypeSystem.IsNotPrimitiveType(c) && !(c is FickleListType)).Select(serviceModel.GetServiceClass);
 			var additionalClasses = new HashSet<ServiceClass>();
 
-			var containsResponseStatus = serviceModel.GetServiceClass(options.ResponseStatusTypeName) != null;
+			try
+			{
+				serviceModel.GetServiceClass(options.ResponseStatusTypeName);
+
+				containsResponseStatus = true;
+            }
+			catch
+			{
+				containsResponseStatus = false;
+			}
 
 			var responseStatusClass = this.AmmendOrCreateResponseStatusClass();
 
