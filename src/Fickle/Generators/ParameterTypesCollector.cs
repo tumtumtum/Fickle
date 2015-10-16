@@ -9,15 +9,16 @@ namespace Fickle.Generators
 	public class ParameterTypesCollector
 		: ServiceExpressionVisitor
 	{
-		private readonly HashSet<Type> types = new HashSet<Type>();
+		private readonly HashSet<Tuple<Type, string>> types = new HashSet<Tuple<Type, string>>();
 		private readonly Predicate<MethodDefinitionExpression> acceptMethod;
-		
+		private MethodDefinitionExpression currentMethod;
+
 		private ParameterTypesCollector(Predicate<MethodDefinitionExpression> acceptMethod)
 		{
 			this.acceptMethod = acceptMethod ?? (c => true);
 		}
 
-		public static List<Type> Collect(Expression expression, Predicate<MethodDefinitionExpression> acceptMethod = null)
+		public static List<Tuple<Type, string>> Collect(Expression expression, Predicate<MethodDefinitionExpression> acceptMethod = null)
 		{
 			var collector = new ParameterTypesCollector(acceptMethod);
 
@@ -30,7 +31,17 @@ namespace Fickle.Generators
 		{
 			if (this.acceptMethod(method))
 			{
-				return base.VisitMethodDefinitionExpression(method);
+				try
+				{
+					this.currentMethod = method;
+
+					return base.VisitMethodDefinitionExpression(method);
+				}
+				finally
+				{
+					this.currentMethod = null;
+				}
+
 			}
 
 			return method;
@@ -38,7 +49,7 @@ namespace Fickle.Generators
 
 		protected override Expression VisitParameter(ParameterExpression node)
 		{
-			types.Add(node.Type);
+			types.Add(new Tuple<Type, string>(node.Type, currentMethod.Attributes["ContentFormat"]));
 
 			return base.VisitParameter(node);
 		}

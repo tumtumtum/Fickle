@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Text.RegularExpressions;
 using Fickle.Expressions;
 using Platform;
 
@@ -12,6 +11,7 @@ namespace Fickle.Generators.Objective.Binders
 	public class GatewaySourceExpressionBinder
 		: ServiceExpressionVisitor
 	{
+
 		private int methodCount = 0;
 		private Type currentType;
 		private HashSet<Type> currentReturnTypes; 
@@ -51,12 +51,12 @@ namespace Fickle.Generators.Objective.Binders
 			return new MethodDefinitionExpression("initWithOptions", new Expression[] { options }.ToReadOnlyCollection(), FickleType.Define("id"), body, false, null);
 		}
 
-		private static readonly Regex urlParameterRegex = new Regex(@"\{([^\}]+)\}", RegexOptions.Compiled);
-
+		
 		public static bool IsNumericType(Type type)
 		{
 			return type.IsIntegerType() || type.IsRealType();
 		}
+		
 
 		protected override Expression VisitMethodDefinitionExpression(MethodDefinitionExpression method)
 		{
@@ -75,86 +75,13 @@ namespace Fickle.Generators.Objective.Binders
 			var declaredPath = method.Attributes["Path"];
 			var path = StringUriUtils.Combine("http://%@", declaredPath);
 			var httpMethod = method.Attributes["Method"];
-			var names = new List<string>();
-			var parameters = new List<ParameterExpression>();
-			var args = new List<Expression>();
-
+			
 			var parametersByName = method.Parameters.ToDictionary(c => ((ParameterExpression)c).Name, c => (ParameterExpression)c, StringComparer.InvariantCultureIgnoreCase);
 
-			var objcUrl = urlParameterRegex.Replace(path, delegate(Match match)
-			{
-				var name = match.Groups[1].Value;
-				
-				names.Add(name);
+			var formatInfo = ObjectiveStringFormatInfo.GetObjectiveStringFormatInfo(path, c => parametersByName[c]);
 
-				var parameter = parametersByName[name];
-				var type = parameter.Type;
-
-				if (type == typeof(byte) || type == typeof(short) || type == typeof(int))
-				{
-					parameters.Add(Expression.Parameter(parameter.Type, parameter.Name));
-					args.Add(parameter);
-
-					return "%d";
-				}
-				else if (type == typeof(long))
-				{
-					parameters.Add(Expression.Parameter(parameter.Type, parameter.Name));
-					args.Add(parameter);
-
-					return "%lld";
-				}
-				else if (type == typeof(float) || type == typeof(double))
-				{
-					parameters.Add(Expression.Parameter(parameter.Type, parameter.Name));
-					args.Add(parameter);
-
-					return "%f";
-				}
-				else if (type == typeof(char))
-				{
-					parameters.Add(Expression.Parameter(parameter.Type, parameter.Name));
-					args.Add(parameter);
-
-					return "%C";
-				}
-				else if (type == typeof(int))
-				{
-					parameters.Add(Expression.Parameter(parameter.Type, parameter.Name));
-					args.Add(parameter);
-
-					return "%d";
-				}
-				else if (type is FickleListType)
-				{
-					parameters.Add(Expression.Parameter(parameter.Type, parameter.Name));
-					args.Add(parameter);
-
-					args.Add(Expression.Condition(Expression.Equal(parameter, Expression.Constant(null)), Expression.Constant(""), parameter));
-					
-					return "%@";
-				}
-				else if (type == typeof(Guid))
-				{
-					parameters.Add(Expression.Parameter(typeof(string), parameter.Name));
-					var arg = FickleExpression.Call(parameter, typeof(string), "ToString", null);
-
-					args.Add(Expression.Condition(Expression.Equal(arg, Expression.Constant(null)), Expression.Constant(""), arg));
-
-					return "%@";
-				}
-				else
-				{
-					parameters.Add(Expression.Parameter(typeof(string), parameter.Name));
-					var arg = FickleExpression.Call(parameter, typeof(string), "ToString", null);
-
-					arg = FickleExpression.Call(arg, typeof(string), "stringByAddingPercentEscapesUsingEncoding", Expression.Variable(typeof(int), "NSUTF8StringEncoding"));
-
-					args.Add(Expression.Condition(Expression.Equal(arg, Expression.Constant(null)), Expression.Constant(""), arg));
-
-					return "%@";
-				}
-			});
+			var args = formatInfo.ValueExpressions;
+			var parameters = formatInfo.ParameterExpressions;
 
 			var parameterInfos = new List<FickleParameterInfo>
 			{
@@ -166,7 +93,7 @@ namespace Fickle.Generators.Objective.Binders
 
 			var methodInfo = new FickleMethodInfo(typeof(string), typeof(string), "stringWithFormat", parameterInfos.ToArray(), true);
 
-			args.InsertRange(0, new Expression[] { Expression.Constant(objcUrl), hostname });
+			args.InsertRange(0, new Expression[] { Expression.Constant(formatInfo.Format), hostname });
 			
 			var newParameters = new List<Expression>(method.Parameters);
 			var callback = Expression.Parameter(new FickleDelegateType(typeof(void), new FickleParameterInfo(responseType, "response")), "callback");
@@ -195,6 +122,7 @@ namespace Fickle.Generators.Objective.Binders
 			else
 			{
 				var contentParameterName = method.Attributes["Content"];
+				var contentFormat = method.Attributes["ContentFormat"];
 
 				if (string.IsNullOrEmpty(contentParameterName))
 				{
@@ -210,7 +138,7 @@ namespace Fickle.Generators.Objective.Binders
 
 					clientCallExpression = FickleExpression.Call(client, "postWithRequestObject", new
 					{
-						requestObject = FickleExpression.Call(self, typeof(object), this.GetNormalizeRequestMethodName(content.Type), Expression.Convert(content, typeof(object))),
+						requestObject = FickleExpression.Call(self, typeof(object), this.GetNormalizeRequestMethodName(content.Type, contentFormat), new { serializeRequest=Expression.Convert(content, typeof(object)), paramName=Expression.Constant(contentParameterName) }),
 						andCallback = conversionBlock
 					});
 				}
@@ -386,32 +314,36 @@ namespace Fickle.Generators.Objective.Binders
 			return new MethodDefinitionExpression("webServiceClient", new ReadOnlyCollection<Expression>(parameters), FickleType.Define("id"), body, false, null);
 		}
 
-		private string GetNormalizeRequestMethodName(Type forType)
+		private string GetNormalizeRequestMethodName(Type forType, string format = "json")
 		{
+			format = format.Capitalize();
+
 			forType = forType.GetFickleListElementType() ?? forType;
 			forType = forType.GetUnwrappedNullableType();
 
 			if (forType == typeof(TimeSpan) || forType == typeof(Guid) || forType == typeof(bool) || forType.IsEnum)
 			{
-				return "normalizeRequest" + forType.Name;
+				return "normalizeRequest" + forType.Name + format;
 			}
 			else if (forType.IsNumericType())
 			{
-				return "normalizeRequestNumber";
+				return "normalizeRequestNumber" + format;
 			}
 			else
 			{
-				return "normalizeRequestObject";
+				return "normalizeRequestObject" + format;
 			}
 		}
 
-		protected virtual MethodDefinitionExpression CreateNormalizeRequestObjectMethod(Type forType)
+		protected virtual MethodDefinitionExpression CreateNormalizeRequestObjectMethod(Type forType, string format)
 		{
 			var requestObject = Expression.Parameter(FickleType.Define("id"), "serializeRequest");
+			var paramName = Expression.Parameter(typeof(string), "paramName");
 			var newArray = FickleExpression.Variable("NSMutableArray", "newArray");
-			var name = this.GetNormalizeRequestMethodName(forType);
+			var name = this.GetNormalizeRequestMethodName(forType, format);
 			var value = FickleExpression.Variable("id", "value");
 			var item = Expression.Variable(FickleType.Define("id"), "item");
+			var formatIsForm = format == "form";
 
 			Expression processing;
 			
@@ -448,17 +380,30 @@ namespace Fickle.Generators.Objective.Binders
 			else if (forType.IsNumericType())
 			{
 				processing = Expression.Convert(item, FickleType.Define("NSNumber"));
+
+				if (formatIsForm)
+				{
+					processing = FickleExpression.Call(processing, "stringValue", null);
+				}
 			}
 			else
 			{
-				var allPropertiesAsDictionary = FickleExpression.Call(item, "NSDictionary", "allPropertiesAsDictionary", null);
-
-				processing = allPropertiesAsDictionary;
+				if (formatIsForm)
+				{
+					processing = FickleExpression.Call(item, "NSDictionary", "scalarPropertiesAsFormEncodedString", null);
+				}
+				else
+				{
+					processing = FickleExpression.Call(item, "NSString", "allPropertiesAsDictionary", null);
+				}
 			}
 
 			var isArray = Expression.Variable(typeof(bool), "isArray");
 			var array = Expression.Variable(FickleType.Define("NSArray"), "array");
-
+			var urlEncodedValue = FickleExpression.Call(processing, typeof(string), "stringByAddingPercentEscapesUsingEncoding", Expression.Variable(typeof(int), "NSUTF8StringEncoding"));
+			var keyValue = FickleExpression.Call(FickleExpression.Call(paramName, "stringByAppendingString", Expression.Constant("=")), typeof(string), "stringByAppendingString", urlEncodedValue);
+			var joined = FickleExpression.Call(newArray, typeof(string), "componentsJoinedByString", Expression.Constant("&"));
+			
 			processing = Expression.IfThenElse
 			(
 				isArray,
@@ -471,30 +416,31 @@ namespace Fickle.Generators.Objective.Binders
 					(
 						item,
 						array,
-						FickleExpression.Call(newArray, typeof(void), "addObject", processing).ToStatement().ToBlock()
+						FickleExpression.Call(newArray, typeof(void), "addObject", formatIsForm ? keyValue : processing).ToStatement().ToBlock()
 					),
-					Expression.Assign(value, newArray)
+					Expression.Assign(value, formatIsForm ? joined : (Expression)newArray),
+					FickleExpression.Return(value)
 				),
 				FickleExpression.Block
 				(
 					new [] { item },
 					Expression.Assign(item, requestObject),
-					Expression.Assign(value, processing)
+					Expression.Assign(value, formatIsForm ? keyValue : processing),
+					FickleExpression.Return(value)
 				)
 			);
 
 			var body = FickleExpression.Block
 			(
 				new[] { array, isArray, value },
-				Expression.Assign(isArray, FickleExpression.Call(requestObject, typeof(bool), "isKindOfClass", FickleExpression.StaticCall("NSArray", "Class", "class", null))),
-				processing,
-				Expression.Return(Expression.Label(), value)
+				Expression.Assign(isArray, Expression.TypeIs(requestObject, typeof(Array))),
+				processing
 			);
 
 			return new MethodDefinitionExpression
 			(
 				name,
-				new[] { requestObject }.ToReadOnlyCollection<Expression>(),
+				new[] { requestObject, paramName }.ToReadOnlyCollection<Expression>(),
 				FickleType.Define("id"),
 				body,
 				false,
@@ -514,8 +460,13 @@ namespace Fickle.Generators.Objective.Binders
 			var body = FickleExpression.Block
 			(
 				new[] { error, retval },
-				Expression.Assign(retval, Expression.Call(methodInfo, requestObject, Expression.Convert(Expression.Variable(typeof(int), "NSJSONReadingAllowFragments"), FickleType.Define("NSJSONWritingOptions", false, true)), error)),
-				Expression.Return(Expression.Label(), retval)
+				Expression.IfThenElse
+				(
+					Expression.TypeIs(requestObject, typeof(string)),
+					Expression.Assign(retval, FickleExpression.Call(requestObject, typeof(string), "dataUsingEncoding", Expression.Variable(typeof(int), "NSUTF8StringEncoding"))).ToStatement().ToBlock(),
+                    Expression.Assign(retval, Expression.Call(methodInfo, requestObject, Expression.Convert(Expression.Variable(typeof(int), "NSJSONReadingAllowFragments"), FickleType.Define("NSJSONWritingOptions", false, true)), error)).ToStatement().ToBlock()
+				),
+				FickleExpression.Return(retval)
 			);
 
 			return new MethodDefinitionExpression
@@ -604,11 +555,21 @@ namespace Fickle.Generators.Objective.Binders
 				CreateInitWithOptionsMethod()
 			};
 
-			var rawParameterTypes = ParameterTypesCollector.Collect(expression, c => c.Attributes["Method"].EqualsIgnoreCase("post") && c.Attributes.ContainsKey("Content")).Select(c => c.GetFickleListElementType() ?? c).Select(c => c.GetUnwrappedNullableType()).Distinct();
+			var rawParameterTypes = ParameterTypesCollector
+				.Collect(expression, c => c.Attributes["Method"].EqualsIgnoreCase("post") && c.Attributes.ContainsKey("Content"))
+				.Select(c => new Tuple<Type, string>(c.Item1.GetFickleListElementType() ?? c.Item1, c.Item2))
+				.Select(c => new Tuple<Type, string>(c.Item1.GetUnwrappedNullableType(), c.Item2))
+				.Distinct();
 			
-			foreach (var type in rawParameterTypes.Select(c => new { Type = c, Name = this.GetNormalizeRequestMethodName(c)}).GroupBy(c => c.Name).Select(c => c.First().Type))
+			foreach (var value in rawParameterTypes
+				.Select(c => new { Type = c.Item1, Name = this.GetNormalizeRequestMethodName(c.Item1, c.Item2), Format = c.Item2})
+				.GroupBy(c => c.Name)
+				.Select(c => c.First()))
 			{
-				expressions.Add(this.CreateNormalizeRequestObjectMethod(type));
+				var type = value.Type;
+				var format = value.Format;
+
+                expressions.Add(this.CreateNormalizeRequestObjectMethod(type, format));
 			}
 
 			expressions.Add(this.Visit(expression.Body));

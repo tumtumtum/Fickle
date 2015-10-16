@@ -10,7 +10,13 @@ namespace Fickle.Model
 		public string Path { get; set; }
 
 		[ServiceAnnotation] 
-		public string Format { get; set; }
+		public string ReturnFormat { get; set; }
+
+		[ServiceAnnotation]
+		public string ContentFormat { get; set; }
+
+		[ServiceAnnotation]
+		public string RequestFormat { get; set; }
 
 		[ServiceAnnotation] 
 		public bool Secure { get; set; }

@@ -9,6 +9,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Fickle.Expressions;
+using Platform;
 
 namespace Fickle.Generators.Objective.Binders
 {
@@ -29,12 +30,41 @@ namespace Fickle.Generators.Objective.Binders
 			return binder.Visit(expression);
 		}
 
+		private Expression CreateScalarPropertiesAsFormEncodedStringMethod(TypeDefinitionExpression expression)
+		{
+			var self = Expression.Parameter(expression.Type, "self");
+			var properties = ExpressionGatherer.Gather(expression, (ExpressionType)ServiceExpressionType.PropertyDefinition).Where(c => !(c.Type is FickleListType)).ToList();
+			var path = string.Join("", properties.OfType<PropertyDefinitionExpression>().Select(c => "{" + c.PropertyName.Uncapitalize() + "}"));
+			var parameters = properties.OfType<PropertyDefinitionExpression>().ToDictionary(c => c.PropertyName.Uncapitalize(), c => Expression.Property(self, c.PropertyName.Uncapitalize()));
+
+			var formatInfo = ObjectiveStringFormatInfo.GetObjectiveStringFormatInfo(path, c => parameters[c], c => FickleExpression.Call(Expression.Constant("&"), typeof(string), "stringByAppendingString", c));
+
+			var parameterInfos = new List<ParameterInfo>
+			{
+				new FickleParameterInfo(typeof(string), "format")
+			};
+
+			parameterInfos.AddRange(formatInfo.ParameterExpressions.Select(c => new ObjectiveParameterInfo(c.Type, c.Name, true)));
+
+			var args = new List<Expression>
+			{
+				Expression.Constant(formatInfo.Format)
+			};
+
+			args.AddRange(formatInfo.ValueExpressions);
+
+			var methodInfo = new FickleMethodInfo(typeof(string), typeof(string), "stringWithFormat", parameterInfos.ToArray(), true);
+			var methodBody = Expression.Block(FickleExpression.Return(Expression.Call(null, methodInfo, args)).ToStatement());
+
+			return new MethodDefinitionExpression("scalarPropertiesAsFormEncodedString", new ReadOnlyCollection<Expression>(new List<Expression>()), typeof(string), methodBody, false, null);
+		}
+		
 		private Expression CreateAllPropertiesAsDictionaryMethod(TypeDefinitionExpression expression)
 		{
 			var dictionaryType = new FickleType("NSMutableDictionary");
 			var retvalExpression = Expression.Parameter(dictionaryType, "retval");
 			
-			IEnumerable<ParameterExpression> variables = new ParameterExpression[]
+			IEnumerable<ParameterExpression> variables = new[]
 			{
 				retvalExpression
 			};
@@ -43,7 +73,7 @@ namespace Fickle.Generators.Objective.Binders
 			var makeDictionaryExpression = PropertiesToDictionaryExpressionBinder.Build(expression, this.codeGenerationContext);
 			var returnDictionaryExpression = Expression.Return(Expression.Label(), Expression.Parameter(dictionaryType, "retval")).ToStatement();
 
-			var methodBody = Expression.Block(variables, (Expression)GroupedExpressionsExpression.FlatConcat(GroupedExpressionsExpressionStyle.Wide, newDictionaryExpression, makeDictionaryExpression, returnDictionaryExpression));
+			var methodBody = Expression.Block(variables, GroupedExpressionsExpression.FlatConcat(GroupedExpressionsExpressionStyle.Wide, newDictionaryExpression, makeDictionaryExpression, returnDictionaryExpression));
 
 			return new MethodDefinitionExpression("allPropertiesAsDictionary", new ReadOnlyCollection<Expression>(new List<Expression>()), dictionaryType, methodBody, false, null);
 		}
@@ -155,6 +185,7 @@ namespace Fickle.Generators.Objective.Binders
 			{
 				this.CreateInitMethod(expression),
 				this.CreateAllPropertiesAsDictionaryMethod(expression),
+				this.CreateScalarPropertiesAsFormEncodedStringMethod(expression),
 				this.CreateCopyWithZoneMethod(expression),
 			};
 

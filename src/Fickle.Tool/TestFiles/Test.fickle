@@ -52,7 +52,7 @@ class User
 	FollowerUserIds : uuid[]
 
 gateway TestService
-	@hostname dryice.kingstreetapps.com
+	@hostname fickle.kingstreetapps.com
 
 	AddOne(value:int)
 		@format json
@@ -61,7 +61,7 @@ gateway TestService
 		@returns int
 
 gateway UserService
-	@hostname dryice.kingstreetapps.com
+	@hostname fickle.kingstreetapps.com
 
 	SetUserSexes(id:uuid sexes:Sex?[])
 		@format json

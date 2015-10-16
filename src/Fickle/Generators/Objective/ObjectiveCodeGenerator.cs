@@ -36,6 +36,7 @@ namespace Fickle.Generators.Objective
 	[PrimitiveTypeName(typeof(TimeSpan), "PKTimeSpan", true)]
 	[PrimitiveTypeName(typeof(TimeSpan?), "PKTimeSpan", true)]
 	[PrimitiveTypeName(typeof(string), "NSString", true)]
+	[PrimitiveTypeName(typeof(Array), "NSArray", true)]
 	public class ObjectiveCodeGenerator
 		: BraceLanguageStyleSourceCodeGenerator
 	{
@@ -410,7 +411,11 @@ namespace Fickle.Generators.Objective
 				return node;
 			}
 
-			if (node.Type == typeof(string))
+			if (node.Type == typeof(Type))
+			{
+				this.Write(node.Type, true);
+			}
+			else if (node.Type == typeof(string))
 			{	
 				this.Write("@\"" + Convert.ToString(node.Value) + "\"");
 			}
@@ -755,6 +760,13 @@ namespace Fickle.Generators.Objective
 		{
 			switch (node.NodeType)
 			{
+				case ExpressionType.TypeIs:
+					this.Write("[");
+					this.Visit(node.Left);
+					this.Write(" class isKindOfClass:");
+					this.Visit(node.Right);
+					this.Write("]");
+					break;
 				case ExpressionType.Or:
 					this.Write("((");
 					this.Visit(node.Left);

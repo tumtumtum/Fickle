@@ -52,118 +52,128 @@ class User
 	FollowerUserIds : uuid[]
 
 gateway TestService
-	@hostname dryice.kingstreetapps.com
+	@hostname fickle.kingstreetapps.com
 
 	AddOne(value:int)
-		@format json
+		@returnformat json
 		@path /api/Test/AddOne?x={value}
 		@method get
 		@returns int
 
 gateway UserService
-	@hostname dryice.kingstreetapps.com
+	@hostname fickle.kingstreetapps.com
 
 	SetUserSexes(id:uuid sexes:Sex?[])
-		@format json
+		@returnformat json
+		@contentformat form
 		@path /api/UserService/SetUserSexes?id={id}
 		@method post
 		@content sexes
 		@returns void
 
+	PostUserSex(id:uuid sex:Sex)
+		@returnformat json
+		@contentformat json
+		@path /api/UserService/PostUserSex
+		@method post
+		@content sex
+		@returns void
+
 	StoreUser(user:User)
-		@format json
+		@returnformat json
+		@contentformat form
 		@path /api/UserService/StoreUser
 		@method post
 		@content user
 		@returns void
 
 	GetPerson(id:uuid)
-		@format json
+		@returnformat json
 		@path /api/UserService/Person/{id}
 		@method get
 		@returns Person
 
 	GetUser(id:uuid fromDate:datetime)
-		@format json
+		@returnformat json
 		@path /api/UserService/User/{id}/{fromDate}
 		@method get
 		@returns Response
 
 	GetUserLastLoginTime(id:uuid)
-		@format json
+		@returnformat json
 		@path /api/UserService/GetUserLastLoginTime?id={id}
 		@method get
 		@returns timespan
 
 	GetUserIds(name:string)
-		@format json
+		@returnformat json
 		@path /api/UserService/GetUserId?name={name}
 		@method get
 		@returns uuid[]
 
 	GetUserName(id:uuid)
-		@format json
+		@returnformat json
 		@path /api/UserService/GetUserName?id={id}
 		@method get
 		@returns string
 
 	GetUserSex(id:uuid)
-		@format json
+		@returnformat json
 		@path /api/UserService/GetUserSex?UserId={id}
 		@method get
 		@returns Sex
 
 	GetUserSexMaybe(id:uuid)
-		@format json
+		@returnformat json
 		@path /api/UserService/GetUserSexMaybe?UserId={id}
 		@method get
 		@returns Sex?
 
 	GetUserSexes(id:uuid)
-		@format json
+		@returnformat json
 		@path /api/UserService/GetUserSexes?UserId={id}
 		@method get
 		@returns Sex[]
 
 	GetUserFriends(id:uuid)
-		@format json
+		@returnformat json
 		@path /api/UserService/GetUserFriends?UserId={id}
 		@method get
 		@returns User[]
 
 	SetUserSex(id:uuid value:Sex)
-		@format json
+		@returnformat json
 		@path /api/UserService/SetUserSex?UserId={id}&Sex={value}
 		@method get
 		@returns User
 
 	SetUserNullableSex(id:uuid value:Sex?)
-		@format json
+		@returnformat json
 		@path /api/UserService/SetUserSex?UserId={id}&Sex={value}
 		@method get
 		@returns User
 
 	GetUserAge(id:uuid)
-		@format json
+		@returnformat json
 		@path /api/UserService/GetUserSex?UserId={id}
 		@method get
 		@returns int?
 
 	GetUserNoResponse(id:uuid fromDate:datetime)
-		@format json
+		@returnformat json
 		@path /api/UserService/User/{id}/{fromDate}
 		@method get
 		@returns User
 
 	GetUserUserResponse(id:uuid fromDate:datetime)
-		@format json
+		@returnformat json
 		@path /api/UserService/User/{id}/{fromDate}
 		@method get
 		@returns UserResponse
 
 	SetPassword(id:uuid password:String)
 		@secure true
-		@format json
+		@returnformat json
 		@path /api/UserService/SetPassword?id={id}&password={password}
 		@method get
 		@returns string

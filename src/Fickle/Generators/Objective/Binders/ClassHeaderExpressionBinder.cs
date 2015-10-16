@@ -64,6 +64,7 @@ namespace Fickle.Generators.Objective.Binders
 			}
 
 			includeExpressions.Add(FickleExpression.Include("PKDictionarySerializable.h"));
+			includeExpressions.Add(FickleExpression.Include("PKFormEncodingSerializable.h"));
 			includeExpressions.AddRange(referencedTypes.Where(c => c.IsEnum).Select(c => (Expression)FickleExpression.Include(c.Name + ".h")));
 
 			includeExpressions = includeExpressions.Select(c => (IncludeExpression)c).OrderBy(c => c.FileName.Length).Select(c => (Expression)c).ToList();
@@ -98,7 +99,8 @@ namespace Fickle.Generators.Objective.Binders
 			var interfaceTypes = new List<Type>
 			{
 				FickleType.Define("NSCopying"),
-				FickleType.Define("PKDictionarySerializable")
+				FickleType.Define("PKDictionarySerializable"),
+				FickleType.Define("PKFormEncodingSerializable")
 			};
 
 			return new TypeDefinitionExpression(expression.Type, header, propertyBody, true, null, interfaceTypes.ToReadOnlyCollection());

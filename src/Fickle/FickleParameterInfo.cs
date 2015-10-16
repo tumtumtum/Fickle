@@ -8,7 +8,6 @@ namespace Fickle
 	{
 		private readonly string name;
 		private readonly Type parameterType;
-
 		public override string Name { get { return name; } }
 		public override Type ParameterType { get { return parameterType; } }
 

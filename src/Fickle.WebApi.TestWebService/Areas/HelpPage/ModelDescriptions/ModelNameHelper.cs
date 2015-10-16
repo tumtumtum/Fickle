@@ -19,7 +19,7 @@ namespace Fickle.WebApi.TestWebService.Areas.HelpPage.ModelDescriptions
             string modelName = type.Name;
             if (type.IsGenericType)
             {
-                // Format the generic type name to something like: GenericOfAgurment1AndArgument2
+                // ReturnFormat the generic type name to something like: GenericOfAgurment1AndArgument2
                 Type genericType = type.GetGenericTypeDefinition();
                 Type[] genericArguments = type.GetGenericArguments();
                 string genericTypeName = genericType.Name;

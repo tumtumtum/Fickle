@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using Fickle.Expressions;
-using Fickle.Model;
 using Platform;
 
 namespace Fickle.Generators.Objective.Binders

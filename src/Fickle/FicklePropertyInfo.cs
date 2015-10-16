@@ -11,12 +11,12 @@ namespace Fickle
 		private readonly Type declaringType;
 		private readonly Type propertyType;
 		
-		public override string Name { get { return name; } }
-		public override bool CanRead { get { return true; } }
-		public override bool CanWrite { get { return true; } }
-		public override Type PropertyType { get { return propertyType; } }
-		public override Type DeclaringType { get { return declaringType; } }
-		public override Type ReflectedType { get { return declaringType; } }
+		public override bool CanRead => true;
+		public override bool CanWrite => true;
+		public override string Name => this.name;
+		public override Type PropertyType => this.propertyType;
+		public override Type DeclaringType => this.declaringType;
+		public override Type ReflectedType => this.declaringType;
 
 		public FicklePropertyInfo(Type declaringType, Type propertyType, string name)
 		{

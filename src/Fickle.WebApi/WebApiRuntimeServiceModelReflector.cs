@@ -216,7 +216,7 @@ namespace Fickle.WebApi
 						Name = api.ActionDescriptor.ActionName,
 						Path = StringUriUtils.Combine(this.configuration.VirtualPathRoot, api.RelativePath),
 						Returns = GetTypeName(returnType),
-						Format = "json",
+						ReturnFormat = "json",
 						Method = api.HttpMethod.Method.ToLower(),
 						Parameters = api.ParameterDescriptions.Select(d => new ServiceParameter
 						{
