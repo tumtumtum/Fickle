@@ -40,6 +40,7 @@ namespace Fickle
 			AddPrimitiveType(typeof(DateTime), "DateTime");
 			AddPrimitiveType(typeof(TimeSpan), "TimeSpan");
 			AddPrimitiveType(typeof(Guid), "UUID");
+			AddPrimitiveType(typeof(decimal), "Decimal");
 		}
 
 		public static string GetPrimitiveName(Type type, bool naked = false)
