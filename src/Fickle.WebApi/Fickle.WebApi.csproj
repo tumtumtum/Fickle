@@ -71,6 +71,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="FickleIncludeTypeAttribute.cs" />
     <Compile Include="FickleSdkInfoAttribute.cs" />
     <Compile Include="InternalEnumerableExtensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

@@ -77,9 +77,29 @@ namespace Fickle.WebApi
 			}
 		}
 
-		private static IEnumerable<Type> GetReferencedTypes(IEnumerable<ApiDescription> descriptions)
+		private IEnumerable<Type> GetReferencedTypes(IEnumerable<ApiDescription> descriptions)
 		{
 			var types = new HashSet<Type>();
+
+			var attributes = this.referencingAssembly.GetCustomAttributes<FickleIncludeTypeAttribute>();
+
+			foreach (var attribute in attributes.Where(attribute => attribute.Type != null))
+			{
+				AddType(types, attribute.Type);
+
+				if (attribute.IncludeRelatives)
+				{
+					var s = attribute.Type.Namespace + ".";
+
+                    foreach (var type in attribute.Type.Assembly.GetTypes()
+						.Where(c => c != attribute.Type)
+						.Where(c => c.Namespace == attribute.Type.Namespace
+							|| c.Namespace != null && c.Namespace.StartsWith(s)))
+					{
+						AddType(types, type);
+					}
+				}
+			}
 
 			foreach (var description in descriptions)
 			{
@@ -142,11 +162,11 @@ namespace Fickle.WebApi
 
 		public override ServiceModel Reflect()
 		{
-			var descriptions = configuration.Services.GetApiExplorer().ApiDescriptions.AsEnumerable();
+			var descriptions = configuration.Services.GetApiExplorer().ApiDescriptions.AsEnumerable().ToList();
 
 			if (this.options.ControllersTypesToIgnore != null)
 			{
-				descriptions = descriptions.Where(x => !this.options.ControllersTypesToIgnore.Contains(x.ActionDescriptor.ControllerDescriptor.ControllerType));
+				descriptions = descriptions.Where(x => !this.options.ControllersTypesToIgnore.Contains(x.ActionDescriptor.ControllerDescriptor.ControllerType)).ToList();
 			}
 
 			var enums = new List<ServiceEnum>();
