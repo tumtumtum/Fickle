@@ -93,6 +93,16 @@ namespace Fickle.Tool
 				serviceModelInfo.Version = options.Version;
 			}
 
+			if (options.Homepage != null)
+			{
+				serviceModelInfo.Homepage = options.Homepage;
+			}
+
+			if (options.License != null)
+			{
+				serviceModelInfo.License = options.License;
+			}
+
 			if (options.PodspecSource != null)
 			{
 				serviceModelInfo.ExtendedValues["podspec.source"] = options.PodspecSource;
@@ -102,6 +112,7 @@ namespace Fickle.Tool
 			{
 				serviceModelInfo.ExtendedValues["podspec.source_files"] = options.PodspecSourceFiles;
 			}
+			
 
 			codeGenerationOptions.ServiceModelInfo = serviceModelInfo;
 

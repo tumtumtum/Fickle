@@ -23,7 +23,7 @@ namespace Fickle
 		public string License { get; set; }
 
 		[ServiceAnnotation]
-		public string Homepge { get; set; }
+		public string Homepage { get; set; }
 
 		public Dictionary<string, string> ExtendedValues { get; set; }
 
