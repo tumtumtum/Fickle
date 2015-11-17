@@ -108,7 +108,7 @@ namespace Fickle.Tool
 				serviceModelInfo.ExtendedValues["podspec.source"] = options.PodspecSource;
 			}
 
-			if (options.PodspecSource != null)
+			if (options.PodspecSourceFiles != null)
 			{
 				serviceModelInfo.ExtendedValues["podspec.source_files"] = options.PodspecSourceFiles;
 			}
