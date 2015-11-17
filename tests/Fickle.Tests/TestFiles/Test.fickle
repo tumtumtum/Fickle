@@ -46,6 +46,7 @@ class User
 	TimeSinceLastLogin : timespan
 	LoginTimes : timespan[]
 	FollowerUserIds : uuid[]
+	BankBalance : decimal?
 
 gateway TestService
 	@hostname fickle.kingstreetapps.com

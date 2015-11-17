@@ -29,6 +29,8 @@ namespace Fickle.Generators.Objective
 	[PrimitiveTypeName(typeof(float?), "NSNumber", true)]
 	[PrimitiveTypeName(typeof(double), "Float64", false)]
 	[PrimitiveTypeName(typeof(double?), "NSNumber", true)]
+	[PrimitiveTypeName(typeof(decimal), "NSNumber", false)]
+	[PrimitiveTypeName(typeof(decimal?), "NSNumber", true)]
 	[PrimitiveTypeName(typeof(Guid), "PKUUID", true)]
 	[PrimitiveTypeName(typeof(Guid?), "PKUUID", true)]
 	[PrimitiveTypeName(typeof(DateTime), "NSDate", true)]
@@ -321,6 +323,18 @@ namespace Fickle.Generators.Objective
 						this.Visit(node.Operand);
 						this.Write(")");
 					}
+					else if (type == typeof(decimal))
+					{
+						this.Write("((NSDecimalNumber*)");
+						this.Visit(node.Operand);
+						this.Write(")");
+					}
+					else if (type == typeof(decimal?))
+					{
+						this.Write("((NSDecimalNumber*)");
+						this.Visit(node.Operand);
+						this.Write(")");
+					}
 					else
 					{
 						throw new Exception("Unexpected type: " + node.Type.Name);
@@ -328,12 +342,6 @@ namespace Fickle.Generators.Objective
 				}
 				else if (node.Type == typeof(DateTime?) || node.Type == typeof(DateTime))
 				{
-					/*
-					this.Write("((NSString*)currentValueFromDictionary).length >= 16 ? [NSDate dateWithTimeIntervalSince1970:[[(NSString*)");
-					this.Visit(node.Operand);
-					this.Write(" substringWithRange:NSMakeRange(6, 10)] intValue]] : nil");
-					*/
-
 					this.Write("[dateFormatter dateFromString:(NSString*)currentValueFromDictionary]");
 				}
 				else if ((node.Type == typeof(TimeSpan?) || node.Type == typeof(TimeSpan))
