@@ -1,5 +1,7 @@
-﻿using System.IO;
+﻿using System.Collections.Generic;
+using System.IO;
 using System.IO.Ports;
+using System.Linq;
 using System.Linq.Expressions;
 using Fickle.Expressions;
 using Fickle.Generators.Objective.Binders;
@@ -31,7 +33,34 @@ namespace Fickle.Generators.Objective
 		{
 			base.Generate(serviceModel);
 			this.GeneratePodspec(serviceModel);
+			this.GenerateMasterHeader(serviceModel);
 		}
+
+		protected virtual void GenerateMasterHeader(ServiceModel serviceModel)
+		{
+			using (var writer = this.GetTextWriterForFile(this.Options.ServiceModelInfo.Name + ".h"))
+			{
+				var headerWriter = new ObjectiveCodeGenerator(writer);
+
+				var includeExpressions = serviceModel.Classes
+					.Select(c => FickleExpression.Include(c.Name + ".h"))
+					.Concat(serviceModel.Enums.Select(c => FickleExpression.Include(c.Name + ".h")))
+					.Concat(serviceModel.Gateways.Select(c => FickleExpression.Include(c.Name + ".h")));
+
+				var comment = new CommentExpression("This file is AUTO GENERATED");
+
+				var commentGroup = new[] { comment }.ToStatementisedGroupedExpression();
+				var headerGroup = includeExpressions.ToStatementisedGroupedExpression();
+
+				var headerExpressions = new List<Expression>
+				{
+					commentGroup,
+					headerGroup
+				};
+
+				headerWriter.Visit(headerExpressions.ToGroupedExpression(GroupedExpressionsExpressionStyle.Wide));
+			}
+        }
 
 		protected virtual void GeneratePodspec(ServiceModel serviceModel)
 		{

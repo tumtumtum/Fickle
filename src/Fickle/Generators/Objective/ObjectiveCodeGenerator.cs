@@ -3,9 +3,7 @@
 //
 
 using System;
-using System.Diagnostics;
 using System.IO;
-using System.Reflection;
 using Platform;
 using System.Linq;
 using System.Linq.Expressions;
@@ -1131,7 +1129,7 @@ namespace Fickle.Generators.Objective
 
 			this.Write("(");
 
-			foreach (ParameterExpression parameter in node.Parameters)
+			foreach (var parameter in node.Parameters.Cast<ParameterExpression>())
 			{
 				this.Write(parameter.Type);
 				this.Write(" ");
