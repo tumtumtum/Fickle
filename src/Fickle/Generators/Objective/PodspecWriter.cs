@@ -25,7 +25,7 @@ namespace Fickle.Generators.Objective
 
 				if (serviceModelInfo.ExtendedValues.TryGetValue("podspec.source", out value))
 				{
-					this.WriteLine("s.source = { :git => \"" + value + "\", :tag => s.version.to_s}");
+					this.WriteLine("s.source = { :git => \"" + value + "\", :tag => s.version.to_s }");
 				}
 
 				this.WriteLine("s.ios.deployment_target = '5.1'");
