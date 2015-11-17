@@ -20,6 +20,8 @@ namespace Fickle.Generators.Objective
 				this.WriteLine("s.version = '{0}'", serviceModelInfo.Version);
 				this.WriteLine("s.summary = '{0}'", serviceModelInfo.Summary);
 				this.WriteLine("s.author = '{0}'", serviceModelInfo.Author);
+				this.WriteLine("s.license = '{0}'", serviceModelInfo.Summary);
+				this.WriteLine("s.homepage = '{0}'", serviceModelInfo.Author);
 
 				string value;
 

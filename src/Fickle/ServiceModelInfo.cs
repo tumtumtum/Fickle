@@ -19,6 +19,12 @@ namespace Fickle
 		[ServiceAnnotation]
 		public string Author { get; set; }
 
+		[ServiceAnnotation]
+		public string License { get; set; }
+
+		[ServiceAnnotation]
+		public string Homepge { get; set; }
+
 		public Dictionary<string, string> ExtendedValues { get; set; }
 
 		public ServiceModelInfo()

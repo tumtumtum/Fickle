@@ -16,6 +16,12 @@ namespace Fickle.Tool
 		[Option('n', "name")]
 		public string Name { get; set; }
 
+		[Option('h', "homepage")]
+		public string Homepage { get; set; }
+
+		[Option('m', "license")]
+		public string License { get; set; }
+
 		[Option('s', "summary")]
 		public string Summary { get; set; }
 
