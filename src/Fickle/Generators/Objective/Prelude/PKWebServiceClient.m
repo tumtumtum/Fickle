@@ -114,6 +114,13 @@ static NSOperationQueue* defaultOperationQueue;
     value = [options objectForKey:@"Header/Accept-Encoding"] ?: @"gzip";
     CFHTTPMessageSetHeaderFieldValue(message, CFSTR("Accept-Encoding"), (__bridge CFStringRef)value);
 
+	value = [options objectForKey:@"Header/Authorization"] ?: nil;
+
+    if (value)
+    {
+        CFHTTPMessageSetHeaderFieldValue(message, CFSTR("Authorization"), (__bridge CFStringRef) value);
+    }
+
     if (postData)
     {
         CFHTTPMessageSetHeaderFieldValue(message, CFSTR("Content-Length"), (__bridge CFStringRef)[NSString stringWithFormat:@"%d", (int)postData.length]);
