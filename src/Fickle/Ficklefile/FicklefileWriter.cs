@@ -22,7 +22,7 @@ namespace Fickle.Ficklefile
 		{
 			if (keywords.Contains(name))
 			{
-				this.Write("__");
+				this.Write("$");
 				this.Write(name);
 			}
 			else

@@ -585,7 +585,7 @@ namespace Fickle.Generators.Objective
 
 		public override void Generate(Expression expression)
 		{
-			var normalized = KeywordNormalizer.Normalize(expression, "$", reservedKeywords, c => c.ToCamelCase());
+			var normalized = KeywordNormalizer.Normalize(expression, "__", reservedKeywords, c => c.ToCamelCase());
 
 			base.Generate(DateFormatterInserter.Insert(normalized));
 		}
