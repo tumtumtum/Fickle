@@ -282,12 +282,13 @@ namespace Fickle.Ficklefile
 					this.CurrentInteger = Int64.Parse(this.stringBuilder.ToString());
 				}
 			}
-			else if ((char)this.currentChar == '@' || (char)this.currentChar == '$' || char.IsLetter((char)this.currentChar) || this.currentChar == '_')
+			else if ((char)this.currentChar == '@' || (char)this.currentChar == '$' || (char)this.currentChar == '^' || char.IsLetter((char)this.currentChar) || this.currentChar == '_')
 			{
 				var isIdentifier = this.currentChar == '$';
 				var isAnnotation = this.currentChar == '@';
+				var isLiteralIdentifier = this.currentChar == '^';
 
-				if (isAnnotation)
+				if (isAnnotation || isLiteralIdentifier)
 				{
 					this.ConsumeChar();
 				}

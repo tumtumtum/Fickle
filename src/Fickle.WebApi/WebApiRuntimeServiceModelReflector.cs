@@ -163,7 +163,7 @@ namespace Fickle.WebApi
 
 			if (ReservedKeywords.Contains(retval))
 			{
-				retval = "$" + retval;
+				retval = "^" + retval;
 			}
 
 			return retval;
