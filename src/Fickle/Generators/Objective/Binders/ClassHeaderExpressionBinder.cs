@@ -25,7 +25,7 @@ namespace Fickle.Generators.Objective.Binders
 		{
 			var name = property.PropertyName.ToCamelCase();
 
-			var propertyDefinition = new PropertyDefinitionExpression(name, property.PropertyType, true);
+			var propertyDefinition = new PropertyDefinitionExpression(name, property.PropertyType, true, property.Modifiers);
 
 			if (name.StartsWith("new"))
 			{

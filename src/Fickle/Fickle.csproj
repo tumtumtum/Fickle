@@ -158,35 +158,38 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
-    <EmbeddedResource Include="Generators\Objective\Prelude\PKTimeSpan.m" />
-    <EmbeddedResource Include="Generators\Objective\Prelude\PKUUID.m" />
-    <EmbeddedResource Include="Generators\Objective\Prelude\PKWebServiceClient.m" />
-    <EmbeddedResource Include="Generators\Objective\Prelude\NSString+PKExtensions.m" />
-    <EmbeddedResource Include="Generators\Objective\Prelude\NSArray+PKExtensions.m" />
-    <EmbeddedResource Include="Generators\Objective\Prelude\NSMutableArray+PKExtensions.m" />
+    <EmbeddedResource Include="Generators\Objective\Prelude\PlatformKit\PKTimeSpan.m" />
+    <EmbeddedResource Include="Generators\Objective\Prelude\PlatformKit\PKUUID.m" />
+    <EmbeddedResource Include="Generators\Objective\Prelude\PlatformKit\PKWebServiceClient.m" />
+    <EmbeddedResource Include="Generators\Objective\Prelude\PlatformKit\NSString+PKExtensions.m" />
+    <EmbeddedResource Include="Generators\Objective\Prelude\PlatformKit\NSArray+PKExtensions.m" />
+    <EmbeddedResource Include="Generators\Objective\Prelude\PlatformKit\NSMutableArray+PKExtensions.m" />
     <None Include="packages.config">
       <SubType>Designer</SubType>
     </None>
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Generators\Objective\Prelude\PKDictionarySerializable.h" />
+    <EmbeddedResource Include="Generators\Objective\Prelude\PlatformKit\PKDictionarySerializable.h" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Generators\Objective\Prelude\PKTimeSpan.h" />
-    <EmbeddedResource Include="Generators\Objective\Prelude\PKUUID.h" />
-    <EmbeddedResource Include="Generators\Objective\Prelude\PKWebServiceClient.h" />
+    <EmbeddedResource Include="Generators\Objective\Prelude\PlatformKit\PKTimeSpan.h" />
+    <EmbeddedResource Include="Generators\Objective\Prelude\PlatformKit\PKUUID.h" />
+    <EmbeddedResource Include="Generators\Objective\Prelude\PlatformKit\PKWebServiceClient.h" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Generators\Objective\Prelude\NSString+PKExtensions.h" />
+    <EmbeddedResource Include="Generators\Objective\Prelude\PlatformKit\NSString+PKExtensions.h" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Generators\Objective\Prelude\NSArray+PKExtensions.h" />
+    <EmbeddedResource Include="Generators\Objective\Prelude\PlatformKit\NSArray+PKExtensions.h" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Generators\Objective\Prelude\NSMutableArray+PKExtensions.h" />
+    <EmbeddedResource Include="Generators\Objective\Prelude\PlatformKit\NSMutableArray+PKExtensions.h" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Generators\Objective\Prelude\PKFormEncodingSerializable.h" />
+    <EmbeddedResource Include="Generators\Objective\Prelude\PlatformKit\PKFormEncodingSerializable.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Generators\Objective\Prelude\FKGatewayResponseFilter.h" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />

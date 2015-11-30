@@ -1000,12 +1000,36 @@ namespace Fickle.Generators.Objective
 
 		protected override Expression VisitPropertyDefinitionExpression(PropertyDefinitionExpression property)
 		{
-			if (!property.IsPredeclatation)
+			if (!property.IsPredeclaration)
 			{
 				return property;
 			}
 
-			this.Write(@"@property (readwrite) ");
+			if (property.Modifiers.Count > 0)
+			{
+				this.Write(@"@property (readwrite, ");
+
+				var i = 0;
+
+				foreach (var value in property.Modifiers)
+				{
+					this.Write(value);
+
+					if (i != property.Modifiers.Count - 1)
+					{
+						this.Write(", ");
+					}
+
+					i++;
+				}
+
+				this.Write(") ");
+			}
+			else
+			{
+				this.Write(@"@property (readwrite) ");
+			}
+
 			this.Write(property.PropertyType);
 			this.Write(' ');
 			this.Write(property.PropertyName);

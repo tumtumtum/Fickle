@@ -83,7 +83,10 @@ namespace Fickle.Generators.Objective.Binders
 
 				var body = this.Visit(expression.Body);
 
-				var header = new CommentExpression("This file is AUTO GENERATED");
+				var include = FickleExpression.Include("Foundation/Foundation.h");
+
+				var comment = new CommentExpression("This file is AUTO GENERATED");
+				var header = new Expression[] { comment, include  }.ToStatementisedGroupedExpression(GroupedExpressionsExpressionStyle.Wide);
 
 				return FickleExpression.GroupedWide
 				(

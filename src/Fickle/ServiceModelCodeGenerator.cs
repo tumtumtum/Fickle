@@ -191,7 +191,9 @@ namespace Fickle
 			{
 				using (var input = new StreamReader(assembly.GetManifestResourceStream(resourceName)))
 				{
-					using (var output = this.GetTextWriterForFile(resourceName.Substring(prefix.Length)))
+					var index = resourceName.LastIndexOf('.', resourceName.Length - 3);
+
+					using (var output = this.GetTextWriterForFile(resourceName.Substring(index + 1)))
 					{
 						int x;
 

@@ -859,18 +859,18 @@ intellisense.annotate(jQuery.fn, {
   },
   'attr': function() {
     /// <signature>
-    ///   <summary>Set one or more attributes for the set of matched elements.</summary>
+    ///   <summary>Set one or more modifiers for the set of matched elements.</summary>
     ///   <param name="attributeName" type="String">The name of the attribute to set.</param>
     ///   <param name="value" type="">A value to set for the attribute.</param>
     ///   <returns type="jQuery" />
     /// </signature>
     /// <signature>
-    ///   <summary>Set one or more attributes for the set of matched elements.</summary>
-    ///   <param name="attributes" type="PlainObject">An object of attribute-value pairs to set.</param>
+    ///   <summary>Set one or more modifiers for the set of matched elements.</summary>
+    ///   <param name="modifiers" type="PlainObject">An object of attribute-value pairs to set.</param>
     ///   <returns type="jQuery" />
     /// </signature>
     /// <signature>
-    ///   <summary>Set one or more attributes for the set of matched elements.</summary>
+    ///   <summary>Set one or more modifiers for the set of matched elements.</summary>
     ///   <param name="attributeName" type="String">The name of the attribute to set.</param>
     ///   <param name="function(index, attr)" type="Function">A function returning the value to set. this is the current element. Receives the index position of the element in the set and the old attribute value as arguments.</param>
     ///   <returns type="jQuery" />
@@ -2170,7 +2170,7 @@ intellisense.annotate(jQuery.fn, {
   'removeAttr': function() {
     /// <signature>
     ///   <summary>Remove an attribute from each element in the set of matched elements.</summary>
-    ///   <param name="attributeName" type="String">An attribute to remove; as of version 1.7, it can be a space-separated list of attributes.</param>
+    ///   <param name="attributeName" type="String">An attribute to remove; as of version 1.7, it can be a space-separated list of modifiers.</param>
     ///   <returns type="jQuery" />
     /// </signature>
   },

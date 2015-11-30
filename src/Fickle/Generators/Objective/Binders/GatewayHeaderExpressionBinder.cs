@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
 using System.Linq.Expressions;
 using Fickle.Expressions;
-using Fickle.Model;
 using Platform;
 
 namespace Fickle.Generators.Objective.Binders
@@ -54,11 +52,13 @@ namespace Fickle.Generators.Objective.Binders
 		{
 			var includeExpressions = new List<IncludeExpression>();
 			var optionsProperty = new PropertyDefinitionExpression("options", FickleType.Define("NSDictionary"), true);
+			var responseFilterProperty = new PropertyDefinitionExpression("responseFilter", FickleType.Define("FKGatewayResponseFilter", isInterface:true), true, new[] { "weak" });
 
 			var body = FickleExpression.GroupedWide
 			(
 				optionsProperty,
-				FickleExpression.Grouped
+				responseFilterProperty,
+                FickleExpression.Grouped
 				(
 					this.CreateInitWithOptionsMethod(),
 					this.Visit(expression.Body)
@@ -80,8 +80,9 @@ namespace Fickle.Generators.Objective.Binders
 				includeExpressions.Add(FickleExpression.Include("PKTimeSpan.h"));
 			}
 
-			includeExpressions.Add(FickleExpression.Include("PKDictionarySerializable.h"));
 			includeExpressions.Add(FickleExpression.Include("PKWebServiceClient.h"));
+			includeExpressions.Add(FickleExpression.Include("PKDictionarySerializable.h"));
+			includeExpressions.Add(FickleExpression.Include("FKGatewayResponseFilter.h"));
 
 			var referencedUserTypes = referencedTypes
 				.Where(c => (c is FickleType && ((FickleType)c).ServiceClass != null) || c is FickleType && ((FickleType)c).ServiceEnum != null)

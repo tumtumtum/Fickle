@@ -35,7 +35,7 @@ namespace Fickle.Generators
 
 			if (name != property.PropertyName || prefix != "")
 			{
-				return new PropertyDefinitionExpression(prefix + name, property.PropertyType, property.IsPredeclatation);
+				return new PropertyDefinitionExpression(prefix + name, property.PropertyType, property.IsPredeclaration, property.Modifiers);
 			}
 			else
 			{

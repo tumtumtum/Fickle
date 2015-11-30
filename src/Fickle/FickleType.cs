@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -16,6 +17,7 @@ namespace Fickle
 		private readonly string name;
 		private readonly ServiceModel serviceModel;
 		public static readonly Dictionary<string, FickleType> FickleTypeByName = new Dictionary<string, FickleType>();
+		private bool isInterface;
 		public override string Name => this.name;
 		public override string Namespace => null;
 		public override Type BaseType => this.baseType;
@@ -26,13 +28,13 @@ namespace Fickle
 		public override bool ContainsGenericParameters => false;
 		public override Assembly Assembly => typeof(FickleType).Assembly;
 
-		public static FickleType Define(string name, bool byRef = false, bool isPrimitive = false)
+		public static FickleType Define(string name, bool byRef = false, bool isPrimitive = false, bool isInterface = false)
 		{
 			FickleType retval;
 
 			if (!FickleTypeByName.TryGetValue(name, out retval))
 			{
-				retval = new FickleType(name, byRef, isPrimitive);	
+				retval = new FickleType(name, byRef, isPrimitive, isInterface);	
 			}
 
 			return retval;
@@ -54,11 +56,12 @@ namespace Fickle
 			}
 		}
 
-		public FickleType(string name, bool byRef = false, bool isPrimitive = false)
+		public FickleType(string name, bool byRef = false, bool isPrimitive = false, bool isInterface = false)
 			: this(name, typeof(object))
 		{
 			this.byRef = byRef;
 			this.isPrimitive = isPrimitive;
+			this.isInterface = isInterface;
 		}
 
 		public FickleType(string name, Type baseType, bool byRef = false, bool isPrimitive = false)
@@ -264,6 +267,10 @@ namespace Fickle
 			if (this.ServiceEnum != null)
 			{
 				return typeof(StringComparison).Attributes;
+			}
+			else if (this.isInterface)
+			{
+				return typeof(IEnumerable).Attributes;
 			}
 			else
 			{
