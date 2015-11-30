@@ -212,7 +212,7 @@ namespace Fickle.Ficklefile
 
 						if (property == null)
 						{
-							throw new FicklefileParserException(string.Format("Unexpected annotation: {0}={1}", annotation.Key, annotation.Value));
+							throw new FicklefileParserException($"Unexpected annotation: {annotation.Key}={annotation.Value}");
 						}
 
 						property.SetValue(retval, Convert.ChangeType(annotation.Value, property.PropertyType));

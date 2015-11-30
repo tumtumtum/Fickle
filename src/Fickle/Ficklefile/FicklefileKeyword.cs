@@ -2,7 +2,6 @@
 {
 	public enum FicklefileKeyword
 	{
-		None,
 		Info,
 		Enum,
 		Class,

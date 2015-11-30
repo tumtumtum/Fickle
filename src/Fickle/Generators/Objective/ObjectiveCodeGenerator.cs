@@ -40,7 +40,7 @@ namespace Fickle.Generators.Objective
 	public class ObjectiveCodeGenerator
 		: BraceLanguageStyleSourceCodeGenerator
 	{
-		private readonly string[] reservedKeywords = new string[]
+		private readonly string[] reservedKeywords = 
 		{
 			"id",
 			"class",

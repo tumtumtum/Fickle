@@ -5,6 +5,7 @@ using System.Net.Http.Formatting;
 using System.Reflection;
 using System.Web.Http;
 using System.Web.Http.Description;
+using Fickle.Ficklefile;
 using Fickle.Model;
 using Fickle.Reflectors;
 using Platform;
@@ -18,6 +19,7 @@ namespace Fickle.WebApi
 		private readonly string hostname;
 		private readonly HttpConfiguration configuration;
 		private readonly ServiceModelReflectionOptions options;
+		private static readonly HashSet<string> ReservedKeywords = new HashSet<string>(new [] { "enum", "class", "gateway" }, StringComparer.InvariantCultureIgnoreCase);
 
 		public WebApiRuntimeServiceModelReflector(ServiceModelReflectionOptions options, HttpConfiguration configuration, Assembly referencingAssembly, string hostname)
 		{
@@ -157,7 +159,14 @@ namespace Fickle.WebApi
 				}
 			}
 
-			return type.Name;
+			var retval = type.Name;
+
+			if (ReservedKeywords.Contains(retval))
+			{
+				retval = "$" + retval;
+			}
+
+			return retval;
 		}
 
 		public override ServiceModel Reflect()
