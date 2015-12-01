@@ -59,7 +59,7 @@ namespace Fickle.Generators.Objective
 					Expression.Assign(jsDateFormatter, Expression.New(new FickleType("NSDateFormatter"))).ToStatement(),
 					FickleExpression.Call(jsDateFormatter, "setTimeZone", FickleExpression.StaticCall("NSTimeZone", "NSTimeZone", "timeZoneWithAbbreviation", "UTC")).ToStatement(), FickleExpression.Call(jsDateFormatter, "setDateFormat", "yyyy-MM-dd'T'HH:mm:ss.SSSSz").ToStatement(),
                     Expression.Assign(isoDateFormatter, Expression.New(new FickleType("NSDateFormatter"))).ToStatement(),
-					FickleExpression.Call(isoDateFormatter, "setTimeZone", FickleExpression.StaticCall("NSTimeZone", "NSTimeZone", "timeZoneWithAbbreviation", "UTC")).ToStatement(), FickleExpression.Call(jsDateFormatter, "setDateFormat", "yyyy-MM-dd'T'HH:mm:ssZZZZZ").ToStatement()
+					FickleExpression.Call(isoDateFormatter, "setTimeZone", FickleExpression.StaticCall("NSTimeZone", "NSTimeZone", "timeZoneWithAbbreviation", "UTC")).ToStatement(), FickleExpression.Call(isoDateFormatter, "setDateFormat", "yyyy-MM-dd'T'HH:mm:ssZZZZZ").ToStatement()
 				};
 
 				// dateFormatter = [[NSDateFormatter alloc]init]
