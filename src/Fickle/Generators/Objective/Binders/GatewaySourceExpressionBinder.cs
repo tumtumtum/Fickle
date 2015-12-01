@@ -543,9 +543,11 @@ namespace Fickle.Generators.Objective.Binders
 
 			var populateResponseStatus = FickleExpression.Call(FickleExpression.Call(response, "id", "responseStatus", null), "setHttpStatus", statusCode);
 
-			bodyExpressions.Add(setResponseStatus);
+			var responseFilter = FickleExpression.Property(self, "FKGatewayResponseFilter", "responseFilter");
+
+            bodyExpressions.Add(setResponseStatus);
 			bodyExpressions.Add(populateResponseStatus);
-			bodyExpressions.Add(Expression.Assign(response, FickleExpression.Call(FickleExpression.Property(self, "FKGatewayResponseFilter", "responseFilter"), typeof(object), "gateway", new { value = self, receivedResponse = response, fromRequestURL = "", withRequestObject = requestObject })));
+			bodyExpressions.Add(Expression.IfThen(Expression.NotEqual(responseFilter, Expression.Constant(null, responseFilter.Type)), Expression.Assign(response, FickleExpression.Call(responseFilter, typeof(object), "gateway", new { value = self, receivedResponse = response, fromRequestURL = "", withRequestObject = requestObject }))).ToStatement().ToBlock());
 			bodyExpressions.Add(FickleExpression.Return(response));
 
 			var body = FickleExpression.Block
