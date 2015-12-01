@@ -48,18 +48,25 @@ namespace Fickle.Generators.Objective
 			{
 				var block = (BlockExpression)retval.Body;
 				var variables = new List<ParameterExpression>(block.Variables);
-				var dateFormatter = Expression.Variable(new FickleType("NSDateFormatter"), "dateFormatter");
-				variables.Add(dateFormatter);
-				var expressions = new List<Expression>();
+				var jsDateFormatter = Expression.Variable(new FickleType("NSDateFormatter"), "jsDateFormatter");
+				var isoDateFormatter = Expression.Variable(new FickleType("NSDateFormatter"), "isoDateFormatter");
+
+				variables.Add(jsDateFormatter);
+				variables.Add(isoDateFormatter);
+
+				var expressions = new List<Expression>
+				{
+					Expression.Assign(jsDateFormatter, Expression.New(new FickleType("NSDateFormatter"))).ToStatement(),
+					FickleExpression.Call(jsDateFormatter, "setTimeZone", FickleExpression.StaticCall("NSTimeZone", "NSTimeZone", "timeZoneWithAbbreviation", "UTC")).ToStatement(), FickleExpression.Call(jsDateFormatter, "setDateFormat", "yyyy-MM-dd'T'HH:mm:ss.SSSSz").ToStatement(),
+                    Expression.Assign(isoDateFormatter, Expression.New(new FickleType("NSDateFormatter"))).ToStatement(),
+					FickleExpression.Call(isoDateFormatter, "setTimeZone", FickleExpression.StaticCall("NSTimeZone", "NSTimeZone", "timeZoneWithAbbreviation", "UTC")).ToStatement(), FickleExpression.Call(jsDateFormatter, "setDateFormat", "yyyy-MM-dd'T'HH:mm:ssZZZZZ").ToStatement()
+				};
 
 				// dateFormatter = [[NSDateFormatter alloc]init]
-				expressions.Add(Expression.Assign(dateFormatter, Expression.New(new FickleType("NSDateFormatter"))).ToStatement());
 				// [dateFormatter setTimeZone: [NSTimeZone timeZoneWithAbbreviation:@"UTC"]];
-				expressions.Add(FickleExpression.Call(dateFormatter, "setTimeZone", FickleExpression.StaticCall("NSTimeZone", "NSTimeZone", "timeZoneWithAbbreviation", "UTC")).ToStatement());
 				// Javascript: yyyy-MM-dd'T'HH:mm:ss.SSSSz
 				// ISO 8601: yyyy-MM-dd'T'HH:mm:ssZZZZZ
-				expressions.Add(FickleExpression.Call(dateFormatter, "setDateFormat", "yyyy-MM-dd'T'HH:mm:ss.SSSSz").ToStatement());
-				
+
 				expressions.AddRange(block.Expressions);
 
 				var newBody = Expression.Block(variables, expressions);

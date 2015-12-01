@@ -340,7 +340,7 @@ namespace Fickle.Generators.Objective
 				}
 				else if (node.Type == typeof(DateTime?) || node.Type == typeof(DateTime))
 				{
-					this.Write("[dateFormatter dateFromString:(NSString*)currentValueFromDictionary]");
+					this.Write("[jsDateFormatter dateFromString:(NSString*)currentValueFromDictionary] ?: [isoDateFormatter dateFromString:(NSString*)currentValueFromDictionary]");
 				}
 				else if ((node.Type == typeof(TimeSpan?) || node.Type == typeof(TimeSpan))
 					&& node.Operand.Type != FickleType.Define("id"))
@@ -626,7 +626,7 @@ namespace Fickle.Generators.Objective
 			}
 			else if (expression.Type == typeof(DateTime) || expression.Type == typeof(DateTime?))
 			{
-				this.Write("[dateFormatter stringFromDate:");
+				this.Write("[jsDateFormatter stringFromDate:");
 				this.Visit(expression);
 				this.Write("]");
 			}
