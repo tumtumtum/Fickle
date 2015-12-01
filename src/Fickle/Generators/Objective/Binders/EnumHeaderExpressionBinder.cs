@@ -34,7 +34,11 @@ namespace Fickle.Generators.Objective.Binders
 
 			var array = FickleExpression.Variable("NSMutableArray", "array");
 			var temp = FickleExpression.Variable(currentTypeDefinition.Type, "temp");
-			var expressions = new List<Expression>();
+
+			var expressions = new List<Expression>
+			{
+				Expression.Assign(array, Expression.New(array.Type))
+			};
 
 			foreach (var enumValue in ((FickleType)currentTypeDefinition.Type).ServiceEnum.Values)
 			{
@@ -56,7 +60,6 @@ namespace Fickle.Generators.Objective.Binders
 			}
 
 			expressions.Add(Expression.IfThen(Expression.NotEqual(value, temp), FickleExpression.Return(FickleExpression.Call(Expression.Convert(value, typeof(object)), typeof(string), "stringValue", null)).ToStatementBlock()));
-
 			expressions.Add(FickleExpression.Return(FickleExpression.Call(array, "componentsJoinedByString", Expression.Constant(","))));
 
 			var defaultBody = FickleExpression.StatementisedGroupedExpression
