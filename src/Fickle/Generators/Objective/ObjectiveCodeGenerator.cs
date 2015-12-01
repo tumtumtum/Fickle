@@ -776,16 +776,16 @@ namespace Fickle.Generators.Objective
 				case ExpressionType.Or:
 					this.Write("((");
 					this.Visit(node.Left);
-					this.Write(") || (");
+					this.Write(") | (");
 					this.Visit(node.Right);
-					this.Write(")");
+					this.Write("))");
 					break;
 				case ExpressionType.And:
 					this.Write("((");
 					this.Visit(node.Left);
-					this.Write(") && (");
+					this.Write(") & (");
 					this.Visit(node.Right);
-					this.Write(")");
+					this.Write("))");
 					break;
 				case ExpressionType.Assign:
 					if (node.Left.Type.IsByRef && !node.Right.Type.IsByRef)

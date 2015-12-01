@@ -84,7 +84,7 @@ namespace Fickle
 
 			if (expressions != method.Parameters || body != method.Body)
 			{
-				return new MethodDefinitionExpression(method.Name, expressions, method.ReturnType, body, method.IsPredeclaration, method.RawAttributes);
+				return new MethodDefinitionExpression(method.Name, expressions, method.AccessModifiers, method.ReturnType, body, method.IsPredeclaration, method.RawAttributes, method.Attributes);
 			}
 
 			return method;
