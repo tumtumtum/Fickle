@@ -284,6 +284,11 @@ namespace Fickle.Expressions
 			return Expression.Block(expression);
 		}
 
+		public static BlockExpression ToStatementBlock(this Expression expression)
+		{
+			return expression.ToStatement().ToBlock();
+		}
+
 		private static IEnumerable<Expression> ToStatementsNormalized(this IEnumerable<Expression> expressions)
 		{
 			return expressions.Select(c => (c is  BinaryExpression 

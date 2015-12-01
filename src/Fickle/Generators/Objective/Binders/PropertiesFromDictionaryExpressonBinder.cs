@@ -104,7 +104,7 @@ namespace Fickle.Generators.Objective.Binders
 							Expression.IfThen
 							(
 								Expression.Not(Expression.Assign(success, Expression.Call(null, methodInfo, Expression.Convert(value, typeof(string)), parsedValue))),
-								Expression.Assign(parsedValue, Expression.Convert(Expression.Constant(0), underlyingType)).ToStatement().ToBlock()
+								Expression.Assign(parsedValue, Expression.Convert(Expression.Constant(0), underlyingType)).ToStatementBlock()
 							),
 							processOutputValue(outputValue)
 						),

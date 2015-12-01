@@ -75,7 +75,7 @@ namespace Fickle.Generators.Objective.Binders
 					var forEachBody = Expression.IfThenElse
 					(
 						Expression.ReferenceEqual(arrayItem, nsNull),
-						supportsNull ? FickleExpression.Call(arrayVar, "addObject", Expression.Convert(nsNull, typeof(object))).ToStatement().ToBlock() : Expression.Continue(Expression.Label()).ToStatement().ToBlock(),
+						supportsNull ? FickleExpression.Call(arrayVar, "addObject", Expression.Convert(nsNull, typeof(object))).ToStatementBlock() : Expression.Continue(Expression.Label()).ToStatementBlock(),
 						GetSerializeExpression(listType.ListElementType, arrayItem, options, true, c => FickleExpression.Call(arrayVar, "addObject", Expression.Convert(c, typeof(object))).ToStatement()).ToBlock()
 					);
 
