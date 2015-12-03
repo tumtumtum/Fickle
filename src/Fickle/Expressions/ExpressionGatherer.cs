@@ -6,15 +6,15 @@ namespace Fickle.Expressions
 	public class ExpressionGatherer
 		: ServiceExpressionVisitor
 	{
-		public ExpressionType expressionType;
+		public ServiceExpressionType expressionType;
 		private readonly List<Expression> results = new List<Expression>();
 
-		private ExpressionGatherer(ExpressionType expressionType)
+		private ExpressionGatherer(ServiceExpressionType expressionType)
 		{
 			this.expressionType = expressionType;
 		}
 
-		public static List<Expression> Gather(Expression expression, ExpressionType expressionType)
+		public static List<Expression> Gather(Expression expression, ServiceExpressionType expressionType)
 		{
 			var gatherer = new ExpressionGatherer(expressionType);
 
@@ -25,7 +25,12 @@ namespace Fickle.Expressions
 
 		public override Expression Visit(Expression node)
 		{
-			if (node.NodeType == this.expressionType)
+			if (node == null)
+			{
+				return null;
+			}
+
+			if (node.NodeType == (ExpressionType)this.expressionType)
 			{
 				this.results.Add(node);
 			}

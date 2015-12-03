@@ -9,6 +9,11 @@ namespace Fickle.WebApi.TestSelfHost.Controllers
 	{
 		private readonly Random random = new Random();
 
+		[AcceptVerbs("POST")]
+		public void UploadFile(string path)
+		{
+		}
+
 		[AcceptVerbs("GET")]
 	    public int AddOne(int x)
 	    {

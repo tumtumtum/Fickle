@@ -102,14 +102,7 @@ namespace Fickle.Generators.Objective
 
 		protected override void GenerateGateway(CodeGenerationContext codeGenerationContext, TypeDefinitionExpression expression)
 		{
-			using (var writer = this.GetTextWriterForFile(expression.Type.Name + ".h"))
-			{
-				var headerFileExpression = GatewayHeaderExpressionBinder.Bind(codeGenerationContext, expression);
-
-				var codeGenerator = new ObjectiveCodeGenerator(writer);
-
-				codeGenerator.Generate(headerFileExpression);
-			}
+			List<Expression> methods;
 
 			using (var writer = this.GetTextWriterForFile(expression.Type.Name + ".m"))
 			{
@@ -117,7 +110,18 @@ namespace Fickle.Generators.Objective
 
 				var codeGenerator = new ObjectiveCodeGenerator(writer);
 
+				methods = ExpressionGatherer.Gather(classFileExpression, ServiceExpressionType.MethodDefinition);
+
 				codeGenerator.Generate(classFileExpression);
+			}
+			
+			using (var writer = this.GetTextWriterForFile(expression.Type.Name + ".h"))
+			{
+				var headerFileExpression = GatewayHeaderExpressionBinder.Bind(codeGenerationContext, expression, methods.Cast<MethodDefinitionExpression>().ToList());
+
+				var codeGenerator = new ObjectiveCodeGenerator(writer);
+
+				codeGenerator.Generate(headerFileExpression);
 			}
 		}
 

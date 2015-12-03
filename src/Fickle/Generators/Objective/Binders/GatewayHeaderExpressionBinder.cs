@@ -10,44 +10,22 @@ namespace Fickle.Generators.Objective.Binders
 	public class GatewayHeaderExpressionBinder
 		: ServiceExpressionVisitor
 	{
+		private readonly List<MethodDefinitionExpression> methods;
 		public CodeGenerationContext CodeGenerationContext { get; private set; }
 
-		private GatewayHeaderExpressionBinder(CodeGenerationContext codeGenerationContext)
+		private GatewayHeaderExpressionBinder(CodeGenerationContext codeGenerationContext, List<MethodDefinitionExpression> methods)
 		{
+			this.methods = methods;
 			this.CodeGenerationContext = codeGenerationContext;
 		}
 
-		public static Expression Bind(CodeGenerationContext codeGenerationContext, Expression expression)
+		public static Expression Bind(CodeGenerationContext codeGenerationContext, Expression expression, List<MethodDefinitionExpression> methods)
 		{
-			var binder = new GatewayHeaderExpressionBinder(codeGenerationContext);
+			var binder = new GatewayHeaderExpressionBinder(codeGenerationContext, methods);
 
 			return binder.Visit(expression);
 		}
 
-		private MethodDefinitionExpression CreateInitWithOptionsMethod()
-		{
-			return new MethodDefinitionExpression("initWithOptions", new Expression[] { FickleExpression.Parameter("NSDictionary", "options") }.ToReadOnlyCollection(), FickleType.Define("id"), null, true, null);
-		}
-
-		protected override Expression VisitMethodDefinitionExpression(MethodDefinitionExpression method)
-		{
-			var methodName = method.Name.ToCamelCase();
-
-			var body = new Expression[]
-			{
-				Expression.Return(Expression.Label(), Expression.Constant(null)).ToStatement()
-			};
-
-			var responseType = ObjectiveBinderHelpers.GetWrappedResponseType(this.CodeGenerationContext, method.ReturnType);
-
-			var newParameters = new List<Expression>(method.Parameters)
-			{
-				FickleExpression.Parameter(new FickleDelegateType(typeof(void), new FickleParameterInfo(responseType, "response")), "callback")
-			};
-
-			return new MethodDefinitionExpression(methodName, newParameters.ToReadOnlyCollection(), typeof(void), Expression.Block(body), true, null);
-		}
-			
 		protected override Expression VisitTypeDefinitionExpression(TypeDefinitionExpression expression)
 		{
 			var includeExpressions = new List<IncludeExpression>();
@@ -58,11 +36,7 @@ namespace Fickle.Generators.Objective.Binders
 			(
 				optionsProperty,
 				responseFilterProperty,
-                FickleExpression.Grouped
-				(
-					this.CreateInitWithOptionsMethod(),
-					this.Visit(expression.Body)
-				)
+                new GroupedExpressionsExpression(methods.Select(c => c.ChangePredeclaration(true)))
 			);
 
 			var referencedTypes = ReferencedTypesCollector.CollectReferencedTypes(body);

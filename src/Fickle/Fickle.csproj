@@ -131,6 +131,7 @@
     <Compile Include="Model\ServiceClass.cs" />
     <Compile Include="Model\ServiceParameter.cs" />
     <Compile Include="Model\ServiceProperty.cs" />
+    <Compile Include="UniqueNameMaker.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Reflectors\ServiceModelReflectionOptions.cs" />
     <Compile Include="Reflectors\ServiceModelReflector.cs" />

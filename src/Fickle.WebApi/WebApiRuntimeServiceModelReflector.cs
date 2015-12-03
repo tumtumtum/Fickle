@@ -239,6 +239,28 @@ namespace Fickle.WebApi
 						returnType = typeof(string);
 					}
 
+					var parameters = api.ParameterDescriptions.Select(d => new ServiceParameter
+					{
+						Name = d.ParameterDescriptor.ParameterName,
+						TypeName = GetTypeName(d.ParameterDescriptor.ParameterType)
+					}).ToList();
+
+					ServiceParameter contentServiceParameter = null;
+					var contentParameter = api.ParameterDescriptions.SingleOrDefault(c => c.Source == ApiParameterSource.FromBody);
+
+					var uniqueNameMaker = new UniqueNameMaker(c => api.ParameterDescriptions.Any(d => d.Name.EqualsIgnoreCase(c)));
+
+					if (contentParameter == null && api.HttpMethod.Method.EqualsIgnoreCaseInvariant("POST"))
+					{
+						contentServiceParameter = new ServiceParameter { Name = uniqueNameMaker.Make("content"), TypeName = GetTypeName(typeof(byte[])) };
+
+						parameters.Add(contentServiceParameter);
+					}
+					else if (contentParameter != null)
+					{
+						contentServiceParameter = new ServiceParameter { Name = contentParameter.Name, TypeName = GetTypeName(contentParameter.ParameterDescriptor.ParameterType) };
+					}
+
 					var serviceMethod = new ServiceMethod
 					{
 						Authenticated = api.ActionDescriptor.GetCustomAttributes<AuthorizeAttribute>(true).Count > 0,
@@ -247,21 +269,15 @@ namespace Fickle.WebApi
 						Returns = GetTypeName(returnType),
 						ReturnFormat = "json",
 						Method = api.HttpMethod.Method.ToLower(),
-						Parameters = api.ParameterDescriptions.Select(d => new ServiceParameter
-						{
-							Name = d.ParameterDescriptor.ParameterName,
-							TypeName = GetTypeName(d.ParameterDescriptor.ParameterType)
-						}).ToList()
+						Parameters = parameters
 					};
-
-					var contentParameter = api.ParameterDescriptions.SingleOrDefault(c => c.Source == ApiParameterSource.FromBody);
 					
-					if (contentParameter != null)
+					if (contentServiceParameter != null)
 					{
-						serviceMethod.Content = contentParameter.Name;
-						serviceMethod.ContentServiceParameter = serviceMethod.Parameters.FirstOrDefault(c => c.Name == contentParameter.Name);
+						serviceMethod.Content = contentServiceParameter.Name;
+						serviceMethod.ContentServiceParameter = contentServiceParameter;
 					}
-
+					
 					methods.Add(serviceMethod);
 				}
 

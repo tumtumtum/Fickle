@@ -58,19 +58,35 @@ namespace Fickle.Generators.Objective.Binders
 
 		protected override Expression VisitMethodDefinitionExpression(MethodDefinitionExpression method)
 		{
+			ParameterExpression optionsParameter;
+			var self = Expression.Variable(currentType, "self");
+			var gatewayCall = (MethodDefinitionExpression)this.CreateGatewayCallMethod(method, out optionsParameter);
+			var newArgs = gatewayCall.Parameters.Select(c => c != optionsParameter ? c : Expression.Constant(null, c.Type)).ToList();
+			var newMethodParams = gatewayCall.Parameters.Where(c => c != optionsParameter).ToList();
+
+			var methodInfo = new FickleMethodInfo(self.Type, gatewayCall.ReturnType, gatewayCall.Name, gatewayCall.Parameters.Cast<ParameterExpression>().Select(c => new FickleParameterInfo(c.Type, c.Name)).ToArray());
+			var newBody = Expression.Call(self, methodInfo, newArgs).ToStatementBlock();
+			var gatewayCallMethodWithoutOptions = new MethodDefinitionExpression(gatewayCall.Name, newMethodParams, gatewayCall.ReturnType, newBody, false, gatewayCall.RawAttributes, gatewayCall.Attributes);
+
+			return new GroupedExpressionsExpression(new [] { gatewayCall, gatewayCallMethodWithoutOptions }, GroupedExpressionsExpressionStyle.Wide);
+		}
+
+		protected Expression CreateGatewayCallMethod(MethodDefinitionExpression method, out ParameterExpression optionsParameter)
+		{
 			var methodName = method.Name.ToCamelCase();
 
 			methodCount++;
 			
 			var self = Expression.Variable(currentType, "self");
 			var hostname = Expression.Variable(typeof(string), "hostname");
-			var options = FickleExpression.Variable("NSMutableDictionary", "localOptions");
+			var optionsParam = FickleExpression.Parameter("NSDictionary", "options");
+			var localOptions = FickleExpression.Variable("NSMutableDictionary", "localOptions");
 			var requestObject = FickleExpression.Variable("NSObject", "requestObject");
 			var requestObjectValue = (Expression)Expression.Constant(null, typeof(object));
             var url = Expression.Variable(typeof(string), "url");
 			var client = Expression.Variable(FickleType.Define(this.CodeGenerationContext.Options.ServiceClientTypeName ?? "PKWebServiceClient"), "client");
 			var responseType = ObjectiveBinderHelpers.GetWrappedResponseType(this.CodeGenerationContext, method.ReturnType);
-			var variables = new [] { url, client, options, hostname, requestObject };
+			var variables = new [] { url, client, localOptions, hostname, requestObject };
 			var declaredHostname = currentTypeDefinitionExpression.Attributes["Hostname"];
 			var declaredPath = method.Attributes["Path"];
 			var path = StringUriUtils.Combine("http://%@", declaredPath);
@@ -94,8 +110,8 @@ namespace Fickle.Generators.Objective.Binders
 			var methodInfo = new FickleMethodInfo(typeof(string), typeof(string), "stringWithFormat", parameterInfos.ToArray(), true);
 
 			args.InsertRange(0, new Expression[] { Expression.Constant(formatInfo.Format), hostname });
-			
-			var newParameters = new List<Expression>(method.Parameters);
+
+			var newParameters = new List<Expression>(method.Parameters) { optionsParam };
 			var callback = Expression.Parameter(new FickleDelegateType(typeof(void), new FickleParameterInfo(responseType, "response")), "callback");
 
 			newParameters.Add(callback);
@@ -143,7 +159,7 @@ namespace Fickle.Generators.Objective.Binders
 				{
 					var content = parametersByName[contentParameterName];
 
-					requestObjectValue = FickleExpression.Call(self, typeof(object), this.GetNormalizeRequestMethodName(content.Type, contentFormat), new { serializeRequest = Expression.Convert(content, typeof(object)), paramName = Expression.Constant(contentParameterName) });
+					requestObjectValue = content.Type == typeof(byte[]) ? (Expression)content : FickleExpression.Call(self, typeof(object), this.GetNormalizeRequestMethodName(content.Type, contentFormat), new { serializeRequest = Expression.Convert(content, typeof(object)), paramName = Expression.Constant(contentParameterName) });
 
                     clientCallExpression = FickleExpression.Call(client, "postWithRequestObject", new
 					{
@@ -223,6 +239,17 @@ namespace Fickle.Generators.Objective.Binders
 				);
 			}
 
+			var uniqueNameMaker = new UniqueNameMaker(c => newParameters.Any(d => d))
+
+			var key = FickleExpression.Variable(typeof(string), "__key__");
+
+			var integrateOptions = FickleExpression.ForEach
+			(
+				key,
+				optionsParam,
+				FickleExpression.Call(localOptions, typeof(void), "setObject", new { value = FickleExpression.Call(optionsParam, typeof(object), "objectForKey", key), forKey = key }).ToStatementBlock()
+			);
+
 			parseResultBlock = FickleExpression.Call(parseResultBlock, parseResultBlock.Type, "copy", null);
 			
 			var block = FickleExpression.Block
@@ -230,37 +257,40 @@ namespace Fickle.Generators.Objective.Binders
 				variables,
 				Expression.Assign(requestObject, requestObjectValue),
 				Expression.Assign(callback, FickleExpression.Call(callback, callback.Type, "copy", null)),
-				Expression.Assign(options, FickleExpression.Call(FickleExpression.Property(self, FickleType.Define("NSDictionary"), "options"), "NSMutableDictionary", "mutableCopyWithZone", new
+				Expression.Assign(localOptions, FickleExpression.Call(FickleExpression.Property(self, FickleType.Define("NSDictionary"), "options"), "NSMutableDictionary", "mutableCopyWithZone", new
 				{
 					zone = Expression.Constant(null, FickleType.Define("NSZone"))
 				})),
-				Expression.IfThen(Expression.NotEqual(requestObject, Expression.Constant(null)), FickleExpression.Call(options, typeof(void), "setObject", new { value = requestObject, forKey = "$RequestObject" }).ToStatementBlock()),
-                FickleExpression.Call(options, typeof(void), "setObject", new { value = FickleExpression.StaticCall(responseType, "class", null), forKey = "$ResponseClass" }).ToStatement(),
-				Expression.Assign(hostname, FickleExpression.Call(options, typeof(string), "objectForKey", Expression.Constant("hostname"))),
+				Expression.IfThen(Expression.NotEqual(requestObject, Expression.Constant(null)), FickleExpression.Call(localOptions, typeof(void), "setObject", new { value = requestObject, forKey = "$RequestObject" }).ToStatementBlock()),
+                FickleExpression.Call(localOptions, typeof(void), "setObject", new { value = FickleExpression.StaticCall(responseType, "class", null), forKey = "$ResponseClass" }).ToStatement(),
+				Expression.Assign(hostname, FickleExpression.Call(localOptions, typeof(string), "objectForKey", Expression.Constant("hostname"))),
 				Expression.IfThen(Expression.Equal(hostname, Expression.Constant(null)), Expression.Assign(hostname, Expression.Constant(declaredHostname)).ToStatementBlock()),
 				FickleExpression.Grouped
 				(
-					FickleExpression.Call(options, "setObject", new
+					FickleExpression.Call(localOptions, "setObject", new
 					{
 						obj = parseResultBlock,
 						forKey = "$ParseResultBlock"
 					}).ToStatement(),
 					method.ReturnType.GetUnwrappedNullableType() == typeof(bool) ?
-					FickleExpression.Call(options, "setObject", new
+					FickleExpression.Call(localOptions, "setObject", new
 					{
 						obj = Expression.Convert(Expression.Constant(1), typeof(object))
 					}).ToStatement() : null
 				),
 				Expression.Assign(url, Expression.Call(null, methodInfo, args)),
-				FickleExpression.Call(options, typeof(void), "setObject", new { value = url, forKey = "$RequestURL" }).ToStatement(),
+				FickleExpression.Call(localOptions, typeof(void), "setObject", new { value = url, forKey = "$RequestURL" }).ToStatement(),
+				integrateOptions,
 				Expression.Assign(client, FickleExpression.Call(Expression.Variable(currentType, "self"), "PKWebServiceClient", "createClientWithURL", new
 				{
 					url,
-					options
+					options = localOptions
 				})),
 				Expression.Assign(FickleExpression.Property(client, currentType, "delegate"), self),
 				clientCallExpression
 			);
+
+			optionsParameter = optionsParam;
 
 			return new MethodDefinitionExpression(methodName, newParameters.ToReadOnlyCollection(), typeof(void), block, false, null);
 		}
@@ -481,15 +511,21 @@ namespace Fickle.Generators.Objective.Binders
 			var requestObject = Expression.Parameter(FickleType.Define("id"), "serializeRequest");
 			var parameters = new[] { new FickleParameterInfo(FickleType.Define("NSDictionary"), "obj"), new FickleParameterInfo(FickleType.Define("NSJSONWritingOptions", false, true), "options"), new FickleParameterInfo(FickleType.Define("NSError"), "error", true) };
 			var methodInfo = new FickleMethodInfo(FickleType.Define("NSJSONSerialization"), FickleType.Define("NSData"), "dataWithJSONObject", parameters, true);
+			var nsDataType = FickleType.Define("NSData");
 
-			var body = FickleExpression.Block
+            var body = FickleExpression.Block
 			(
 				new[] { error, retval },
 				Expression.IfThenElse
 				(
 					Expression.TypeIs(requestObject, typeof(string)),
 					Expression.Assign(retval, FickleExpression.Call(requestObject, typeof(string), "dataUsingEncoding", Expression.Variable(typeof(int), "NSUTF8StringEncoding"))).ToStatementBlock(),
-                    Expression.Assign(retval, Expression.Call(methodInfo, requestObject, Expression.Convert(Expression.Variable(typeof(int), "NSJSONReadingAllowFragments"), FickleType.Define("NSJSONWritingOptions", false, true)), error)).ToStatementBlock()
+					Expression.IfThenElse
+					(
+						Expression.TypeIs(requestObject, nsDataType),
+						Expression.Assign(retval, Expression.Convert(requestObject, nsDataType)).ToStatementBlock(),
+						Expression.Assign(retval, Expression.Call(methodInfo, requestObject, Expression.Convert(Expression.Variable(typeof(int), "NSJSONReadingAllowFragments"), FickleType.Define("NSJSONWritingOptions", false, true)), error)).ToStatementBlock()
+					)
 				),
 				FickleExpression.Return(retval)
 			);
