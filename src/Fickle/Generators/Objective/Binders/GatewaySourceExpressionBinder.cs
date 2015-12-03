@@ -239,9 +239,9 @@ namespace Fickle.Generators.Objective.Binders
 				);
 			}
 
-			var uniqueNameMaker = new UniqueNameMaker(c => newParameters.Any(d => d))
+			var uniqueNameMaker = new UniqueNameMaker(c => newParameters.Cast<ParameterExpression>().Any(d => d.Name.EqualsIgnoreCaseInvariant(c)));
 
-			var key = FickleExpression.Variable(typeof(string), "__key__");
+			var key = FickleExpression.Variable(typeof(string), uniqueNameMaker.Make("key"));
 
 			var integrateOptions = FickleExpression.ForEach
 			(
