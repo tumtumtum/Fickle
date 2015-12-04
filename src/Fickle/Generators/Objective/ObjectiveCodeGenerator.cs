@@ -968,7 +968,7 @@ namespace Fickle.Generators.Objective
 			}
 			else if (type != null && type.BaseType == typeof(Enum))
 			{
-				this.Write($"typedef {(expression.Attributes["flags"] != null ? "NS_OPTIONS" : "NS_ENUM")}(NSInteger, ");
+				this.Write($"typedef {(expression.Attributes.ContainsKey("flags") ? "NS_OPTIONS" : "NS_ENUM")}(NSInteger, ");
 				this.Write(expression.Type);
 				this.WriteLine(@")");
 
