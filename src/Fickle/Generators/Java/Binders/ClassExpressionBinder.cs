@@ -385,7 +385,7 @@ namespace Fickle.Generators.Java.Binders
 			currentTypeDefinition = expression;
 			currentType = expression.Type;
 			var referencedTypes = ReferencedTypesCollector.CollectReferencedTypes(expression);
-			referencedTypes.Sort((x, y) => String.Compare(x.Name, y.Name, StringComparison.InvariantCultureIgnoreCase));
+			referencedTypes.Sort((x, y) => string.Compare(x.Name, y.Name, StringComparison.InvariantCultureIgnoreCase));
 
 			var includeExpressions = new List<IncludeExpression>();
 

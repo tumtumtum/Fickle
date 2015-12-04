@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Linq.Expressions;
 using Fickle.Expressions;
+using Fickle.Expressions.Fluent;
 using Platform;
 
 namespace Fickle.Generators.Objective.Binders
@@ -33,9 +34,12 @@ namespace Fickle.Generators.Objective.Binders
 		private MethodDefinitionExpression CreateInitMethod()
 		{
 			var self = FickleExpression.Variable(currentType, "self");
-			var body = FickleExpression.Return(FickleExpression.Call(self, "initWithOptions", Expression.New(FickleType.Define("NSDictionary")))).ToStatementBlock();
+			
+			var method = new MethodDefinitionScope<MethodDefinitionExpression>("init", "id", null)
+				.Return(c => c.Call(self, self.Type, "initWithOptions", FickleExpression.New("NSDictionary")))
+				.EndMethod();
 
-			return new MethodDefinitionExpression("init", new Expression[0], FickleType.Define("id"), body, false, null);
+			return method;
 		}
 
         private MethodDefinitionExpression CreateInitWithOptionsMethod()

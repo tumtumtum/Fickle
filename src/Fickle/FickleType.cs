@@ -39,7 +39,12 @@ namespace Fickle
 
 			return retval;
 		}
-		
+
+		public static implicit operator FickleType(string typeName)
+		{
+			return FickleType.Define(typeName);
+		}
+
 		public override Type MakeByRefType()
 		{
 			if (this.ServiceClass != null)

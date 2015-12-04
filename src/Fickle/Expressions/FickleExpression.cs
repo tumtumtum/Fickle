@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using Platform.Reflection;
 
 namespace Fickle.Expressions
 {
@@ -101,7 +102,7 @@ namespace Fickle.Expressions
 		{
 			return Call(null, new FickleType(type), new FickleType(returnType), methodName, arguments, true);
 		}
-
+	
 		public static MethodCallExpression Call(Expression instance, string methodName, object arguments)
 		{
 			return Call(instance, instance.Type, typeof(void), methodName, arguments, false);
@@ -218,7 +219,12 @@ namespace Fickle.Expressions
 			return Expression.Property(instance, propertyInfo);
 		}
 
-		public static NewExpression New(string type, string constructorName, object arguments)
+		public static NewExpression New(string typeName)
+		{
+			return Expression.New(FickleType.Define(typeName));
+		}
+
+        public static NewExpression New(string type, string constructorName, object arguments)
 		{
 			return FickleExpression.New(new FickleType(type), constructorName, arguments);
 		}
