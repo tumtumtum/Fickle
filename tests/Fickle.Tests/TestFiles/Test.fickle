@@ -3,6 +3,7 @@
 	@author Fickle
 
 enum Sex
+	@flags
 	Male : 1
 	Female : 2
 

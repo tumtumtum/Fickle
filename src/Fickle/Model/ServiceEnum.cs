@@ -4,6 +4,7 @@ namespace Fickle.Model
 {
 	public class ServiceEnum
 	{
+		public bool Flags { get; set; }
 		public string Name { get; set; }
 		public List<ServiceEnumValue> Values { get; set; }
 	}

@@ -111,7 +111,15 @@ namespace Fickle.Ficklefile
 
 			while (true)
 			{
-				if (this.tokenizer.CurrentToken != FicklefileToken.Identifier)
+				if (this.tokenizer.CurrentToken == FicklefileToken.Annotation)
+				{
+					var annotation = this.ProcessAnnotation();
+
+					this.SetAnnotation(retval, annotation);
+					
+					continue;
+				}
+				else if (this.tokenizer.CurrentToken != FicklefileToken.Identifier)
 				{
 					break;
 				}

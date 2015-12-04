@@ -38,7 +38,14 @@ namespace Fickle.Generators
 		{
 			var expressions = serviceEnum.Values.Select(value => Expression.Assign(Expression.Variable(typeof(long), value.Name), Expression.Constant(value.Value))).Cast<Expression>().ToList();
 
-			return new TypeDefinitionExpression(this.GetTypeFromName(serviceEnum.Name), null, expressions.ToGroupedExpression(), true, null, null);
+			var attributes = new Dictionary<string, string>();
+
+			if (serviceEnum.Flags)
+			{
+				attributes["flags"] = "true";
+			}
+
+			return new TypeDefinitionExpression(this.GetTypeFromName(serviceEnum.Name), null, expressions.ToGroupedExpression(), true, new ReadOnlyDictionary<string, string>(attributes), null);
 		}
 
 		public virtual Expression Build(ServiceClass serviceClass)
