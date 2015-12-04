@@ -1,4 +1,7 @@
-﻿using System.IO;
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Web.Http;
@@ -10,13 +13,25 @@ namespace Fickle.WebApi.TestWebService.Areas.Fickle.Controllers
 	public class FickleController
 		: ApiController
 	{
-		[Route("Fickle")]
+		private static readonly Type[] controllersToIgnore;
+
+		static FickleController()
+		{
+			var list = new List<Type> { typeof(FickleController) };
+			var attributes = typeof(FickleController).Assembly.GetCustomAttributes(typeof(FickleExcludeControllerAttribute), true);
+
+			list.AddRange(attributes.Cast<FickleExcludeControllerAttribute>().Select(c => c.Type));
+
+			controllersToIgnore = list.ToArray();
+		}
+
 		[HttpGet]
+		[Route("fickle")]
 		public HttpResponseMessage Fickle()
 		{
 			var options = new ServiceModelReflectionOptions
 			{
-				ControllersTypesToIgnore = new[] { this.GetType() }
+				ControllersTypesToIgnore = controllersToIgnore
 			};
 
 			var reflector = new WebApiRuntimeServiceModelReflector(options, this.Configuration, this.GetType().Assembly, Request.RequestUri.Host);
