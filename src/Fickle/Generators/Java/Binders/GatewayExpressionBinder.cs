@@ -221,7 +221,7 @@ namespace Fickle.Generators.Java.Binders
 
 			var header = new Expression[] { comment, namespaceExpression, headerGroup }.ToGroupedExpression(GroupedExpressionsExpressionStyle.Wide);
 
-			return new TypeDefinitionExpression(expression.Type, header, body, false);
+			return new TypeDefinitionExpression(expression.Type, header, body, false, expression.Attributes, expression.InterfaceTypes);
 		}
 	}
 }

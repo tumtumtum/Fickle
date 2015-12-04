@@ -275,7 +275,7 @@ namespace Fickle.Generators.Java.Binders
 
 				var body = new GroupedExpressionsExpression(bodyExpressions);
 
-				return new TypeDefinitionExpression(expression.Type, header, body, false);
+				return new TypeDefinitionExpression(expression.Type, header, body, false, expression.Attributes, expression.InterfaceTypes);
 			}
 			finally
 			{

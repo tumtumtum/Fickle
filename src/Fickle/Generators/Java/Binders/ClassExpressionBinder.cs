@@ -433,7 +433,7 @@ namespace Fickle.Generators.Java.Binders
 
 			var body = fieldDefinitionsForProperties.Concat(members).ToStatementisedGroupedExpression(GroupedExpressionsExpressionStyle.Wide);
 
-			return new TypeDefinitionExpression(expression.Type, header, body, false);
+			return new TypeDefinitionExpression(expression.Type, header, body, false, expression.Attributes, expression.InterfaceTypes);
 		}
 
 		private void GetServiceModelResponseTypes()

@@ -197,7 +197,7 @@ namespace Fickle.Generators.Objective.Binders
 
 			var body = methods.ToStatementisedGroupedExpression(GroupedExpressionsExpressionStyle.Wide);
 
-			return new TypeDefinitionExpression(expression.Type, header, body, false, null, expression.InterfaceTypes);
+			return new TypeDefinitionExpression(expression.Type, header, body, false, expression.Attributes, expression.InterfaceTypes);
 		}
 	}
 }

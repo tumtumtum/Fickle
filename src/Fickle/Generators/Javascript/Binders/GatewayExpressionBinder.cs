@@ -175,7 +175,7 @@ namespace Fickle.Generators.Javascript.Binders
 
 			var header = new Expression[] { comment }.ToGroupedExpression(GroupedExpressionsExpressionStyle.Wide);
 
-			return new TypeDefinitionExpression(expression.Type, header, body, false);
+			return new TypeDefinitionExpression(expression.Type, header, body, false, expression.Attributes, expression.InterfaceTypes);
 		}
 	}
 }

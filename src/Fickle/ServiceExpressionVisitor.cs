@@ -116,7 +116,7 @@ namespace Fickle
 
 			if (header != expression.Header || body != expression.Body)
 			{
-				return new TypeDefinitionExpression(expression.Type, header, body, expression.IsPredeclaration, null, expression.InterfaceTypes);
+				return new TypeDefinitionExpression(expression.Type, header, body, expression.IsPredeclaration, expression.Attributes, expression.InterfaceTypes);
 			}
 
 			return expression;

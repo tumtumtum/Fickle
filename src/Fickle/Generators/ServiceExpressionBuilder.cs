@@ -40,7 +40,7 @@ namespace Fickle.Generators
 
 			var attributes = new Dictionary<string, string>();
 
-			if (serviceEnum.Flags)
+			if (serviceEnum.Flags != null)
 			{
 				attributes["flags"] = "true";
 			}

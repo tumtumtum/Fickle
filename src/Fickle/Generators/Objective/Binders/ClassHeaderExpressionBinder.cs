@@ -103,7 +103,7 @@ namespace Fickle.Generators.Objective.Binders
 				FickleType.Define("PKFormEncodingSerializable")
 			};
 
-			return new TypeDefinitionExpression(expression.Type, header, propertyBody, true, null, interfaceTypes.ToReadOnlyCollection());
+			return new TypeDefinitionExpression(expression.Type, header, propertyBody, true, expression.Attributes, interfaceTypes.ToReadOnlyCollection());
 		}
 	}
 }

@@ -972,7 +972,7 @@ namespace Fickle.Generators.Objective
 				this.Write(expression.Type);
 				this.WriteLine(@")");
 
-				using (this.AcquireIndentationContext(BraceLanguageStyleIndentationOptions.IncludeBracesNewLineAfter))
+				using (this.AcquireIndentationContext(BraceLanguageStyleIndentationOptions.IncludeBraces))
 				{
 					var expressions = ((GroupedExpressionsExpression)expression.Body).Expressions;
 

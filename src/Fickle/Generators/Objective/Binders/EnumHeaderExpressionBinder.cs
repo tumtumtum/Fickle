@@ -161,7 +161,7 @@ namespace Fickle.Generators.Objective.Binders
 
 				return FickleExpression.GroupedWide
 				(
-					new TypeDefinitionExpression(expression.Type, header, body, false, null, null),
+					new TypeDefinitionExpression(expression.Type, header, body, false, expression.Attributes, expression.InterfaceTypes),
 					this.CreateTryParseMethod(),
 					this.CreateToStringMethod()
 				);

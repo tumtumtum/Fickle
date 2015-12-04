@@ -669,7 +669,7 @@ namespace Fickle.Generators.Objective.Binders
 
 			this.currentType = null;
 
-			return new TypeDefinitionExpression(expression.Type, header, body, false, null);
+			return new TypeDefinitionExpression(expression.Type, header, body, false, expression.Attributes);
 		}
 	}
 }
