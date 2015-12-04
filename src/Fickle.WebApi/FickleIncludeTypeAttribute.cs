@@ -2,7 +2,7 @@
 
 namespace Fickle.WebApi
 {
-	[AttributeUsage(AttributeTargets.Assembly)]
+	[AttributeUsage(AttributeTargets.Assembly, AllowMultiple = true)]
 	public class FickleIncludeTypeAttribute
 		: Attribute
 	{

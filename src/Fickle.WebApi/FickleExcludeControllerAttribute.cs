@@ -2,6 +2,7 @@
 
 namespace Fickle.WebApi
 {
+	[AttributeUsage(AttributeTargets.Assembly, AllowMultiple = true)]
 	public class FickleExcludeControllerAttribute
 		: Attribute
 	{
