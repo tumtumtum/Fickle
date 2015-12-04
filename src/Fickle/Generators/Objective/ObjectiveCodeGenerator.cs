@@ -922,9 +922,9 @@ namespace Fickle.Generators.Objective
 				this.WriteLine();
 			}
 
-			var dryType = expression.Type as FickleType;
+			var type = expression.Type as FickleType;
 
-			if (dryType != null && dryType.IsClass)
+			if (type != null && type.IsClass)
 			{
 				if (!expression.IsPredeclaration)
 				{
@@ -966,17 +966,19 @@ namespace Fickle.Generators.Objective
 					this.WriteLine("#pragma clang diagnostic pop");
 				}
 			}
-			else if (dryType != null && dryType.BaseType == typeof(Enum))
+			else if (type != null && type.BaseType == typeof(Enum))
 			{
-				this.WriteLine("typedef enum");
-				
+				this.Write($"typedef {(expression.Attributes["flags"] != null ? "NS_OPTIONS" : "NS_ENUM")}(NSInteger, ");
+				this.Write(expression.Type);
+				this.WriteLine(@")");
+
 				using (this.AcquireIndentationContext(BraceLanguageStyleIndentationOptions.IncludeBracesNewLineAfter))
 				{
 					var expressions = ((GroupedExpressionsExpression)expression.Body).Expressions;
 
 					var i = 0;
 
-					foreach (BinaryExpression assignment in expressions)
+					foreach (var assignment in expressions.Cast<BinaryExpression>())
 					{
 						this.Write(((ParameterExpression)assignment.Left).Name);
 						this.Write(" = ");
@@ -991,7 +993,6 @@ namespace Fickle.Generators.Objective
 					}
 				}
 
-				this.Write(expression.Type, true);
 				this.WriteLine(";");
 			}
 
