@@ -90,6 +90,13 @@ gateway UserService
 		@method get
 		@returns Person
 
+	UploadAvatar(id:uuid image:byte[])
+		@returnformat json
+		@path /api/UserService/UploadAvatar/{id}
+		@method get
+		@content image
+		@returns Person
+
 	GetUser(id:uuid fromDate:datetime)
 		@returnformat json
 		@path /api/UserService/User/{id}/{fromDate}

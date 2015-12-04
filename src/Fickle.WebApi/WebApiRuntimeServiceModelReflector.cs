@@ -122,13 +122,13 @@ namespace Fickle.WebApi
 			{
 				return null;
 			}
-
+			
 			if (TypeSystem.IsPrimitiveType(type))
 			{
 				if (type.GetUnwrappedNullableType().IsEnum)
 				{
 					return TypeSystem.GetPrimitiveName(type);
-				}
+                }
 				else
 				{
 					return TypeSystem.GetPrimitiveName(type).ToLower();

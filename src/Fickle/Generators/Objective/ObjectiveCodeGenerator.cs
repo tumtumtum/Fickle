@@ -127,29 +127,16 @@ namespace Fickle.Generators.Objective
 
 				return;
 			}
-			if (type == typeof(byte[]))
-			{
-				if (nameOnly)
-				{
-					this.Write("NSData");
-				}
-				else
-				{
-					this.Write("NSData*");
-				}
-
-				return;
-			}
 			else if (type.GetFickleListElementType() != null)
 			{
-				if (nameOnly)
+				if (type.GetFickleListElementType() == typeof(byte))
 				{
-					this.Write("NSMutableArray");
+					this.Write(nameOnly ? "NSData" : "NSData*");
+
+					return;
 				}
-				else
-				{
-					this.Write("NSMutableArray*");
-				}
+
+				this.Write(nameOnly ? "NSMutableArray" : "NSMutableArray*");
 
 				return;
 			}

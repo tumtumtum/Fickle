@@ -79,7 +79,7 @@ namespace Fickle.Model
 		private Type MakeListType(Type elementType)
 		{
 			Type value;
-			
+
 			if (!listTypesByElementType.TryGetValue(elementType, out value))
 			{
 				value = new FickleListType(elementType);
