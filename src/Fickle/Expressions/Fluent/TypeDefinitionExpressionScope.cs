@@ -18,7 +18,7 @@ namespace Fickle.Expressions.Fluent
 		private readonly List<Type> interfaceTypes = new List<Type>();
 		private readonly Dictionary<string, string> attributes = new Dictionary<string, string>();
 
-		public TypeDefinitionExpressionScope(Type type, T previousScope, Action<Expression> complete)
+		public TypeDefinitionExpressionScope(Type type, T previousScope = null, Action<Expression> complete = null)
 		{
 			this.type = type;
 			this.previousScope = previousScope;

@@ -192,7 +192,7 @@ namespace Fickle.WebApi
 				var serviceEnum = new ServiceEnum
 				{
 					Name = GetTypeName(enumType),
-					Values = ((int[])enumType.GetEnumValues()).Select(c => new ServiceEnumValue { Name = enumType.GetEnumName(c), Value = c}).ToList()
+					Values = Enum.GetValues(enumType).Cast<int>().ToArray().Select(c => new ServiceEnumValue { Name = enumType.GetEnumName(c), Value = c}).ToList()
 				};
 
 				enums.Add(serviceEnum);

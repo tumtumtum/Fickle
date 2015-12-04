@@ -59,6 +59,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Expressions\Fx.cs" />
     <Compile Include="Expressions\Fluent\ForEachScope.cs" />
     <Compile Include="Expressions\Fluent\GlobalExpressionScope.cs" />
     <Compile Include="Expressions\Fluent\IfElseScope.cs" />
