@@ -23,11 +23,14 @@ namespace Fickle.Expressions.Fluent
 		{
 		}
 
+		protected override Expression GetExpression()
+		{
+			return new MethodDefinitionExpression(this.name, new List<Expression>(), this.returnType, this.expressions.ToGroupedExpression().ToBlock(), false);
+		}
+
 		public virtual T EndMethod()
 		{
-			var methodDefinition = new MethodDefinitionExpression(this.name, new List<Expression>(), this.returnType, this.expressions.ToGroupedExpression().ToBlock(), false);
-
-			return this.EndWithResult(methodDefinition);
+			return base.End();
 		}
 	}
 }

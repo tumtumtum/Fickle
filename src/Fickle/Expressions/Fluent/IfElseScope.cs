@@ -5,15 +5,15 @@ using System.Linq.Expressions;
 namespace Fickle.Expressions.Fluent
 {
 	public class ElseScope<T>
-		: StatementBlockScope<IfElseScope<T>, ElseScope<T>>
+		: StatementBlockScope<T, ElseScope<T>>
 		where T : class
 	{
-		public ElseScope(IfElseScope<T> ifElseScope, Action<Expression> complete)
+		public ElseScope(T ifElseScope, Action<Expression> complete)
 			: base(ifElseScope, complete)
 		{
 		}
 
-		public virtual IfElseScope<T> EndIf() => base.End();
+		public virtual T EndIf() => base.End();
 	}
 
 	public class IfElseScope<T>
@@ -28,18 +28,10 @@ namespace Fickle.Expressions.Fluent
 		{
 			this.currentCondition = condition;
 		}
-
-		public IfElseScope<T> Then(Expression expression)
-		{
-			this.currentCondition = expression;
-			this.expressions = new List<Expression>();
-
-			return this;
-		}
 		
 		public IfElseScope<T> ElseIf(Expression condition)
 		{
-			this.conditionsAndExpressions.Add(new Tuple<Expression, Expression>(this.currentCondition, new GroupedExpressionsExpression(this.expressions, GroupedExpressionsExpressionStyle.Wide)));
+			this.conditionsAndExpressions.Add(new Tuple<Expression, Expression>(this.currentCondition, this.GetExpression()));
 
 			this.currentCondition = condition;
 			this.expressions = new List<Expression>();
@@ -49,12 +41,12 @@ namespace Fickle.Expressions.Fluent
 
 		public ElseScope<T> Else()
 		{
-			this.conditionsAndExpressions.Add(new Tuple<Expression, Expression>(this.currentCondition, new GroupedExpressionsExpression(this.expressions, GroupedExpressionsExpressionStyle.Wide)));
+			this.conditionsAndExpressions.Add(new Tuple<Expression, Expression>(this.currentCondition, this.GetExpression()));
 
 			this.currentCondition = null;
 			this.expressions = new List<Expression>();
 
-			return new ElseScope<T>(this, c =>
+			return new ElseScope<T>(this.previousScope, c =>
 			{
 				this.conditionsAndExpressions.Add(new Tuple<Expression, Expression>(null, c));
 
@@ -66,20 +58,18 @@ namespace Fickle.Expressions.Fluent
 		{
 			Expression current = null;
 
+			if (this.currentCondition != null)
+			{
+				this.conditionsAndExpressions.Add(new Tuple<Expression, Expression>(this.currentCondition, this.expressions.ToGroupedExpression()));
+			}
+
 			for (var i = this.conditionsAndExpressions.Count - 1; i >= 0; i--)
 			{
 				var item = this.conditionsAndExpressions[i];
 
 				if (i == this.conditionsAndExpressions.Count - 1)
 				{
-					if (item.Item1 == null)
-					{
-						current = item.Item2;
-					}
-					else
-					{
-						current = Expression.IfThen(item.Item1, item.Item2);
-					}
+					current = item.Item1 == null ? (Expression)item.Item2.ToBlock() : Expression.IfThen(item.Item1, item.Item2.ToBlock());
 
 					continue;
 				}
@@ -89,8 +79,10 @@ namespace Fickle.Expressions.Fluent
 					throw new InvalidOperationException();
 				}
 
-				current = Expression.IfThenElse(item.Item1, item.Item2, current);
+				current = Expression.IfThenElse(item.Item1, item.Item2.ToBlock(), current);
 			}
+
+			current = current ?? Expression.Empty();
 
 			this.complete(current);
 

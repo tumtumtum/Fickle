@@ -250,7 +250,9 @@ namespace Fickle.WebApi
 
 					var uniqueNameMaker = new UniqueNameMaker(c => api.ParameterDescriptions.Any(d => d.Name.EqualsIgnoreCase(c)));
 
-					if (contentParameter == null && api.HttpMethod.Method.EqualsIgnoreCaseInvariant("POST"))
+					if (contentParameter == null
+						&& api.HttpMethod.Method.EqualsIgnoreCaseInvariant("POST")
+						&& api.ActionDescriptor.GetCustomAttributes<NoBodyAttribute>().Count == 0)
 					{
 						contentServiceParameter = new ServiceParameter { Name = uniqueNameMaker.Make("content"), TypeName = GetTypeName(typeof(byte[])) };
 

@@ -517,24 +517,20 @@ namespace Fickle.Generators.Objective.Binders
 			var methodInfo = new FickleMethodInfo(FickleType.Define("NSJSONSerialization"), FickleType.Define("NSData"), "dataWithJSONObject", parameters, true);
 			var nsDataType = FickleType.Define("NSData");
 
-            var body = FickleExpression.Block
-			(
-				new[] { error, retval },
-				Expression.IfThenElse
-				(
-					Expression.TypeIs(requestObject, typeof(string)),
-					Expression.Assign(retval, FickleExpression.Call(requestObject, typeof(string), "dataUsingEncoding", Expression.Variable(typeof(int), "NSUTF8StringEncoding"))).ToStatementBlock(),
-					Expression.IfThenElse
-					(
-						Expression.TypeIs(requestObject, nsDataType),
-						Expression.Assign(retval, Expression.Convert(requestObject, nsDataType)).ToStatementBlock(),
-						Expression.Assign(retval, Expression.Call(methodInfo, requestObject, Expression.Convert(Expression.Variable(typeof(int), "NSJSONReadingAllowFragments"), FickleType.Define("NSJSONWritingOptions", false, true)), error)).ToStatementBlock()
-					)
-				),
-				FickleExpression.Return(retval)
-			);
-
-			return new MethodDefinitionExpression
+			var body = 
+				Fx.Block(error, retval)
+					.If(Expression.Equal(requestObject, Expression.Constant(null, requestObject.Type)))
+						.Return(Expression.New(FickleType.Define("NSData")))
+					.ElseIf(Expression.TypeIs(requestObject, typeof(string)))
+						.Assign(retval, FickleExpression.Call(requestObject, typeof(string), "dataUsingEncoding", Expression.Variable(typeof(int), "NSUTF8StringEncoding")))
+					.ElseIf(Expression.TypeIs(requestObject, nsDataType))
+						.Assign(retval, Expression.Convert(requestObject, nsDataType))
+					.Else()
+						.Assign(retval, Expression.Call(methodInfo, requestObject, Expression.Convert(Expression.Variable(typeof(int), "NSJSONReadingAllowFragments"), FickleType.Define("NSJSONWritingOptions", false, true)), error))
+					.EndIf()
+				.EndBlock();
+				
+           return new MethodDefinitionExpression
 			(
 				"webServiceClient",
 				new [] { client, requestObject }.ToReadOnlyCollection<Expression>(),
