@@ -29,7 +29,7 @@ namespace Fickle.Generators.Objective.Binders
 
 			if (name.StartsWith("new"))
 			{
-				var attributedPropertyGetter = new MethodDefinitionExpression(name, null, property.PropertyType, null, true, "(objc_method_family(none))", null);
+				var attributedPropertyGetter = new MethodDefinitionExpression(name, new Expression[0], property.PropertyType, Expression.Empty(), true, "(objc_method_family(none))", null);
 
 				return new Expression[] { propertyDefinition, attributedPropertyGetter }.ToStatementisedGroupedExpression();
 			}
