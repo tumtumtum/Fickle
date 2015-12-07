@@ -520,7 +520,7 @@ namespace Fickle.Generators.Objective.Binders
 			var body = 
 				Fx.Block(error, retval)
 					.If(Expression.Equal(requestObject, Expression.Constant(null, requestObject.Type)))
-						.Return(Expression.New(FickleType.Define("NSData")))
+						.Assign(retval, Expression.New(FickleType.Define("NSData")))
 					.ElseIf(Expression.TypeIs(requestObject, typeof(string)))
 						.Assign(retval, FickleExpression.Call(requestObject, typeof(string), "dataUsingEncoding", Expression.Variable(typeof(int), "NSUTF8StringEncoding")))
 					.ElseIf(Expression.TypeIs(requestObject, nsDataType))
