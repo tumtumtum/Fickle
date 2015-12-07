@@ -528,6 +528,7 @@ namespace Fickle.Generators.Objective.Binders
 					.Else()
 						.Assign(retval, Expression.Call(methodInfo, requestObject, Expression.Convert(Expression.Variable(typeof(int), "NSJSONReadingAllowFragments"), FickleType.Define("NSJSONWritingOptions", false, true)), error))
 					.EndIf()
+					.Return(retval)
 				.EndBlock();
 				
            return new MethodDefinitionExpression
