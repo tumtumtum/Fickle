@@ -60,6 +60,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Expressions\Fluent\BlockScope.cs" />
+    <Compile Include="Expressions\Fluent\ElseScope.cs" />
     <Compile Include="Expressions\Fluent\ExpressionScope.cs" />
     <Compile Include="Expressions\Fx.cs" />
     <Compile Include="Expressions\Fluent\ForEachScope.cs" />
@@ -141,7 +142,6 @@
     <Compile Include="Model\ServiceClass.cs" />
     <Compile Include="Model\ServiceParameter.cs" />
     <Compile Include="Model\ServiceProperty.cs" />
-    <Compile Include="NoBodyAttribute.cs" />
     <Compile Include="UniqueNameMaker.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Reflectors\ServiceModelReflectionOptions.cs" />

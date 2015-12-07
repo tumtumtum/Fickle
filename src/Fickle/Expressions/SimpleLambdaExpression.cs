@@ -44,7 +44,7 @@ namespace Fickle.Expressions
 			this.ReturnType = returnType;
 			this.Body = body;
 			this.Variables = variables.ToReadOnlyCollection();
-			this.Parameters = parameters.ToReadOnlyCollection<Expression>();
+			this.Parameters = parameters.ToReadOnlyCollection();
 		}
 
 		public SimpleLambdaExpression(Type returnType, Expression body, IEnumerable<Expression> variables, params Expression[] parameters)

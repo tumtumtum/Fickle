@@ -135,7 +135,11 @@ namespace Fickle.Generators.Objective.Binders
 			var body = FickleExpression.GroupedWide
 			(
 				Expression.IfThen(Expression.NotEqual(responseFilter, Expression.Constant(null, responseFilter.Type)), Expression.Assign(blockArg, FickleExpression.Call(responseFilter, typeof(object), "gateway", new { value = self, receivedResponse = blockArg, fromRequestURL = url, withRequestObject = requestObject })).ToStatementBlock()),
-				Expression.IfThen(Expression.NotEqual(blockArg, Expression.Constant(null, blockArg.Type)), FickleExpression.Call(callback, "Invoke", conversion).ToStatementBlock())
+				Expression.IfThen
+				(
+					Expression.AndAlso(Expression.NotEqual(blockArg, Expression.Constant(null, blockArg.Type)), Expression.NotEqual(callback, Expression.Constant(null, callback.Type))),
+					FickleExpression.Call(callback, "Invoke", conversion).ToStatementBlock()
+				)
 			);
                 
 			var conversionBlock = FickleExpression.SimpleLambda(null, body, new Expression[0], blockArg);
@@ -499,7 +503,7 @@ namespace Fickle.Generators.Objective.Binders
 			return new MethodDefinitionExpression
 			(
 				name,
-				new[] { requestObject, paramName }.ToReadOnlyCollection<Expression>(),
+				new[] { requestObject, paramName }.ToReadOnlyCollection(),
 				FickleType.Define("id"),
 				body,
 				false,
@@ -534,7 +538,7 @@ namespace Fickle.Generators.Objective.Binders
            return new MethodDefinitionExpression
 			(
 				"webServiceClient",
-				new [] { client, requestObject }.ToReadOnlyCollection<Expression>(),
+				new [] { client, requestObject }.ToReadOnlyCollection(),
 				retval.Type,
 				body,
 				false,

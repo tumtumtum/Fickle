@@ -766,50 +766,64 @@ namespace Fickle.Generators.Objective
 		{
 			switch (node.NodeType)
 			{
-				case ExpressionType.TypeIs:
-					this.Write("[");
-					this.Visit(node.Left);
-					this.Write(" class isKindOfClass:");
-					this.Visit(node.Right);
-					this.Write("]");
-					break;
-				case ExpressionType.Or:
-					this.Write("((");
-					this.Visit(node.Left);
-					this.Write(") | (");
-					this.Visit(node.Right);
-					this.Write("))");
-					break;
-				case ExpressionType.And:
-					this.Write("((");
-					this.Visit(node.Left);
-					this.Write(") & (");
-					this.Visit(node.Right);
-					this.Write("))");
-					break;
-				case ExpressionType.Assign:
-					if (node.Left.Type.IsByRef && !node.Right.Type.IsByRef)
-					{
-						this.Write("*");
-					}
-					this.Visit(node.Left);
-					this.Write(" = ");
-					this.Visit(node.Right);
-					break;
-				case ExpressionType.Equal:
-					this.Write("((");
-					this.Visit(node.Left);
-					this.Write(") == (");
-					this.Visit(node.Right);
-					this.Write("))");
-					break;
-				case ExpressionType.NotEqual:
-					this.Write("((");
-					this.Visit(node.Left);
-					this.Write(") != (");
-					this.Visit(node.Right);
-					this.Write("))");
-					break;
+			case ExpressionType.TypeIs:
+				this.Write("[");
+				this.Visit(node.Left);
+				this.Write(" class isKindOfClass:");
+				this.Visit(node.Right);
+				this.Write("]");
+				break;
+			case ExpressionType.Or:
+				this.Write("((");
+				this.Visit(node.Left);
+				this.Write(") | (");
+				this.Visit(node.Right);
+				this.Write("))");
+				break;
+			case ExpressionType.And:
+				this.Write("((");
+				this.Visit(node.Left);
+				this.Write(") & (");
+				this.Visit(node.Right);
+				this.Write("))");
+				break;
+			case ExpressionType.Assign:
+				if (node.Left.Type.IsByRef && !node.Right.Type.IsByRef)
+				{
+					this.Write("*");
+				}
+				this.Visit(node.Left);
+				this.Write(" = ");
+				this.Visit(node.Right);
+				break;
+			case ExpressionType.Equal:
+				this.Write("((");
+				this.Visit(node.Left);
+				this.Write(") == (");
+				this.Visit(node.Right);
+				this.Write("))");
+				break;
+			case ExpressionType.NotEqual:
+				this.Write("((");
+				this.Visit(node.Left);
+				this.Write(") != (");
+				this.Visit(node.Right);
+				this.Write("))");
+				break;
+			case ExpressionType.AndAlso:
+				this.Write("((");
+				this.Visit(node.Left);
+				this.Write(") && (");
+				this.Visit(node.Right);
+				this.Write("))");
+				break;
+			case ExpressionType.OrElse:
+				this.Write("((");
+				this.Visit(node.Left);
+				this.Write(") || (");
+				this.Visit(node.Right);
+				this.Write("))");
+				break;
 			}
 
 			return node;

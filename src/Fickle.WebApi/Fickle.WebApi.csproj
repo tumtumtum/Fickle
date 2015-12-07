@@ -76,6 +76,7 @@
     <Compile Include="FickleIncludeTypeAttribute.cs" />
     <Compile Include="FickleSdkInfoAttribute.cs" />
     <Compile Include="InternalEnumerableExtensions.cs" />
+    <Compile Include="NoBodyAttribute.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="WebApiRuntimeServiceModelReflector.cs" />
   </ItemGroup>
