@@ -42,16 +42,17 @@
     <Reference Include="nunit.framework">
       <HintPath>..\..\src\packages\NUnit.2.6.4\lib\nunit.framework.dll</HintPath>
     </Reference>
-    <Reference Include="Platform, Version=1.1.0.209, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\src\packages\Platform.NET.1.1.0.209\lib\net40\Platform.dll</HintPath>
+    <Reference Include="Platform, Version=1.2.0.248, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\src\packages\Platform.NET.1.2.0.248-rc1\lib\net452\Platform.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Platform.VirtualFileSystem">
-      <HintPath>..\..\src\packages\Platform.VirtualFileSystem.1.1.0.102\lib\net40\Platform.VirtualFileSystem.dll</HintPath>
+    <Reference Include="Platform.VirtualFileSystem, Version=1.2.0.120, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\src\packages\Platform.VirtualFileSystem.1.2.0.120-rc1\lib\net452\Platform.VirtualFileSystem.dll</HintPath>
+      <Private>True</Private>
     </Reference>
-    <Reference Include="Platform.Xml.Serialization, Version=1.1.0.197, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\src\packages\Platform.Xml.Serialization.1.1.0.197\lib\net40\Platform.Xml.Serialization.dll</HintPath>
+    <Reference Include="Platform.Xml.Serialization, Version=1.2.0.248, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\src\packages\Platform.Xml.Serialization.1.2.0.248-rc1\lib\net452\Platform.Xml.Serialization.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
