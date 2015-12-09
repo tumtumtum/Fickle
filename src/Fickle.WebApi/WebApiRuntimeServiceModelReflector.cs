@@ -42,11 +42,6 @@ namespace Fickle.WebApi
 				return;
 			}
 
-			if (type.IsArray)
-			{
-				;
-			}
-
 			if (Nullable.GetUnderlyingType(type) != null)
 			{
 				type = Nullable.GetUnderlyingType(type);
