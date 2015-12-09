@@ -30,7 +30,7 @@ namespace Fickle.Expressions
 			this.PropertyType = propertyType;
 			this.PropertyName = propertyName;
 			this.IsPredeclaration = isPredeclaration;
-			this.Modifiers = new ReadOnlyCollection<string>(new List<string>(modifiers));
+	        this.Modifiers = modifiers.ToReadOnlyCollection();
 		}
 	}
 }

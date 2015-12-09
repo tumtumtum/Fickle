@@ -62,7 +62,7 @@ namespace Fickle.Generators.Objective.Binders
 			var methodInfo = new FickleMethodInfo(typeof(string), typeof(string), "stringWithFormat", parameterInfos.ToArray(), true);
 			var methodBody = Expression.Block(FickleExpression.Return(Expression.Call(null, methodInfo, args)).ToStatement());
 
-			return new MethodDefinitionExpression("scalarPropertiesAsFormEncodedString", new ReadOnlyCollection<Expression>(new List<Expression>()), typeof(string), methodBody, false, null);
+			return new MethodDefinitionExpression("scalarPropertiesAsFormEncodedString", new List<Expression>().ToReadOnlyCollection(), typeof(string), methodBody, false, null);
 		}
 		
 		private Expression CreateAllPropertiesAsDictionaryMethod(TypeDefinitionExpression expression)
@@ -81,7 +81,7 @@ namespace Fickle.Generators.Objective.Binders
 
 			var methodBody = Expression.Block(variables, GroupedExpressionsExpression.FlatConcat(GroupedExpressionsExpressionStyle.Wide, newDictionaryExpression, makeDictionaryExpression, returnDictionaryExpression));
 
-			return new MethodDefinitionExpression("allPropertiesAsDictionary", new ReadOnlyCollection<Expression>(new List<Expression>()), dictionaryType, methodBody, false, null);
+			return new MethodDefinitionExpression("allPropertiesAsDictionary", new List<Expression>().ToReadOnlyCollection(), dictionaryType, methodBody, false, null);
 		}
 
 		private MethodDefinitionExpression CreateInitMethod(TypeDefinitionExpression expression)
@@ -126,7 +126,7 @@ namespace Fickle.Generators.Objective.Binders
 
 			var methodBody = Expression.Block(variables, (Expression)methodBodyExpressions.ToStatementisedGroupedExpression(GroupedExpressionsExpressionStyle.Wide));
 
-			return new MethodDefinitionExpression("initWithPropertyDictionary", new ReadOnlyCollection<Expression>(parameters), typeof(object), methodBody, false, null);
+			return new MethodDefinitionExpression("initWithPropertyDictionary", parameters.ToReadOnlyCollection(), typeof(object), methodBody, false, null);
 		}
 
 		private Expression CreateCopyWithZoneMethod(TypeDefinitionExpression expression)

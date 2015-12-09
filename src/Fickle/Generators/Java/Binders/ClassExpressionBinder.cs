@@ -377,7 +377,7 @@ namespace Fickle.Generators.Java.Binders
 
 			var body = FickleExpression.Block(methodVariables.ToArray(), methodStatements.ToArray());
 
-			return new MethodDefinitionExpression("createErrorResponse", new ReadOnlyCollection<Expression>(parameters), AccessModifiers.Public | AccessModifiers.Static, currentType, body, false, null);
+			return new MethodDefinitionExpression("createErrorResponse", parameters.ToReadOnlyCollection(), AccessModifiers.Public | AccessModifiers.Static, currentType, body, false, null);
 		}
 
 		protected override Expression VisitTypeDefinitionExpression(TypeDefinitionExpression expression)

@@ -62,7 +62,7 @@ namespace Fickle.Generators
 
 		public virtual Expression Build(ServiceMethod method)
 		{
-			var parameterExpressions = new ReadOnlyCollection<Expression>(method.Parameters.Select(this.Build).ToList());
+			var parameterExpressions = method.Parameters.Select(this.Build).ToReadOnlyCollection();
 
 			var attributes = new Dictionary<string, string>();
 

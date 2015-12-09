@@ -326,7 +326,7 @@ namespace Fickle.Generators.Objective.Binders
 				Expression.Return(Expression.Label(), client)
 			);
 
-			return new MethodDefinitionExpression("createClientWithURL", new ReadOnlyCollection<Expression>(parameters), FickleType.Define("PKWebServiceClient"), body, false, null);
+			return new MethodDefinitionExpression("createClientWithURL", parameters.ToReadOnlyCollection(), FickleType.Define("PKWebServiceClient"), body, false, null);
 		}
 
 		protected virtual MethodDefinitionExpression CreateCreateErrorResponseWithErrorCodeMethod()
@@ -361,7 +361,7 @@ namespace Fickle.Generators.Objective.Binders
 				Expression.Return(Expression.Label(), response)
 			);
 
-			return new MethodDefinitionExpression("webServiceClient", new ReadOnlyCollection<Expression>(parameters), FickleType.Define("id"), body, false, null);
+			return new MethodDefinitionExpression("webServiceClient", parameters.ToReadOnlyCollection(), FickleType.Define("id"), body, false, null);
 		}
 
 		private string GetNormalizeRequestMethodName(Type forType, string format = "json")
@@ -591,7 +591,7 @@ namespace Fickle.Generators.Objective.Binders
 			return new MethodDefinitionExpression
 			(
 				"webServiceClient",
-				new ReadOnlyCollection<Expression>(parameters),
+				parameters.ToReadOnlyCollection(),
 				FickleType.Define("id"),
 				body,
 				false,
@@ -601,9 +601,9 @@ namespace Fickle.Generators.Objective.Binders
 
 		protected override Expression VisitTypeDefinitionExpression(TypeDefinitionExpression expression)
 		{
-			currentType = expression.Type;
-			currentTypeDefinitionExpression = expression;
-			currentReturnTypes = new HashSet<Type>(ReturnTypesCollector.CollectReturnTypes(expression));
+			this.currentType = expression.Type;
+			this.currentTypeDefinitionExpression = expression;
+			this.currentReturnTypes = new HashSet<Type>(ReturnTypesCollector.CollectReturnTypes(expression));
 			
 			var includeExpressions = new List<IncludeExpression>
 			{

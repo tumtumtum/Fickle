@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
 
 namespace Fickle
 {
@@ -7,30 +8,28 @@ namespace Fickle
 	{
 		public static ReadOnlyCollection<T> ToReadOnlyCollection<T>(this IEnumerable<T> items)
 		{
-			if (items is ReadOnlyCollection<T>)
+			var collection = items as ReadOnlyCollection<T>;
+
+			if (collection != null)
 			{
-				return (ReadOnlyCollection<T>)items;
+				return collection;
 			}
-			else if (items is IList<T>)
+
+			var list = items as IList<T>;
+
+			if (list != null)
 			{
-				return new ReadOnlyCollection<T>((IList<T>)items);
+				return new ReadOnlyCollection<T>(list);
 			}
-			else
-			{
-				return new ReadOnlyCollection<T>(new List<T>(items));
-			}
+
+			return new ReadOnlyCollection<T>(items.ToList());
 		}
 
 		public static HashSet<T> ToHashSet<T>(this IEnumerable<T> items)
 		{
-			if (items is HashSet<T>)
-			{
-				return (HashSet<T>)items;
-			}
-			else
-			{
-				return new HashSet<T>(items);
-			}
+			var set = items as HashSet<T>;
+
+			return set ?? new HashSet<T>(items);
 		}
 	}
 }

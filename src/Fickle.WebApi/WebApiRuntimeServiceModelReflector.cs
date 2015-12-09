@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http.Formatting;
@@ -31,7 +32,7 @@ namespace Fickle.WebApi
 
 		private static bool IsBaseType(Type type)
 		{
-			return type == null || type == typeof(object) || type == typeof(Enum) || type == typeof(ValueType);
+			return type == null || type == typeof(object) || type == typeof(Enum) || type == typeof(ValueType) || type == typeof(Array) || type == typeof(IEnumerable) || (type.IsGenericTypeDefinition && type.GetGenericTypeDefinition() == typeof(IEnumerable<>));
 		}
 
 		private static void AddType(ISet<Type> set, Type type)
@@ -39,6 +40,11 @@ namespace Fickle.WebApi
 			if (type == null)
 			{
 				return;
+			}
+
+			if (type.IsArray)
+			{
+				;
 			}
 
 			if (Nullable.GetUnderlyingType(type) != null)

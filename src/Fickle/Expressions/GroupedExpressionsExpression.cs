@@ -58,7 +58,7 @@ namespace Fickle.Expressions
 		}
 
 		public GroupedExpressionsExpression(Expression expression, GroupedExpressionsExpressionStyle style)
-			: this(new ReadOnlyCollection<Expression>(new List<Expression> { expression }), style)
+			: this(new List<Expression> { expression }.ToReadOnlyCollection(), style)
 		{
 		}
 
@@ -68,7 +68,7 @@ namespace Fickle.Expressions
 		}
 
 		public GroupedExpressionsExpression(IEnumerable<Expression> expressions, GroupedExpressionsExpressionStyle style)
-			: this(new ReadOnlyCollection<Expression>(expressions.ToList()), style)
+			: this(expressions.ToReadOnlyCollection(), style)
 		{
 		}
 
