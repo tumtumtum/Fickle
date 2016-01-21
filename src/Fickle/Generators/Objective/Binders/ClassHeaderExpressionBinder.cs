@@ -7,16 +7,22 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using Fickle.Expressions;
-using Platform;
 
 namespace Fickle.Generators.Objective.Binders
 {
 	public class ClassHeaderExpressionBinder
 		: ServiceExpressionVisitor
 	{
-		public static Expression Bind(Expression expression)
+		private readonly CodeGenerationContext codeGenerationContext;
+
+		private ClassHeaderExpressionBinder(CodeGenerationContext codeGenerationContext)
 		{
-			var binder = new ClassHeaderExpressionBinder();
+			this.codeGenerationContext = codeGenerationContext;
+		}
+
+		public static Expression Bind(CodeGenerationContext codeGenerationContext, Expression expression)
+		{
+			var binder = new ClassHeaderExpressionBinder(codeGenerationContext);
 
 			return binder.Visit(expression);
 		}
@@ -41,21 +47,31 @@ namespace Fickle.Generators.Objective.Binders
 
 		protected override Expression VisitTypeDefinitionExpression(TypeDefinitionExpression expression)
 		{
-			var includeExpressions = new List<Expression>();
-
+			var includeExpressions = new List<IncludeExpression>();
+			var importExpressions = new List<Expression>();
 			var referencedTypes = ReferencedTypesCollector.CollectReferencedTypes(expression);
 			referencedTypes.Sort((x, y) => String.Compare(x.Name, y.Name, StringComparison.InvariantCultureIgnoreCase));
 
 			var lookup = new HashSet<Type>(referencedTypes.Where(TypeSystem.IsPrimitiveType));
 
-			if (lookup.Contains(typeof(Guid)) || lookup.Contains(typeof(Guid?)))
+			if (!this.codeGenerationContext.Options.ImportDependenciesAsFramework)
 			{
-				includeExpressions.Add(FickleExpression.Include("PKUUID.h"));
-			}
+				if (lookup.Contains(typeof(Guid)) || lookup.Contains(typeof(Guid?)))
+				{
+					includeExpressions.Add(FickleExpression.Include("PKUUID.h"));
+				}
 
-			if (lookup.Contains(typeof(TimeSpan)) || lookup.Contains(typeof(TimeSpan?)))
+				if (lookup.Contains(typeof(TimeSpan)) || lookup.Contains(typeof(TimeSpan?)))
+				{
+					includeExpressions.Add(FickleExpression.Include("PKTimeSpan.h"));
+				}
+
+				includeExpressions.Add(FickleExpression.Include("PKDictionarySerializable.h"));
+				includeExpressions.Add(FickleExpression.Include("PKFormEncodingSerializable.h"));
+			}
+			else
 			{
-				includeExpressions.Add(FickleExpression.Include("PKTimeSpan.h"));
+				importExpressions.Add(new CodeLiteralExpression(c => c.WriteLine("@import PlatformKit;")));
 			}
 
 			if (ObjectiveBinderHelpers.TypeIsServiceClass(expression.Type.BaseType))
@@ -63,23 +79,19 @@ namespace Fickle.Generators.Objective.Binders
 				includeExpressions.Add(FickleExpression.Include(expression.Type.BaseType.Name + ".h"));
 			}
 
-			includeExpressions.Add(FickleExpression.Include("PKDictionarySerializable.h"));
-			includeExpressions.Add(FickleExpression.Include("PKFormEncodingSerializable.h"));
-			includeExpressions.AddRange(referencedTypes.Where(c => c.IsEnum).Select(c => (Expression)FickleExpression.Include(c.Name + ".h")));
+			includeExpressions.AddRange(referencedTypes.Where(c => c.IsEnum).Select(c => FickleExpression.Include(c.Name + ".h")));
 
-			includeExpressions = includeExpressions.Select(c => (IncludeExpression)c).OrderBy(c => c.FileName.Length).Select(c => (Expression)c).ToList();
+			includeExpressions.Sort(IncludeExpression.Compare);
 
 			var comment = new CommentExpression("This file is AUTO GENERATED");
 
-			var commentGroup = new [] { comment }.ToStatementisedGroupedExpression();
-			var headerGroup = includeExpressions.ToStatementisedGroupedExpression();
-
-			var headerExpressions = new List<Expression>
+			var headerExpressions = new List<Expression>()
 			{
-				commentGroup,
-				headerGroup
+				new[] { comment }.ToStatementisedGroupedExpression(),
+				importExpressions.Count == 0 ? null : importExpressions.ToStatementisedGroupedExpression(),
+				includeExpressions.ToStatementisedGroupedExpression()
 			};
-
+			
 			var referencedTypeExpressions = referencedTypes
 				.Where(ObjectiveBinderHelpers.TypeIsServiceClass)
 				.Where(c => c != expression.Type.BaseType)

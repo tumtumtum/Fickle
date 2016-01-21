@@ -97,7 +97,7 @@ namespace Fickle.Generators.Objective
 		{
 			using (var writer = this.GetTextWriterForFile(expression.Type.Name + ".h"))
 			{
-				var headerFileExpression = ClassHeaderExpressionBinder.Bind(expression);
+				var headerFileExpression = ClassHeaderExpressionBinder.Bind(codeGenerationContext, expression);
 
 				var codeGenerator = new ObjectiveCodeGenerator(writer);
 

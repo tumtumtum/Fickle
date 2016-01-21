@@ -29,6 +29,8 @@ namespace Fickle.Generators.Objective.Binders
 		protected override Expression VisitTypeDefinitionExpression(TypeDefinitionExpression expression)
 		{
 			var includeExpressions = new List<IncludeExpression>();
+			var importExpressions = new List<Expression>();
+
 			var optionsProperty = new PropertyDefinitionExpression("options", FickleType.Define("NSDictionary"), true);
 			var responseFilterProperty = new PropertyDefinitionExpression("responseFilter", FickleType.Define("FKGatewayResponseFilter", isInterface:true), true, new[] { "weak" });
 
@@ -44,18 +46,26 @@ namespace Fickle.Generators.Objective.Binders
 
 			var lookup = new HashSet<Type>(referencedTypes.Where(TypeSystem.IsPrimitiveType));
 
-			if (lookup.Contains(typeof(Guid)) || lookup.Contains(typeof(Guid?)))
+			if (!this.CodeGenerationContext.Options.ImportDependenciesAsFramework)
 			{
-				includeExpressions.Add(FickleExpression.Include("PKUUID.h"));
+				if (lookup.Contains(typeof(Guid)) || lookup.Contains(typeof(Guid?)))
+				{
+					includeExpressions.Add(FickleExpression.Include("PKUUID.h"));
+				}
+
+				if (lookup.Contains(typeof(TimeSpan)) || lookup.Contains(typeof(TimeSpan?)))
+				{
+					includeExpressions.Add(FickleExpression.Include("PKTimeSpan.h"));
+				}
+
+				includeExpressions.Add(FickleExpression.Include("PKWebServiceClient.h"));
+				includeExpressions.Add(FickleExpression.Include("PKDictionarySerializable.h"));
+			}
+			else
+			{
+				importExpressions.Add(new CodeLiteralExpression(c => c.WriteLine("@import PlatformKit;")));
 			}
 
-			if (lookup.Contains(typeof(TimeSpan)) || lookup.Contains(typeof(TimeSpan?)))
-			{
-				includeExpressions.Add(FickleExpression.Include("PKTimeSpan.h"));
-			}
-
-			includeExpressions.Add(FickleExpression.Include("PKWebServiceClient.h"));
-			includeExpressions.Add(FickleExpression.Include("PKDictionarySerializable.h"));
 			includeExpressions.Add(FickleExpression.Include("FKGatewayResponseFilter.h"));
 
 			var referencedUserTypes = referencedTypes
@@ -65,7 +75,13 @@ namespace Fickle.Generators.Objective.Binders
 			includeExpressions.AddRange(referencedUserTypes.Select(c => FickleExpression.Include(c.Name + ".h")));
 			
 			var comment = new CommentExpression("This file is AUTO GENERATED");
-			var header = new Expression[] { comment, includeExpressions.Sorted(IncludeExpression.Compare).ToStatementisedGroupedExpression() }.ToStatementisedGroupedExpression(GroupedExpressionsExpressionStyle.Wide);
+
+			var header = new Expression[]
+			{
+				comment,
+				importExpressions.Count == 0 ? null : importExpressions.ToStatementisedGroupedExpression(),
+				includeExpressions.Sorted(IncludeExpression.Compare).ToStatementisedGroupedExpression()
+			}.ToStatementisedGroupedExpression(GroupedExpressionsExpressionStyle.Wide);
 			
 			var interfaceTypes = new List<Type>();
 

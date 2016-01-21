@@ -114,7 +114,7 @@ namespace Fickle.Tool
 			}
 
 			codeGenerationOptions.GeneratePod = options.Pod;
-
+			codeGenerationOptions.ImportDependenciesAsFramework = options.ImportDependenciesAsFramework;
 			codeGenerationOptions.ServiceModelInfo = serviceModelInfo;
 
 			using (var codeGenerator = ServiceModelCodeGenerator.GetCodeGenerator(options.Language, outputObject, codeGenerationOptions))

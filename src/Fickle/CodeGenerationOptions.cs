@@ -8,6 +8,7 @@
 		public bool GenerateClasses { get; set; }
 		public bool GenerateEnums { get; set; }
 		public bool GeneratePod { get; set; }
+		public bool ImportDependenciesAsFramework { get; set; }
 		public bool GenerateGateways { get; set; }
 		public bool SerializeEnumsAsStrings { get; set; }
 		public string ServiceClientTypeName { get; set; }

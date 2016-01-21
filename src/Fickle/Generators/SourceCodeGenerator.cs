@@ -196,7 +196,7 @@ namespace Fickle.Generators
 
 				this.Visit(expression);
 
-				if (groupedExpression.Style == GroupedExpressionsExpressionStyle.Wide && !isLast)
+				if (expression != null && groupedExpression.Style == GroupedExpressionsExpressionStyle.Wide && !isLast)
 				{
 					this.WriteLine();
 				}

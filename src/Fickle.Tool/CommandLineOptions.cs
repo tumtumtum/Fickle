@@ -34,6 +34,9 @@ namespace Fickle.Tool
 		[Option('p', "pod", DefaultValue = false)]
 		public bool Pod { get; set; }
 
+		[Option('f', "framework", DefaultValue = false)]
+		public bool ImportDependenciesAsFramework { get; set; }
+
 		[Option("podspecsource")]
 		public string PodspecSource { get; set; }
 
