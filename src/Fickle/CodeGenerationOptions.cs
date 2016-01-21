@@ -7,6 +7,7 @@
 		public string BaseGatewayTypeName { get; set; }
 		public bool GenerateClasses { get; set; }
 		public bool GenerateEnums { get; set; }
+		public bool GeneratePod { get; set; }
 		public bool GenerateGateways { get; set; }
 		public bool SerializeEnumsAsStrings { get; set; }
 		public string ServiceClientTypeName { get; set; }
@@ -21,6 +22,7 @@
 			this.GenerateClasses = true;
 			this.GenerateGateways = true;
 			this.GenerateEnums = true;
+			this.GeneratePod = true;
 			this.ResponseStatusTypeName = "ResponseStatus";
 			this.ResponseStatusPropertyName = "ResponseStatus";
 

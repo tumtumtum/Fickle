@@ -31,6 +31,9 @@ namespace Fickle.Tool
 		[Option('v', "version")]
 		public string Version { get; set; }
 
+		[Option('p', "pod", DefaultValue = false)]
+		public bool Pod { get; set; }
+
 		[Option("podspecsource")]
 		public string PodspecSource { get; set; }
 

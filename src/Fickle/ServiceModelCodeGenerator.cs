@@ -145,6 +145,11 @@ namespace Fickle
 			return serviceModel;
 		}
 
+		protected virtual bool IncludePreludeResource(string path)
+		{
+			return true;
+		}
+
 		public virtual void Generate(ServiceModel serviceModel)
 		{
 			serviceModel = this.ProcessPregeneration(serviceModel);
@@ -187,7 +192,9 @@ namespace Fickle
 			var assembly = Assembly.GetExecutingAssembly();
 			var prefix = this.GetType().Namespace + ".Prelude.";
 
-			foreach (var resourceName in assembly.GetManifestResourceNames().Where(resourceName => resourceName.StartsWith(prefix)))
+			foreach (var resourceName in assembly.GetManifestResourceNames()
+				.Where(resourceName => resourceName.StartsWith(prefix))
+				.Where(resourceName => this.IncludePreludeResource(resourceName.Substring(prefix.Length))))
 			{
 				using (var input = new StreamReader(assembly.GetManifestResourceStream(resourceName)))
 				{

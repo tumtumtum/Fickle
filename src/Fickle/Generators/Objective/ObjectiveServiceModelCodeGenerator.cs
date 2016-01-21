@@ -32,7 +32,12 @@ namespace Fickle.Generators.Objective
 		public override void Generate(ServiceModel serviceModel)
 		{
 			base.Generate(serviceModel);
-			this.GeneratePodspec(serviceModel);
+
+			if (this.Options.GeneratePod)
+			{
+				this.GeneratePodspec(serviceModel);
+			}
+
 			this.GenerateMasterHeader(serviceModel);
 		}
 
@@ -61,6 +66,15 @@ namespace Fickle.Generators.Objective
 				headerWriter.Visit(headerExpressions.ToGroupedExpression(GroupedExpressionsExpressionStyle.Wide));
 			}
         }
+
+		protected override bool IncludePreludeResource(string path)
+		{
+			if (this.Options.GeneratePod)
+			{
+				return !path.StartsWith("PlatformKit.");
+			}
+			return base.IncludePreludeResource(path);
+		}
 
 		protected virtual void GeneratePodspec(ServiceModel serviceModel)
 		{

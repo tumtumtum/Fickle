@@ -44,7 +44,7 @@ namespace Fickle.Tool
 
 				textReader = textReader == null ? reader : textReader.Concat(reader);
 			}
-
+			
 			if (!string.IsNullOrEmpty(options.Output) && options.Output.IndexOf(":", StringComparison.Ordinal) <= 0)
 			{
 				options.Output = "./" + options.Output;
@@ -112,7 +112,8 @@ namespace Fickle.Tool
 			{
 				serviceModelInfo.ExtendedValues["podspec.source_files"] = options.PodspecSourceFiles;
 			}
-			
+
+			codeGenerationOptions.GeneratePod = options.Pod;
 
 			codeGenerationOptions.ServiceModelInfo = serviceModelInfo;
 

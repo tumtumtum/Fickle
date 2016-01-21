@@ -22,6 +22,7 @@ namespace Fickle.Generators.Objective
 				this.WriteLine("s.author = '{0}'", serviceModelInfo.Author);
 				this.WriteLine("s.license = '{0}'", serviceModelInfo.License);
 				this.WriteLine("s.homepage = '{0}'", serviceModelInfo.Homepage);
+				this.WriteLine("s.dependency = 'PlatformKit'");
 
 				string value;
 
