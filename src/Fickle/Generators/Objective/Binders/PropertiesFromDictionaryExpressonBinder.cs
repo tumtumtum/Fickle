@@ -123,7 +123,7 @@ namespace Fickle.Generators.Objective.Binders
 					ifExpression = Expression.IfThenElse
 					(
 						Expression.Equal(value, nsNull),
-						processOutputValue(Expression.Convert(value, valueType)).ToBlock(),
+						processOutputValue(nsNull).ToBlock(),
 						ifExpression
 					);
 				}
