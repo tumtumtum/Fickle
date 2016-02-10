@@ -19,10 +19,16 @@ namespace Fickle.Generators.Objective
 	[PrimitiveTypeName(typeof(char?), "NSNumber", true)]
 	[PrimitiveTypeName(typeof(short), "int16_t", false)]
 	[PrimitiveTypeName(typeof(short?), "NSNumber", true)]
+	[PrimitiveTypeName(typeof(ushort), "uint16_t", false)]
+	[PrimitiveTypeName(typeof(ushort?), "NSNumber", true)]
 	[PrimitiveTypeName(typeof(int), "int", false)]
 	[PrimitiveTypeName(typeof(int?), "NSNumber", true)]
+	[PrimitiveTypeName(typeof(uint), "uint", false)]
+	[PrimitiveTypeName(typeof(uint?), "NSNumber", true)]
 	[PrimitiveTypeName(typeof(long), "int64_t", false)]
 	[PrimitiveTypeName(typeof(long?), "NSNumber", true)]
+	[PrimitiveTypeName(typeof(ulong), "uint64_t", false)]
+	[PrimitiveTypeName(typeof(ulong?), "NSNumber", true)]
 	[PrimitiveTypeName(typeof(float), "Float32", false)]
 	[PrimitiveTypeName(typeof(float?), "NSNumber", true)]
 	[PrimitiveTypeName(typeof(double), "Float64", false)]
@@ -273,6 +279,18 @@ namespace Fickle.Generators.Objective
 						this.Visit(node.Operand);
 						this.Write(")");
 					}
+					else if (type == typeof(ushort))
+					{
+						this.Write("((NSNumber*)");
+						this.Visit(node.Operand);
+						this.Write(").unsignedShortValue");
+					}
+					else if (type == typeof(ushort?))
+					{
+						this.Write("((NSNumber*)");
+						this.Visit(node.Operand);
+						this.Write(")");
+					}
 					else if (type == typeof(int))
 					{
 						this.Write("((NSNumber*)");
@@ -285,6 +303,18 @@ namespace Fickle.Generators.Objective
 						this.Visit(node.Operand);
 						this.Write(")");
 					}
+					else if (type == typeof(uint))
+					{
+						this.Write("((NSNumber*)");
+						this.Visit(node.Operand);
+						this.Write(").unsignedIntValue");
+					}
+					else if (type == typeof(uint?))
+					{
+						this.Write("((NSNumber*)");
+						this.Visit(node.Operand);
+						this.Write(")");
+					}
 					else if (type == typeof(long))
 					{
 						this.Write("(int64_t)((NSNumber*)");
@@ -292,6 +322,18 @@ namespace Fickle.Generators.Objective
 						this.Write(").longLongValue");
 					}
 					else if (type == typeof(long?))
+					{
+						this.Write("((NSNumber*)");
+						this.Visit(node.Operand);
+						this.Write(")");
+					}
+					else if (type == typeof(ulong))
+					{
+						this.Write("(int64_t)((NSNumber*)");
+						this.Visit(node.Operand);
+						this.Write(").unsignedLongLongValue");
+					}
+					else if (type == typeof(ulong?))
 					{
 						this.Write("((NSNumber*)");
 						this.Visit(node.Operand);

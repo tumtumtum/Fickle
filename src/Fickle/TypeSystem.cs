@@ -10,7 +10,7 @@ namespace Fickle
 		private static readonly HashSet<Type> primitiveTypes = new HashSet<Type>();
 		private static readonly Dictionary<string, Type> primitiveTypeByName = new Dictionary<string, Type>(StringComparer.InvariantCultureIgnoreCase);
 
-		static void AddPrimitiveType(Type type, string name = null)
+		static void AddPrimitiveType(Type type, string name)
 		{
 			primitiveTypes.Add(type);
 			primitiveTypeByName[name] = type;
@@ -32,9 +32,13 @@ namespace Fickle
 			AddPrimitiveType(typeof(byte), "Byte");
 			AddPrimitiveType(typeof(char), "Char");
 			AddPrimitiveType(typeof(short), "Short");
+			AddPrimitiveType(typeof(ushort), "UShort");
 			AddPrimitiveType(typeof(int), "Int");
-			AddPrimitiveType(typeof(int), "Integer"); 
+			AddPrimitiveType(typeof(int), "Integer");
+			AddPrimitiveType(typeof(uint), "UInt");
 			AddPrimitiveType(typeof(long), "Long");
+			AddPrimitiveType(typeof(ulong), "ULong");
+			AddPrimitiveType(typeof(float), "Float");
 			AddPrimitiveType(typeof(double), "Double");
 			AddPrimitiveType(typeof(string), "String");
 			AddPrimitiveType(typeof(DateTime), "DateTime");
