@@ -175,12 +175,7 @@ namespace Fickle.Generators.Objective
 			{
 				base.Write(type, nameOnly);
 
-				if (type.Name == "Sex")
-				{
-					Console.WriteLine();
-				}
-
-				if (!nameOnly)
+                if (!nameOnly)
 				{
 					if (fickleType.IsEnum && fickleType.IsByRef)
 					{
@@ -424,8 +419,14 @@ namespace Fickle.Generators.Objective
 				else
 				{
 					this.Write("((");
-					this.Write(node.Type);
-					this.Write(')');
+
+				    if (node.Operand.Type.IsPrimitive && node.Operand.Type.Name.StartsWith("CF"))
+				    {
+				        this.Write("__bridge ");
+				    }
+
+				    this.Write(node.Type);
+                    this.Write(')');
 					this.Write('(');
 					this.Visit(node.Operand);
 					this.Write(')');

@@ -87,9 +87,9 @@ namespace Fickle.Generators.Objective.Binders
 					parameters.Add(Expression.Parameter(typeof(string), name));
 					var arg = (Expression)FickleExpression.Call(parameter, typeof(string), "ToString", null);
 
-					arg = FickleExpression.Call(arg, typeof(string), "stringByAddingPercentEscapesUsingEncoding", Expression.Variable(typeof(int), "NSUTF8StringEncoding"));
+				    arg = ObjectiveExpression.ToPercentEscapeEncodeExpression(arg);
 
-					if (transformStringArg != null)
+                    if (transformStringArg != null)
 					{
 						arg = transformStringArg(arg);
 					}

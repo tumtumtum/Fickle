@@ -6,6 +6,8 @@
 //  Copyright (c) 2013-2014 Thong Nguyen. All rights reserved.
 //
 
+#if !TARGET_OS_WATCH
+
 #import "PKWebServiceClient.h"
 #import "PKUUID.h"
 #import <CommonCrypto/CommonDigest.h>
@@ -103,24 +105,21 @@ static NSOperationQueue* defaultOperationQueue;
 		return 0;
 	}
 
-    NSString* value;
-    
-    value = [options objectForKey:@"Header/ContentType"] ?: @"application/json";
-    CFHTTPMessageSetHeaderFieldValue(message, CFSTR("Content-Type"), (__bridge CFStringRef)value);
-    
-    value = [options objectForKey:@"Header/Accept"] ?: @"application/json,*/*;";
-    CFHTTPMessageSetHeaderFieldValue(message, CFSTR("Accept"), (__bridge CFStringRef)value);
-    
-    value = [options objectForKey:@"Header/Accept-Encoding"] ?: @"gzip";
-    CFHTTPMessageSetHeaderFieldValue(message, CFSTR("Accept-Encoding"), (__bridge CFStringRef)value);
+    CFHTTPMessageSetHeaderFieldValue(message, CFSTR("Content-Type"), (__bridge CFStringRef)@"application/json");
+    CFHTTPMessageSetHeaderFieldValue(message, CFSTR("Accept"), (__bridge CFStringRef)@"application/json,*/*;");
+    CFHTTPMessageSetHeaderFieldValue(message, CFSTR("Accept-Encoding"), (__bridge CFStringRef)@"gzip");
 
-	value = [options objectForKey:@"Header/Authorization"] ?: nil;
-
-    if (value)
-    {
-        CFHTTPMessageSetHeaderFieldValue(message, CFSTR("Authorization"), (__bridge CFStringRef) value);
-    }
-
+	for (NSString* key in options.allKeys)
+	{
+		if ([key hasPrefix:@"Header/"])
+		{
+			NSString* value = [options objectForKey:key];
+			NSString* header = [key substringFromIndex:@"Header/".length];
+			
+			CFHTTPMessageSetHeaderFieldValue(message, (__bridge CFStringRef)header, (__bridge CFStringRef)value);
+		}
+	}
+	
     if (postData)
     {
         CFHTTPMessageSetHeaderFieldValue(message, CFSTR("Content-Length"), (__bridge CFStringRef)[NSString stringWithFormat:@"%d", (int)postData.length]);
@@ -508,3 +507,5 @@ static NSOperationQueue* defaultOperationQueue;
 }
 
 @end
+
+#endif

@@ -452,8 +452,8 @@ namespace Fickle.Generators.Objective.Binders
 
             var isArray = Expression.Variable(typeof(bool), "isArray");
 			var array = Expression.Variable(FickleType.Define("NSArray"), "array");
-			var urlEncodedValue = FickleExpression.Call(processing, typeof(string), "stringByAddingPercentEscapesUsingEncoding", Expression.Variable(typeof(int), "NSUTF8StringEncoding"));
-			var joined = FickleExpression.Call(newArray, typeof(string), "componentsJoinedByString", Expression.Constant("&"));
+			var urlEncodedValue = ObjectiveExpression.ToUrlEncodedExpression(processing);
+            var joined = FickleExpression.Call(newArray, typeof(string), "componentsJoinedByString", Expression.Constant("&"));
 
 			if (formatIsForm && !complexType)
 			{

@@ -97,6 +97,7 @@
     <Compile Include="Generators\Objective\Binders\EnumHeaderExpressionBinder.cs" />
     <Compile Include="Expressions\ExpressionGatherer.cs" />
     <Compile Include="Generators\Objective\Binders\ObjectiveStringFormatInfo.cs" />
+    <Compile Include="Generators\Objective\ObjectiveExpression.cs" />
     <Compile Include="Generators\Objective\ObjectiveStringExtensions.cs" />
     <Compile Include="Generators\Objective\PodspecWriter.cs" />
     <Compile Include="Generators\ParameterTypesCollector.cs" />
