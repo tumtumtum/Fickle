@@ -85,16 +85,16 @@ namespace Fickle.Generators.Objective.Binders
 				else
 				{
 					parameters.Add(Expression.Parameter(typeof(string), name));
-					var arg = (Expression)FickleExpression.Call(parameter, typeof(string), "ToString", null);
+					var originalArg = (Expression)FickleExpression.Call(parameter, typeof(string), "ToString", null);
 
-				    arg = ObjectiveExpression.ToUrlEncodedExpression(arg);
+				    var arg = ObjectiveExpression.ToUrlEncodedExpression(originalArg);
 
                     if (transformStringArg != null)
 					{
 						arg = transformStringArg(arg);
 					}
 
-					args.Add(Expression.Condition(Expression.Equal(arg, Expression.Constant(null)), Expression.Constant(""), arg));
+					args.Add(Expression.Condition(Expression.Equal(originalArg, Expression.Constant(null)), Expression.Constant(""), arg));
 
 					return transformFormatSpecifier("%@", typeof(string));
 				}
