@@ -6,7 +6,7 @@ namespace Fickle.Generators.Objective
 {
     public static class ObjectiveExpression
     {
-        public static Expression ToPercentEscapeEncodeExpression(Expression value)
+        public static Expression ToUrlEncodedExpression(Expression value)
         {
             var cfstring = FickleType.Define("CFStringRef", isPrimitive: true);
             var charsToEncode = Expression.Convert(Expression.Constant("!*'\\\"();:@&= +$,/?%#[]% "), cfstring);

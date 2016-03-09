@@ -87,7 +87,7 @@ namespace Fickle.Generators.Objective.Binders
 					parameters.Add(Expression.Parameter(typeof(string), name));
 					var arg = (Expression)FickleExpression.Call(parameter, typeof(string), "ToString", null);
 
-				    arg = ObjectiveExpression.ToPercentEscapeEncodeExpression(arg);
+				    arg = ObjectiveExpression.ToUrlEncodedExpression(arg);
 
                     if (transformStringArg != null)
 					{
