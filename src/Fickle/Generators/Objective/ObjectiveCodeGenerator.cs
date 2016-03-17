@@ -1211,11 +1211,21 @@ namespace Fickle.Generators.Objective
 
 			this.Write("(");
 
-			foreach (var parameter in node.Parameters.Cast<ParameterExpression>())
+		    var i = 0;
+		    var count = node.Parameters.Cast<ParameterExpression>().Count();
+
+            foreach (var parameter in node.Parameters.Cast<ParameterExpression>())
 			{
 				this.Write(parameter.Type);
 				this.Write(" ");
 				this.Write(parameter.Name);
+
+			    if (i != count - 1)
+			    {
+			        this.Write(", ");
+			    }
+
+			    i++;
 			}
 
 			this.WriteLine(")");
