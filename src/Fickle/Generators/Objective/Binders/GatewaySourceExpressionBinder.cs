@@ -134,7 +134,7 @@ namespace Fickle.Generators.Objective.Binders
 			
 			var body = FickleExpression.GroupedWide
 			(
-				Expression.IfThen(Expression.NotEqual(responseFilter, Expression.Constant(null, responseFilter.Type)), Expression.Assign(blockArg, FickleExpression.Call(responseFilter, typeof(object), "gateway", new { value = self, receivedResponse = blockArg, fromRequestURL = url, withRequestObject = requestObject })).ToStatementBlock()),
+				Expression.IfThen(Expression.NotEqual(responseFilter, Expression.Constant(null, responseFilter.Type)), Expression.Assign(blockArg, FickleExpression.Call(responseFilter, typeof(object), "gateway", new { value = self, receivedResponse = blockArg, fromRequestURL = url, withRequestObject = requestObject, andOptions = localOptions })).ToStatementBlock()),
 				Expression.IfThen
 				(
 					Expression.AndAlso(Expression.NotEqual(blockArg, Expression.Constant(null, blockArg.Type)), Expression.NotEqual(callback, Expression.Constant(null, callback.Type))),
