@@ -362,7 +362,7 @@ namespace Fickle.Generators.Objective
 					{
 						this.Write("([NSDecimalNumber decimalNumberWithString:((NSString*)");
 						this.Visit(node.Operand);
-						this.Write(") ?? @\"0\"])");
+						this.Write(") ?: @\"0\"])");
 					}
 					else if (type == typeof(decimal?))
 					{
