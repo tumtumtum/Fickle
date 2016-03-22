@@ -1068,8 +1068,14 @@ namespace Fickle.Generators.Objective
 				this.Write(@"@property (readwrite, ");
 
 				var i = 0;
+				var modifiers = property.Modifiers;
 
-				foreach (var value in property.Modifiers)
+				if (this.IsReferenceType(property.PropertyType))
+				{
+					modifiers = modifiers.Concat("_Nullable").ToReadOnlyCollection();
+				}
+
+				foreach (var value in modifiers)
 				{
 					this.Write(value);
 
