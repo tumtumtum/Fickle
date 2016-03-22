@@ -1067,7 +1067,7 @@ namespace Fickle.Generators.Objective
 
 			if (this.IsReferenceType(property.PropertyType))
 			{
-				modifiers = modifiers.Concat("_Nullable").ToReadOnlyCollection();
+				modifiers = modifiers.Concat("nullable").ToReadOnlyCollection();
 			}
 
 			if (modifiers.Count > 0)
