@@ -33,7 +33,7 @@ namespace Fickle.Generators.Objective
 	[PrimitiveTypeName(typeof(float?), "NSNumber", true)]
 	[PrimitiveTypeName(typeof(double), "Float64", false)]
 	[PrimitiveTypeName(typeof(double?), "NSNumber", true)]
-	[PrimitiveTypeName(typeof(decimal), "NSNumber", false)]
+	[PrimitiveTypeName(typeof(decimal), "NSNumber", true)]
 	[PrimitiveTypeName(typeof(decimal?), "NSNumber", true)]
 	[PrimitiveTypeName(typeof(Guid), "PKUUID", true)]
 	[PrimitiveTypeName(typeof(Guid?), "PKUUID", true)]
@@ -360,15 +360,17 @@ namespace Fickle.Generators.Objective
 					}
 					else if (type == typeof(decimal))
 					{
-						this.Write("((NSDecimalNumber*)");
+						this.Write("([NSDecimalNumber decimalNumberWithString:((NSString*)");
 						this.Visit(node.Operand);
-						this.Write(")");
+						this.Write(") ?? @\"0\"])");
 					}
 					else if (type == typeof(decimal?))
 					{
-						this.Write("((NSDecimalNumber*)");
+						this.Write("(");
 						this.Visit(node.Operand);
-						this.Write(")");
+						this.Write(" == nil ? nil : [NSDecimalNumber decimalNumberWithString:((NSString*)");
+						this.Visit(node.Operand);
+						this.Write(")])");
 					}
 					else
 					{
