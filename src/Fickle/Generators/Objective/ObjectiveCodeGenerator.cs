@@ -1063,23 +1063,24 @@ namespace Fickle.Generators.Objective
 				return property;
 			}
 
-			if (property.Modifiers.Count > 0)
+			var modifiers = property.Modifiers;
+
+			if (this.IsReferenceType(property.PropertyType))
+			{
+				modifiers = modifiers.Concat("_Nullable").ToReadOnlyCollection();
+			}
+
+			if (modifiers.Count > 0)
 			{
 				this.Write(@"@property (readwrite, ");
 
 				var i = 0;
-				var modifiers = property.Modifiers;
-
-				if (this.IsReferenceType(property.PropertyType))
-				{
-					modifiers = modifiers.Concat("_Nullable").ToReadOnlyCollection();
-				}
-
+				
 				foreach (var value in modifiers)
 				{
 					this.Write(value);
 
-					if (i != property.Modifiers.Count - 1)
+					if (i != modifiers.Count - 1)
 					{
 						this.Write(", ");
 					}
