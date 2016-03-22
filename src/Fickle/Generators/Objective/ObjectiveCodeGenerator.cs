@@ -1064,12 +1064,7 @@ namespace Fickle.Generators.Objective
 			}
 
 			var modifiers = property.Modifiers;
-
-			if (this.IsReferenceType(property.PropertyType))
-			{
-				modifiers = modifiers.Concat("nullable").ToReadOnlyCollection();
-			}
-
+			
 			if (modifiers.Count > 0)
 			{
 				this.Write(@"@property (readwrite, ");
