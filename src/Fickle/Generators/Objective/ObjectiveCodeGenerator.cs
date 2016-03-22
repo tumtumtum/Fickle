@@ -405,9 +405,7 @@ namespace Fickle.Generators.Objective
 				}
 				else if (node.Type == typeof(object))
 				{
-					if (node.Operand.Type.IsNumericType(false)
-					    || node.Operand.Type == typeof(bool)
-						|| node.Operand.Type.IsEnum)
+					if (!this.IsReferenceType(node.Operand.Type))
 					{
 						this.Write("@(");
 						this.Visit(node.Operand);
