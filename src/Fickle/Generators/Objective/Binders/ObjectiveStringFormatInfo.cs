@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Text.RegularExpressions;
 using Fickle.Expressions;
+using Platform;
 
 namespace Fickle.Generators.Objective.Binders
 {
@@ -78,7 +79,7 @@ namespace Fickle.Generators.Objective.Binders
 					parameters.Add(Expression.Parameter(typeof(string), name));
 					var arg = FickleExpression.Call(parameter, typeof(string), "ToString", null);
 
-					args.Add(Expression.Condition(Expression.Equal(Expression.Convert(arg, typeof(object)), Expression.Constant(null)), Expression.Constant(""), arg));
+					args.Add(Expression.Condition(Expression.Equal(Expression.Convert(parameter, type.MakeNullable()), Expression.Constant(null)), Expression.Constant(""), arg));
 
 					return transformFormatSpecifier("%@", typeof(string));
 				}

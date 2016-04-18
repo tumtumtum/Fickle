@@ -453,7 +453,7 @@ namespace Fickle.Generators.Objective
 
 		protected override Expression VisitConstant(ConstantExpression node)
 		{
-			if (!node.Type.IsValueType && node.Value == null)
+			if ((node.Type.IsNullable() || !node.Type.IsValueType) && node.Value == null)
 			{
 				this.Write("nil");
 
