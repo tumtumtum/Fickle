@@ -78,7 +78,7 @@ namespace Fickle.Generators.Objective.Binders
 					parameters.Add(Expression.Parameter(typeof(string), name));
 					var arg = FickleExpression.Call(parameter, typeof(string), "ToString", null);
 
-					args.Add(Expression.Condition(Expression.Equal(parameter, Expression.Constant(null)), Expression.Constant(""), arg));
+					args.Add(Expression.Condition(Expression.Equal(Expression.Convert(arg, typeof(object)), Expression.Constant(null)), Expression.Constant(""), arg));
 
 					return transformFormatSpecifier("%@", typeof(string));
 				}
@@ -94,7 +94,14 @@ namespace Fickle.Generators.Objective.Binders
 						arg = transformStringArg(arg);
 					}
 
-					args.Add(Expression.Condition(Expression.Equal(parameter, Expression.Constant(null)), Expression.Constant(""), arg));
+					if (type.IsNullable() || !type.IsValueType)
+					{
+						args.Add(Expression.Condition(Expression.Equal(parameter, Expression.Constant(null, type)), Expression.Constant(""), arg));
+					}
+					else
+					{
+						args.Add(arg);
+					}
 
 					return transformFormatSpecifier("%@", typeof(string));
 				}
