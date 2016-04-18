@@ -75,19 +75,16 @@ namespace Fickle.Generators.Objective.Binders
 				}
 				else if (type == typeof(Guid))
 				{
-					var param = Expression.Parameter(typeof(string), name);
-
-					parameters.Add(param);
+					parameters.Add(Expression.Parameter(typeof(string), name));
 					var arg = FickleExpression.Call(parameter, typeof(string), "ToString", null);
 
-					args.Add(Expression.Condition(Expression.Equal(param, Expression.Constant(null)), Expression.Constant(""), arg));
+					args.Add(Expression.Condition(Expression.Equal(parameter, Expression.Constant(null)), Expression.Constant(""), arg));
 
 					return transformFormatSpecifier("%@", typeof(string));
 				}
 				else
 				{
-					var param = Expression.Parameter(typeof(string), name);
-					parameters.Add(param);
+					parameters.Add(Expression.Parameter(typeof(string), name));
 					var originalArg = (Expression)FickleExpression.Call(parameter, typeof(string), "ToString", null);
 
 				    var arg = ObjectiveExpression.ToUrlEncodedExpression(originalArg);
@@ -97,7 +94,7 @@ namespace Fickle.Generators.Objective.Binders
 						arg = transformStringArg(arg);
 					}
 
-					args.Add(Expression.Condition(Expression.Equal(param, Expression.Constant(null)), Expression.Constant(""), arg));
+					args.Add(Expression.Condition(Expression.Equal(parameter, Expression.Constant(null)), Expression.Constant(""), arg));
 
 					return transformFormatSpecifier("%@", typeof(string));
 				}
