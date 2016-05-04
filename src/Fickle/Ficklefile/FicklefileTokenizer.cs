@@ -293,7 +293,7 @@ namespace Fickle.Ficklefile
 				var isAnnotation = this.currentChar == '@';
 				var explicitlyIdentifier = this.currentChar == '^';
 				
-				if (isAnnotation)
+				if (isAnnotation || explicitlyIdentifier)
 				{
 					this.ConsumeChar();
 				}

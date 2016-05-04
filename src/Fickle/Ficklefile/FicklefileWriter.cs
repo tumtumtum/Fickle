@@ -78,7 +78,10 @@ namespace Fickle.Ficklefile
 			{
 				foreach (var value in serviceEnum.Values)
 				{
-					this.WriteLine("{0}:{1}", value.Name, value.Value);
+					this.WriteIdentifier(value.Name);
+					this.Write(":");
+					this.Write(value.Value.ToString());
+					this.WriteLine();
 				}
 			}
 		}
