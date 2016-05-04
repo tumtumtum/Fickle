@@ -16,8 +16,6 @@ namespace Fickle.WebApi
 	public class WebApiRuntimeServiceModelReflector
 		: ServiceModelReflector
 	{
-		public static string[] ReservedKeywords => new[] { "enum", "class", "gateway" };
-
 		private readonly Assembly referencingAssembly;
 		private readonly string hostname;
 		private readonly HttpConfiguration configuration;

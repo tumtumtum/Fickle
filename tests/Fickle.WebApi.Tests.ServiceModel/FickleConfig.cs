@@ -8,5 +8,5 @@ using Fickle.WebApi.Tests.ServiceModel.ServiceModel;
 [assembly: FickleIncludeType(typeof(EnumWithNegativeValues), IncludeRelatives = false)]
 [assembly: FickleIncludeType(typeof(EnumWithDuplicateValues), IncludeRelatives = false)]
 [assembly: FickleIncludeType(typeof(EnumWithFlags), IncludeRelatives = false)]
-//[assembly: FickleIncludeType(typeof(EnumWithKeywords), IncludeRelatives = false)] // TODO this doesn't parse
+[assembly: FickleIncludeType(typeof(EnumWithKeywords), IncludeRelatives = false)] // TODO this doesn't parse
 [assembly: FickleIncludeType(typeof(EnumWithNoValues), IncludeRelatives = false)]

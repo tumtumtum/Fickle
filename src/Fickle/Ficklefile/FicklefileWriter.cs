@@ -13,6 +13,11 @@ namespace Fickle.Ficklefile
 	{
 		private readonly HashSet<string> keywords;
 
+		public FicklefileWriter(TextWriter writer)
+			: this(writer, Enum.GetNames(typeof(FicklefileKeyword)))
+		{	
+		}
+		
 		public FicklefileWriter(TextWriter writer, IEnumerable<string> keywords)
 			: base(writer)
 		{
