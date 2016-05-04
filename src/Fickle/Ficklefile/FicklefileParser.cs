@@ -85,7 +85,7 @@ namespace Fickle.Ficklefile
 
 				this.Expect(FicklefileToken.Integer);
 
-				retval.Value = (int)this.tokenizer.CurrentInteger;
+				retval.Value = this.tokenizer.CurrentInteger;
 
 				this.ReadNextToken();
 			}
