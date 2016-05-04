@@ -106,6 +106,12 @@ namespace Fickle.Ficklefile
 			};
 
 			this.ReadNextToken();
+
+			if (this.tokenizer.CurrentToken != FicklefileToken.Indent)
+			{
+				return retval;
+			}
+
 			this.Expect(FicklefileToken.Indent);
 			this.ReadNextToken();
 
