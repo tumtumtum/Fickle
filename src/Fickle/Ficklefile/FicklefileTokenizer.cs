@@ -254,10 +254,16 @@ namespace Fickle.Ficklefile
 				this.ConsumeChar();
 				this.CurrentToken = FicklefileToken.CloseParen;
 			}
-			else if (char.IsDigit((char)this.currentChar))
+			else if (char.IsDigit((char)this.currentChar) || (char)this.currentChar == '-')
 			{
 				var foundPoint = false;
 				this.stringBuilder.Clear();
+
+				if ((char)this.currentChar == '-')
+				{
+					this.stringBuilder.Append((char)this.currentChar);
+					this.ConsumeChar();
+				}
 
 				while (this.currentChar != -1 && (char.IsDigit((char)this.currentChar) || (this.currentChar == '.' && !foundPoint)))
 				{
