@@ -44,7 +44,7 @@ namespace Fickle.WebApi.TestWebService.Areas.Fickle.Controllers
 				{
 					using (var streamWriter = new StreamWriter(stream))
 					{
-						var writer = new FicklefileWriter(streamWriter);
+						var writer = new FicklefileWriter(streamWriter, WebApiRuntimeServiceModelReflector.ReservedKeywords);
 						writer.Write(serviceModel);
 					}
 				},

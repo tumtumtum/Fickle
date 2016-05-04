@@ -11,18 +11,19 @@ namespace Fickle.Ficklefile
 	public class FicklefileWriter
 		: SourceCodeGenerator
 	{
-		private readonly HashSet<string> keywords = new HashSet<string>(typeof(FicklefileKeyword).GetEnumNames(), StringComparer.InvariantCultureIgnoreCase);
+		private readonly HashSet<string> keywords;
 
-		public FicklefileWriter(TextWriter writer)
+		public FicklefileWriter(TextWriter writer, IEnumerable<string> keywords)
 			: base(writer)
 		{
+			this.keywords = new HashSet<string>(keywords, StringComparer.InvariantCultureIgnoreCase);
 		}
 
 		protected virtual void WriteIdentifier(string name)
 		{
-			if (keywords.Contains(name))
+			if (keywords?.Contains(name) == true)
 			{
-				this.Write("$");
+				this.Write('^');
 				this.Write(name);
 			}
 			else

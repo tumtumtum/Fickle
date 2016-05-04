@@ -284,11 +284,10 @@ namespace Fickle.Ficklefile
 			}
 			else if ((char)this.currentChar == '@' || (char)this.currentChar == '$' || (char)this.currentChar == '^' || char.IsLetter((char)this.currentChar) || this.currentChar == '_')
 			{
-				var isIdentifier = this.currentChar == '$';
 				var isAnnotation = this.currentChar == '@';
-				var isLiteralIdentifier = this.currentChar == '^';
-
-				if (isAnnotation || isLiteralIdentifier)
+				var explicitlyIdentifier = this.currentChar == '^';
+				
+				if (isAnnotation)
 				{
 					this.ConsumeChar();
 				}
@@ -310,7 +309,11 @@ namespace Fickle.Ficklefile
 				{
 					this.CurrentToken = FicklefileToken.Annotation;
 				}
-				else if (!isIdentifier && this.keywordsByName.TryGetValue(this.CurrentString, out keyword))
+				else if (explicitlyIdentifier)
+				{
+					this.CurrentToken = FicklefileToken.Identifier;
+				}
+				else if (this.keywordsByName.TryGetValue(this.CurrentString, out keyword))
 				{
 					this.CurrentKeyword = keyword;
 					this.CurrentToken = FicklefileToken.Keyword;
