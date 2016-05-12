@@ -82,10 +82,10 @@ namespace Fickle.Ficklefile
 			if (this.tokenizer.CurrentToken == FicklefileToken.Colon)
 			{
 				this.ReadNextToken();
-
+			
 				this.Expect(FicklefileToken.Integer);
 
-				retval.Value = (int)this.tokenizer.CurrentInteger;
+				retval.Value = this.tokenizer.CurrentInteger;
 
 				this.ReadNextToken();
 			}
@@ -106,6 +106,12 @@ namespace Fickle.Ficklefile
 			};
 
 			this.ReadNextToken();
+
+			if (this.tokenizer.CurrentToken != FicklefileToken.Indent)
+			{
+				return retval;
+			}
+
 			this.Expect(FicklefileToken.Indent);
 			this.ReadNextToken();
 

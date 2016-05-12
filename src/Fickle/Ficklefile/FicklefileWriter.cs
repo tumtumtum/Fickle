@@ -11,18 +11,24 @@ namespace Fickle.Ficklefile
 	public class FicklefileWriter
 		: SourceCodeGenerator
 	{
-		private readonly HashSet<string> keywords = new HashSet<string>(typeof(FicklefileKeyword).GetEnumNames(), StringComparer.InvariantCultureIgnoreCase);
+		private readonly HashSet<string> keywords;
 
 		public FicklefileWriter(TextWriter writer)
+			: this(writer, Enum.GetNames(typeof(FicklefileKeyword)))
+		{	
+		}
+		
+		public FicklefileWriter(TextWriter writer, IEnumerable<string> keywords)
 			: base(writer)
 		{
+			this.keywords = new HashSet<string>(keywords, StringComparer.InvariantCultureIgnoreCase);
 		}
 
 		protected virtual void WriteIdentifier(string name)
 		{
-			if (keywords.Contains(name))
+			if (keywords?.Contains(name) == true)
 			{
-				this.Write("$");
+				this.Write('^');
 				this.Write(name);
 			}
 			else
@@ -72,7 +78,10 @@ namespace Fickle.Ficklefile
 			{
 				foreach (var value in serviceEnum.Values)
 				{
-					this.WriteLine("{0}:{1}", value.Name, value.Value);
+					this.WriteIdentifier(value.Name);
+					this.Write(":");
+					this.Write(value.Value.ToString());
+					this.WriteLine();
 				}
 			}
 		}

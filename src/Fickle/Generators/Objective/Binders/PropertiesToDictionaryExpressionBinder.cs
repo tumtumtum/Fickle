@@ -54,6 +54,12 @@ namespace Fickle.Generators.Objective.Binders
 				
 				expression = processOutputValue(expression);
 			}
+            else if (valueType.GetUnwrappedNullableType() == typeof(TimeSpan))
+            {
+                expression = FickleExpression.Call(value, typeof(string), "ToString", null);
+
+                expression = processOutputValue(expression);
+            }
 			else if (valueType is FickleListType)
 			{
 				var listType = valueType as FickleListType;

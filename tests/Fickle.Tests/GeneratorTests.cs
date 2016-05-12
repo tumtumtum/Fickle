@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.IO;
 using NUnit.Framework;
 using Platform.VirtualFileSystem;
 
@@ -38,7 +39,7 @@ namespace Fickle.Tests
 			};
 
 			var serviceModel = FicklefileParserTests.GetTestServiceModel();
-			var serviceModelcodeGenerator = ServiceModelCodeGenerator.GetCodeGenerator("objc", Console.Out, options);
+			var serviceModelcodeGenerator = ServiceModelCodeGenerator.GetCodeGenerator("objc", TextWriter.Null, options);
 
 			serviceModelcodeGenerator.Generate(serviceModel);
 		}
@@ -74,7 +75,7 @@ namespace Fickle.Tests
 			};
 
 			var serviceModel = FicklefileParserTests.GetTestServiceModel();
-			var serviceModelcodeGenerator = ServiceModelCodeGenerator.GetCodeGenerator("java", Console.Out, options);
+			var serviceModelcodeGenerator = ServiceModelCodeGenerator.GetCodeGenerator("java", TextWriter.Null, options);
 
 			serviceModelcodeGenerator.Generate(serviceModel);
 		}
@@ -108,7 +109,7 @@ namespace Fickle.Tests
 			};
 
 			var serviceModel = FicklefileParserTests.GetTestServiceModel();
-			var serviceModelcodeGenerator = ServiceModelCodeGenerator.GetCodeGenerator("javascript", Console.Out, options);
+			var serviceModelcodeGenerator = ServiceModelCodeGenerator.GetCodeGenerator("javascript", TextWriter.Null, options);
 
 			serviceModelcodeGenerator.Generate(serviceModel);
 		}

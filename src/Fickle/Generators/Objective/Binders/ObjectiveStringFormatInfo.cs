@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Text.RegularExpressions;
 using Fickle.Expressions;
+using Platform;
 
 namespace Fickle.Generators.Objective.Binders
 {
@@ -78,23 +79,30 @@ namespace Fickle.Generators.Objective.Binders
 					parameters.Add(Expression.Parameter(typeof(string), name));
 					var arg = FickleExpression.Call(parameter, typeof(string), "ToString", null);
 
-					args.Add(Expression.Condition(Expression.Equal(arg, Expression.Constant(null)), Expression.Constant(""), arg));
+					args.Add(Expression.Condition(Expression.Equal(Expression.Convert(parameter, type.MakeNullable()), Expression.Constant(null)), Expression.Constant(""), arg));
 
 					return transformFormatSpecifier("%@", typeof(string));
 				}
 				else
 				{
 					parameters.Add(Expression.Parameter(typeof(string), name));
-					var arg = (Expression)FickleExpression.Call(parameter, typeof(string), "ToString", null);
+					var originalArg = (Expression)FickleExpression.Call(parameter, typeof(string), "ToString", null);
 
-					arg = FickleExpression.Call(arg, typeof(string), "stringByAddingPercentEscapesUsingEncoding", Expression.Variable(typeof(int), "NSUTF8StringEncoding"));
+				    var arg = ObjectiveExpression.ToUrlEncodedExpression(originalArg);
 
-					if (transformStringArg != null)
+                    if (transformStringArg != null)
 					{
 						arg = transformStringArg(arg);
 					}
 
-					args.Add(Expression.Condition(Expression.Equal(arg, Expression.Constant(null)), Expression.Constant(""), arg));
+					if (type.IsNullable() || !type.IsValueType)
+					{
+						args.Add(Expression.Condition(Expression.Equal(parameter, Expression.Constant(null, type)), Expression.Constant(""), arg));
+					}
+					else
+					{
+						args.Add(arg);
+					}
 
 					return transformFormatSpecifier("%@", typeof(string));
 				}

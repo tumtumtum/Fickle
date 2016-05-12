@@ -19,16 +19,22 @@ namespace Fickle.Generators.Objective
 	[PrimitiveTypeName(typeof(char?), "NSNumber", true)]
 	[PrimitiveTypeName(typeof(short), "int16_t", false)]
 	[PrimitiveTypeName(typeof(short?), "NSNumber", true)]
+	[PrimitiveTypeName(typeof(ushort), "uint16_t", false)]
+	[PrimitiveTypeName(typeof(ushort?), "NSNumber", true)]
 	[PrimitiveTypeName(typeof(int), "int", false)]
 	[PrimitiveTypeName(typeof(int?), "NSNumber", true)]
+	[PrimitiveTypeName(typeof(uint), "uint", false)]
+	[PrimitiveTypeName(typeof(uint?), "NSNumber", true)]
 	[PrimitiveTypeName(typeof(long), "int64_t", false)]
 	[PrimitiveTypeName(typeof(long?), "NSNumber", true)]
+	[PrimitiveTypeName(typeof(ulong), "uint64_t", false)]
+	[PrimitiveTypeName(typeof(ulong?), "NSNumber", true)]
 	[PrimitiveTypeName(typeof(float), "Float32", false)]
 	[PrimitiveTypeName(typeof(float?), "NSNumber", true)]
 	[PrimitiveTypeName(typeof(double), "Float64", false)]
 	[PrimitiveTypeName(typeof(double?), "NSNumber", true)]
-	[PrimitiveTypeName(typeof(decimal), "NSNumber", false)]
-	[PrimitiveTypeName(typeof(decimal?), "NSNumber", true)]
+	[PrimitiveTypeName(typeof(decimal), "NSDecimalNumber", true)]
+	[PrimitiveTypeName(typeof(decimal?), "NSDecimalNumber", true)]
 	[PrimitiveTypeName(typeof(Guid), "PKUUID", true)]
 	[PrimitiveTypeName(typeof(Guid?), "PKUUID", true)]
 	[PrimitiveTypeName(typeof(DateTime), "NSDate", true)]
@@ -169,12 +175,7 @@ namespace Fickle.Generators.Objective
 			{
 				base.Write(type, nameOnly);
 
-				if (type.Name == "Sex")
-				{
-					Console.WriteLine();
-				}
-
-				if (!nameOnly)
+                if (!nameOnly)
 				{
 					if (fickleType.IsEnum && fickleType.IsByRef)
 					{
@@ -273,6 +274,18 @@ namespace Fickle.Generators.Objective
 						this.Visit(node.Operand);
 						this.Write(")");
 					}
+					else if (type == typeof(ushort))
+					{
+						this.Write("((NSNumber*)");
+						this.Visit(node.Operand);
+						this.Write(").unsignedShortValue");
+					}
+					else if (type == typeof(ushort?))
+					{
+						this.Write("((NSNumber*)");
+						this.Visit(node.Operand);
+						this.Write(")");
+					}
 					else if (type == typeof(int))
 					{
 						this.Write("((NSNumber*)");
@@ -285,6 +298,18 @@ namespace Fickle.Generators.Objective
 						this.Visit(node.Operand);
 						this.Write(")");
 					}
+					else if (type == typeof(uint))
+					{
+						this.Write("((NSNumber*)");
+						this.Visit(node.Operand);
+						this.Write(").unsignedIntValue");
+					}
+					else if (type == typeof(uint?))
+					{
+						this.Write("((NSNumber*)");
+						this.Visit(node.Operand);
+						this.Write(")");
+					}
 					else if (type == typeof(long))
 					{
 						this.Write("(int64_t)((NSNumber*)");
@@ -292,6 +317,18 @@ namespace Fickle.Generators.Objective
 						this.Write(").longLongValue");
 					}
 					else if (type == typeof(long?))
+					{
+						this.Write("((NSNumber*)");
+						this.Visit(node.Operand);
+						this.Write(")");
+					}
+					else if (type == typeof(ulong))
+					{
+						this.Write("(int64_t)((NSNumber*)");
+						this.Visit(node.Operand);
+						this.Write(").unsignedLongLongValue");
+					}
+					else if (type == typeof(ulong?))
 					{
 						this.Write("((NSNumber*)");
 						this.Visit(node.Operand);
@@ -323,15 +360,17 @@ namespace Fickle.Generators.Objective
 					}
 					else if (type == typeof(decimal))
 					{
-						this.Write("((NSDecimalNumber*)");
+						this.Write("([NSDecimalNumber decimalNumberWithString:((NSString*)");
 						this.Visit(node.Operand);
-						this.Write(")");
+						this.Write(") ?: @\"0\"])");
 					}
 					else if (type == typeof(decimal?))
 					{
-						this.Write("((NSDecimalNumber*)");
+						this.Write("(");
 						this.Visit(node.Operand);
-						this.Write(")");
+						this.Write(" == nil ? nil : [NSDecimalNumber decimalNumberWithString:((NSString*)");
+						this.Visit(node.Operand);
+						this.Write(")])");
 					}
 					else
 					{
@@ -366,9 +405,7 @@ namespace Fickle.Generators.Objective
 				}
 				else if (node.Type == typeof(object))
 				{
-					if (node.Operand.Type.IsNumericType(false)
-					    || node.Operand.Type == typeof(bool)
-						|| node.Operand.Type.IsEnum)
+					if (!this.IsReferenceType(node.Operand.Type))
 					{
 						this.Write("@(");
 						this.Visit(node.Operand);
@@ -382,8 +419,14 @@ namespace Fickle.Generators.Objective
 				else
 				{
 					this.Write("((");
-					this.Write(node.Type);
-					this.Write(')');
+
+				    if (node.Operand.Type.IsPrimitive && node.Operand.Type.Name.StartsWith("CF"))
+				    {
+				        this.Write("__bridge ");
+				    }
+
+				    this.Write(node.Type);
+                    this.Write(')');
 					this.Write('(');
 					this.Visit(node.Operand);
 					this.Write(')');
@@ -410,7 +453,7 @@ namespace Fickle.Generators.Objective
 
 		protected override Expression VisitConstant(ConstantExpression node)
 		{
-			if (!node.Type.IsValueType && node.Value == null)
+			if ((node.Type.IsNullable() || !node.Type.IsValueType) && node.Value == null)
 			{
 				this.Write("nil");
 
@@ -1020,17 +1063,19 @@ namespace Fickle.Generators.Objective
 				return property;
 			}
 
-			if (property.Modifiers.Count > 0)
+			var modifiers = property.Modifiers;
+			
+			if (modifiers.Count > 0)
 			{
 				this.Write(@"@property (readwrite, ");
 
 				var i = 0;
-
-				foreach (var value in property.Modifiers)
+				
+				foreach (var value in modifiers)
 				{
 					this.Write(value);
 
-					if (i != property.Modifiers.Count - 1)
+					if (i != modifiers.Count - 1)
 					{
 						this.Write(", ");
 					}
@@ -1168,11 +1213,21 @@ namespace Fickle.Generators.Objective
 
 			this.Write("(");
 
-			foreach (var parameter in node.Parameters.Cast<ParameterExpression>())
+		    var i = 0;
+		    var count = node.Parameters.Cast<ParameterExpression>().Count();
+
+            foreach (var parameter in node.Parameters.Cast<ParameterExpression>())
 			{
 				this.Write(parameter.Type);
 				this.Write(" ");
 				this.Write(parameter.Name);
+
+			    if (i != count - 1)
+			    {
+			        this.Write(", ");
+			    }
+
+			    i++;
 			}
 
 			this.WriteLine(")");
