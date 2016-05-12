@@ -32,5 +32,14 @@ namespace Fickle.Tests
 
 			codeGenerator.Generate(serviceModel);
 		}
+
+		[Test]
+		public void Test_Parse_And_Generate_Javascript()
+		{
+			var serviceModel = FicklefileParserTests.GetTestServiceModel();
+			var codeGenerator = ServiceModelCodeGenerator.GetCodeGenerator("javascript", Console.Out, CodeGenerationOptions.Default);
+
+			codeGenerator.Generate(serviceModel);
+		}
 	}
 }
