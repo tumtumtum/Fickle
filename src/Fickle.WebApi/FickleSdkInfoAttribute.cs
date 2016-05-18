@@ -11,5 +11,7 @@ namespace Fickle.WebApi
 		public string Summary { get; set; }
 		public string Author { get; set; }
 		public string ServiceNameSuffix { get; set; }
+
+		public bool SecureByDefault { get; set; }
 	}
 }
