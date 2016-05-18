@@ -222,6 +222,10 @@ namespace Fickle.WebApi
 			foreach (var controller in controllers)
 			{
 				var methods = new List<ServiceMethod>();
+
+				secureByDefault = this.referencingAssembly.GetCustomAttributes<FickleSecureAttribute>()?.FirstOrDefault()?.Secure ?? false;
+
+				var controllerSecureByDefault = controller.GetCustomAttributes<FickleSecureAttribute>(true)?.FirstOrDefault()?.Secure ?? secureByDefault;
 				
 				var serviceNameSuffix = "Service";
 				var attribute = this.referencingAssembly.GetCustomAttribute<FickleSdkInfoAttribute>();
@@ -233,8 +237,9 @@ namespace Fickle.WebApi
 					serviceModelInfo.Summary = attribute.Summary ?? serviceModelInfo.Summary;
 					serviceModelInfo.Author = attribute.Author ?? serviceModelInfo.Author;
 					serviceModelInfo.Version = attribute.Version ?? serviceModelInfo.Version;
-					secureByDefault = attribute.SecureByDefault;
 				}
+
+				
 
 
 				foreach (var api in descriptions.Where(c => c.ActionDescriptor.ControllerDescriptor == controller)
@@ -275,7 +280,7 @@ namespace Fickle.WebApi
 					var serviceMethod = new ServiceMethod
 					{
 						Authenticated = api.ActionDescriptor.GetCustomAttributes<AuthorizeAttribute>(true).Count > 0,
-						Secure = api.ActionDescriptor.GetCustomAttributes<SecureAttribute>(true)?.FirstOrDefault()?.Secure ?? secureByDefault,
+						Secure = api.ActionDescriptor.GetCustomAttributes<FickleSecureAttribute>(true)?.FirstOrDefault()?.Secure ?? controllerSecureByDefault,
 						Name = api.ActionDescriptor.ActionName,
 						Path = StringUriUtils.Combine(this.configuration.VirtualPathRoot, api.RelativePath),
 						Returns = GetTypeName(returnType),

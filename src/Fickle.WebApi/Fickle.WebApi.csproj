@@ -78,7 +78,7 @@
     <Compile Include="InternalEnumerableExtensions.cs" />
     <Compile Include="NoBodyAttribute.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="SecureAttribute.cs" />
+    <Compile Include="FickleSecureAttribute.cs" />
     <Compile Include="WebApiRuntimeServiceModelReflector.cs" />
   </ItemGroup>
   <ItemGroup>
