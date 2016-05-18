@@ -83,6 +83,7 @@ namespace Fickle.Generators.Objective.Binders
 			
 			var self = Expression.Variable(currentType, "self");
 			var hostname = Expression.Variable(typeof(string), "hostname");
+			var port = Expression.Variable(typeof(string), "port");
 			var protocol = Expression.Variable(typeof(string), "protocol");
 			var optionsParam = FickleExpression.Parameter("NSDictionary", "options");
 			var localOptions = FickleExpression.Variable("NSMutableDictionary", "localOptions");
@@ -91,10 +92,10 @@ namespace Fickle.Generators.Objective.Binders
             var url = Expression.Variable(typeof(string), "url");
 			var client = Expression.Variable(FickleType.Define(this.CodeGenerationContext.Options.ServiceClientTypeName ?? "PKWebServiceClient"), "client");
 			var responseType = ObjectiveBinderHelpers.GetWrappedResponseType(this.CodeGenerationContext, method.ReturnType);
-			var variables = new [] { url, client, localOptions, protocol, hostname, requestObject };
+			var variables = new [] { url, client, localOptions, protocol, hostname, requestObject, port };
 			var declaredHostname = currentTypeDefinitionExpression.Attributes["Hostname"];
 			var declaredPath = method.Attributes["Path"];
-			var path = StringUriUtils.Combine("http://%@", declaredPath);
+			var path = StringUriUtils.Combine("%@://%@%@", declaredPath);
 			var httpMethod = method.Attributes["Method"];
 			var declaredProtocol = Convert.ToBoolean(method.Attributes["Secure"]) ? "https" : "http";
 
@@ -109,14 +110,15 @@ namespace Fickle.Generators.Objective.Binders
 			{
 				new ObjectiveParameterInfo(typeof(string), "s"),
 				new ObjectiveParameterInfo(typeof(string), "protocol", true),
-				new ObjectiveParameterInfo(typeof(string), "hostname", true)
+				new ObjectiveParameterInfo(typeof(string), "hostname", true),
+				new ObjectiveParameterInfo(typeof(string), "port", true),
 			};
 
 			parameterInfos.AddRange(parameters.Select(c => new ObjectiveParameterInfo(c.Type, c.Name, true)));
 
 			var methodInfo = new FickleMethodInfo(typeof(string), typeof(string), "stringWithFormat", parameterInfos.ToArray(), true);
 
-			args.InsertRange(0, new Expression[] { Expression.Constant(formatInfo.Format), protocol, hostname });
+			args.InsertRange(0, new Expression[] { Expression.Constant(formatInfo.Format), protocol, hostname, port });
 
 			var newParameters = new List<Expression>(method.Parameters) { optionsParam };
 			var callback = Expression.Parameter(new FickleDelegateType(typeof(void), new FickleParameterInfo(responseType, "response")), "callback");
@@ -301,6 +303,8 @@ namespace Fickle.Generators.Objective.Binders
 				Expression.IfThen(Expression.Equal(hostname, Expression.Constant(null)), Expression.Assign(hostname, Expression.Constant(declaredHostname)).ToStatementBlock()),
 				Expression.Assign(protocol, FickleExpression.Call(localOptions, typeof(string), "objectForKey", Expression.Constant("protocol"))),
 				Expression.IfThen(Expression.Equal(protocol, Expression.Constant(null)), Expression.Assign(protocol, Expression.Constant(declaredProtocol)).ToStatementBlock()),
+				Expression.Assign(port, FickleExpression.Call(FickleExpression.Call(localOptions, FickleType.Define("NSNumber"), "objectForKey", Expression.Constant("port")), typeof(string), "stringValue", null)),
+				Expression.IfThenElse(Expression.Equal(port, Expression.Constant(null)), Expression.Assign(port, Expression.Constant("")).ToStatementBlock(), Expression.Assign(port, FickleExpression.Call(Expression.Constant(":"), typeof(string), "stringByAppendingString", port)).ToStatementBlock()),
 				FickleExpression.Grouped
 				(
 					FickleExpression.Call(localOptions, "setObject", new
