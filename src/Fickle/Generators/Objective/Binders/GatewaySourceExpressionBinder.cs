@@ -90,9 +90,8 @@ namespace Fickle.Generators.Objective.Binders
 			var requestObject = FickleExpression.Variable("NSObject", "requestObject");
 			var requestObjectValue = (Expression)Expression.Constant(null, typeof(object));
             var url = Expression.Variable(typeof(string), "url");
-			var client = Expression.Variable(FickleType.Define(this.CodeGenerationContext.Options.ServiceClientTypeName ?? "PKWebServiceClient"), "client");
 			var responseType = ObjectiveBinderHelpers.GetWrappedResponseType(this.CodeGenerationContext, method.ReturnType);
-			var variables = new [] { url, client, localOptions, protocol, hostname, requestObject, port };
+			var variables = new [] { url, localOptions, protocol, hostname, requestObject, port };
 			var declaredHostname = currentTypeDefinitionExpression.Attributes["Hostname"];
 			var declaredPath = method.Attributes["Path"];
 			var path = StringUriUtils.Combine("%@://%@%@", declaredPath);
@@ -233,13 +232,13 @@ namespace Fickle.Generators.Objective.Binders
 
 			parseResultBlock = FickleExpression.Call(parseResultBlock, parseResultBlock.Type, "copy", null);
 
-            var innerClientVariable = Expression.Parameter(FickleType.Define("PKWebServiceClient"), "innerClient");
-            
-            Expression clientCallExpression;
+			var client = Expression.Variable(FickleType.Define(this.CodeGenerationContext.Options.ServiceClientTypeName ?? "PKWebServiceClient"), "client");
+
+			Expression clientCallExpression;
 
             if (httpMethod.Equals("get", StringComparison.InvariantCultureIgnoreCase))
             {
-                clientCallExpression = FickleExpression.Call(innerClientVariable, "getWithCallback", conversionBlock);
+                clientCallExpression = FickleExpression.Call(client, "getWithCallback", conversionBlock);
             }
             else
             {
@@ -248,7 +247,7 @@ namespace Fickle.Generators.Objective.Binders
 
                 if (string.IsNullOrEmpty(contentParameterName))
                 {
-                    clientCallExpression = FickleExpression.Call(innerClientVariable, "postWithRequestObject", new
+                    clientCallExpression = FickleExpression.Call(client, "postWithRequestObject", new
                     {
                         requestObject,
                         andCallback = conversionBlock
@@ -260,7 +259,7 @@ namespace Fickle.Generators.Objective.Binders
 
                     requestObjectValue = content.Type == typeof(byte[]) ? (Expression)content : FickleExpression.Call(self, typeof(object), this.GetNormalizeRequestMethodName(content.Type, contentFormat), new { serializeRequest = Expression.Convert(content, typeof(object)), paramName = Expression.Constant(contentParameterName) });
 
-                    clientCallExpression = FickleExpression.Call(innerClientVariable, "postWithRequestObject", new
+                    clientCallExpression = FickleExpression.Call(client, "postWithRequestObject", new
                     {
                         requestObject,
                         andCallback = conversionBlock
@@ -273,15 +272,15 @@ namespace Fickle.Generators.Objective.Binders
 		        typeof(void),
 		        FickleExpression.StatementisedGroupedExpression
                 (
-                    Expression.Assign(innerClientVariable, FickleExpression.Call(Expression.Variable(currentType, "self"), "PKWebServiceClient", "createClientWithURL", new
+                    Expression.Assign(client, FickleExpression.Call(Expression.Variable(currentType, "self"), "PKWebServiceClient", "createClientWithURL", new
                     {
                         url,
                         options = localOptions
                     })),
-                    Expression.Assign(FickleExpression.Property(innerClientVariable, currentType, "delegate"), self),
+                    Expression.Assign(FickleExpression.Property(client, currentType, "delegate"), self),
                     clientCallExpression
                 ),
-		        new Expression[] { innerClientVariable }
+		        new Expression[] { client }
 		    );
 
             retryBlock = FickleExpression.Call(retryBlock, retryBlock.Type, "copy", null);
