@@ -121,11 +121,22 @@ namespace Fickle.Generators.Objective.Binders
 					}
 					else
 					{
-						expression = Expression.IfThen
-						(
-							Expression.ReferenceNotEqual(Expression.Convert(value, typeof(object)), Expression.Constant(null)),
-							expression is BlockExpression ? expression : FickleExpression.Block(expression)
-						);
+						if (valueType.IsNullable())
+						{
+							expression = Expression.IfThen
+							(
+								Expression.Equal(value, Expression.Constant(null, value.Type)),
+								expression is BlockExpression ? expression : FickleExpression.Block(expression)
+							);
+						}
+						else
+						{
+							expression = Expression.IfThen
+							(
+								Expression.ReferenceEqual(Expression.Convert(value, typeof(object)), Expression.Constant(null)),
+								expression is BlockExpression ? expression : FickleExpression.Block(expression)
+							);
+						}
 					}
 				}
 			}
