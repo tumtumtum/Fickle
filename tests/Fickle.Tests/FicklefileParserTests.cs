@@ -28,6 +28,7 @@ namespace Fickle.Tests
 		public void Test_Parse_And_Generate_ObjectiveC()
 		{
 			var serviceModel = FicklefileParserTests.GetTestServiceModel();
+
 			var codeGenerator = ServiceModelCodeGenerator.GetCodeGenerator("objc", TextWriter.Null, CodeGenerationOptions.Default);
 
 			codeGenerator.Generate(serviceModel);

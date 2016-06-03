@@ -72,6 +72,11 @@ namespace Fickle.Generators
 				return value;
 			}
 
+			if (type.IsNullable())
+			{
+				return true;
+			}
+
 			return !TypeSystem.IsPrimitiveType(type);
 		}
 		

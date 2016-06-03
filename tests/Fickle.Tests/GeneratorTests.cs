@@ -16,7 +16,7 @@ namespace Fickle.Tests
 			{
 				GenerateClasses = true,
 				TypeNamePrefix = "TN",
-				SerializeEnumsAsStrings = true
+				SerializeEnumsAsStrings = false
 			};
 
 			var outputDir = FileSystemManager.Default.ResolveDirectory("./" + new StackTrace().GetFrame(0).GetMethod().Name);

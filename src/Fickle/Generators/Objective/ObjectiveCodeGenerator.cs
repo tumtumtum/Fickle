@@ -396,7 +396,8 @@ namespace Fickle.Generators.Objective
 					this.Visit(node.Operand);
 					this.Write("]");
 				}
-				else if ((node.Type.IsNullable() && node.Type.GetUnwrappedNullableType().IsEnum)
+				else if ((node.Type.IsNullable()
+					&& node.Type.GetUnwrappedNullableType().IsEnum)
 					&& node.Operand.Type.IsEnum)
 				{
 					this.Write("@(");

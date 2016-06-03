@@ -121,11 +121,11 @@ namespace Fickle.Generators.Objective.Binders
 					}
 					else
 					{
-						if (valueType.IsNullable())
+						if (valueType.IsClass)
 						{
 							expression = Expression.IfThen
 							(
-								Expression.Equal(value, Expression.Constant(null, value.Type)),
+								Expression.ReferenceEqual(Expression.Convert(value, typeof(object)), Expression.Constant(null)), 
 								expression is BlockExpression ? expression : FickleExpression.Block(expression)
 							);
 						}
@@ -133,7 +133,7 @@ namespace Fickle.Generators.Objective.Binders
 						{
 							expression = Expression.IfThen
 							(
-								Expression.ReferenceEqual(Expression.Convert(value, typeof(object)), Expression.Constant(null)),
+								Expression.Equal(value, Expression.Constant(null, value.Type)),
 								expression is BlockExpression ? expression : FickleExpression.Block(expression)
 							);
 						}
