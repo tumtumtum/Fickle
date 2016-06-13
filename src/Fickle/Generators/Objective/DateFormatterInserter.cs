@@ -20,7 +20,8 @@ namespace Fickle.Generators.Objective
 
 		protected override Expression VisitUnary(UnaryExpression node)
 		{
-			if (node.NodeType == ExpressionType.Convert && (node.Type == typeof(DateTime?) || node.Type == typeof(DateTime)))
+			if (node.NodeType == ExpressionType.Convert 
+				&& (node.Type == typeof(DateTime?) || node.Type == typeof(DateTime) || node.Operand.Type == typeof(DateTime) || node.Operand.Type == typeof(DateTime?)))
 			{
 				this.containsDateConversion = true;
 			}

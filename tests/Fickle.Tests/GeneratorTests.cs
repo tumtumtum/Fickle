@@ -30,6 +30,26 @@ namespace Fickle.Tests
 		}
 
 		[Test]
+		public void Test_Generate_Objective_Files2()
+		{
+			var options = new CodeGenerationOptions
+			{
+				GenerateClasses = true,
+				TypeNamePrefix = "TN",
+				SerializeEnumsAsStrings = false
+			};
+
+			var outputDir = FileSystemManager.Default.ResolveDirectory("./" + new StackTrace().GetFrame(0).GetMethod().Name);
+			var serviceModel = FicklefileParserTests.GetTestServiceModel2();
+
+			outputDir.Create(true);
+
+			var serviceModelcodeGenerator = ServiceModelCodeGenerator.GetCodeGenerator("objc", outputDir, options);
+
+			serviceModelcodeGenerator.Generate(serviceModel);
+		}
+
+		[Test]
 		public void Test_Generate_Objective_To_Console()
 		{
 			var options = new CodeGenerationOptions

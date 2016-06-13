@@ -94,6 +94,7 @@
   <ItemGroup>
     <None Include="App.config" />
     <None Include="packages.config" />
+    <EmbeddedResource Include="TestFiles\Test2.fickle" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="TestFiles\Test.fickle" />

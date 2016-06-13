@@ -381,8 +381,7 @@ namespace Fickle.Generators.Objective
 				{
 					this.Write("[jsDateFormatter dateFromString:(NSString*)currentValueFromDictionary] ?: [isoDateFormatter dateFromString:(NSString*)currentValueFromDictionary]");
 				}
-				else if ((node.Type == typeof(TimeSpan?) || node.Type == typeof(TimeSpan))
-					&& node.Operand.Type != FickleType.Define("id"))
+				else if ((node.Type == typeof(TimeSpan?) || node.Type == typeof(TimeSpan)) && node.Operand.Type != FickleType.Define("id"))
 				{
 					this.Write("[");
 					this.Write(typeof(TimeSpan), true);

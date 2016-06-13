@@ -24,6 +24,20 @@ namespace Fickle.Tests
 			}
 		}
 
+		internal static ServiceModel GetTestServiceModel2()
+		{
+			var assembly = Assembly.GetExecutingAssembly();
+			var resourceName = typeof(FicklefileParserTests).Namespace + ".TestFiles.Test2.fickle";
+
+			using (var stream = assembly.GetManifestResourceStream(resourceName))
+			{
+				using (var reader = new StreamReader(stream))
+				{
+					return FicklefileParser.Parse(reader);
+				}
+			}
+		}
+
 		[Test]
 		public void Test_Parse_And_Generate_ObjectiveC()
 		{

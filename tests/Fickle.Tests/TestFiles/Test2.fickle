@@ -1,0 +1,1663 @@
+enum DayOfWeek
+	Sunday:0
+	Monday:1
+	Tuesday:2
+	Wednesday:3
+	Thursday:4
+	Friday:5
+	Saturday:6
+
+enum DateTimeKind
+	Unspecified:0
+	Utc:1
+	Local:2
+
+enum ChatChannelType
+	Chat:0
+	Kast:1
+
+enum OnStageStatus
+	Created:1
+	Requested:2
+	Invited:3
+	Dual:4
+	RequestAccepted:5
+	InviteAccepted:6
+	StreamStarted:7
+	OnStageStarted:8
+	Ended:9
+
+enum SocialNetwork
+	Twitter:1
+	Instagram:2
+	Facebook:3
+	Google:4
+
+enum KastStatus
+	Created:0
+	Scheduled:1
+	Live:2
+	Interrupted:3
+	Ended:4
+	AvailableOnDemand:5
+
+enum AnnouncementAudience
+	None:0
+	Kastr:1
+	Twitter:2
+	Facebook:4
+	Instagram:8
+	Snapchat:16
+	WhatsApp:32
+
+enum KastAccessibility
+	None:0
+	Everyone:1
+	Subscribers:2
+	Entourage:4
+	Nearby:8
+	Paid:16
+
+enum NotificationType
+	ProfileUpdated:0
+	KastCreated:1
+	KastUpdated:2
+	KastStarted:3
+	KastStopped:4
+	EpgUpdated:5
+	SubscriptionAdded:6
+	SubscriptionRemoved:7
+	SubscriberAdded:8
+	SubscriberRemoved:9
+	ReceiptSuccess:10
+	ReceiptFailure:11
+	ShoutOutRefund:12
+
+enum PushNotificationType
+	NewSubscriber:0
+	KastStarted:1
+	OnStageInvite:2
+	KastScheduledReminder:3
+
+enum CommonErrorCodes
+	ServiceError:0
+	UnauthorizedAccess:1
+	SessionInvalid:2
+	RequestInvalid:3
+	FieldRequired:4
+	FieldInvalid:5
+	EmailNotValidated:6
+	OperationTemporarilyDisabled:7
+	OverRateLimit:8
+
+enum PaymentErrorCodes
+	AppleDuplicateReceipt:0
+	AppleFailedAuthentication:1
+
+enum PromoCodeErrorCodes
+	PromoCodeRequired:0
+	PromoCodeNotValid:1
+
+enum PollResultVisibility
+	Live:0
+	OnCompletion:1
+	NotPublic:2
+
+enum SearchResultType
+	Channel:0
+	Kast:1
+	Profile:2
+
+enum RepeatType
+	Never:0
+	Daily:1
+	Weekly:2
+	Monthly:3
+
+enum EpgType
+	Live:0
+	OnDemand:1
+	Scheduled:2
+
+enum PayoutService
+	PayPal:0
+
+enum SupportedCurrencies
+	USD:0
+	GBP:1
+
+enum InvoiceStatus
+	Ready:0
+	Processing:1
+	Complete:2
+	Failed:3
+	Recheck:4
+	Refunded:5
+
+enum PlatformType
+	iOS:1
+	Android:2
+
+enum BatteryState
+	Unknown:0
+	Unplugged:1
+	Charging:2
+	Full:4
+
+enum ConnectionType
+	Unknown:1
+	Cell:536870912
+	Cell4G:553648128
+	LTE:553652224
+	Cell3G:570425344
+	WCDMA:570425376
+	HSDPA:570425408
+	HSUPA:570425472
+	CDMAEVDORev0:570425600
+	CDMAEVDORevA:570425856
+	CDMAEVDORevB:570426368
+	EHRPD:570427392
+	Cell2G:603979776
+	GPRS:603979780
+	Edge:603979784
+	CDMA1x:603979792
+	Wifi:1073741824
+
+enum ActivityType
+	KastCreated:0
+	KastStarted:1
+	KastEnded:2
+	SubscribedChannel:3
+	UnsubscribedChannel:4
+	SubscriberAdded:5
+	SubscriberRemoved:6
+
+enum KastMessageType
+	ShoutOut:0
+	Poll:1
+	OnStageStarted:2
+	OnStageEnded:3
+	OnStageSynced:4
+	GotoBreakStarted:5
+	GotoBreakEnded:6
+	GotoBreak:7
+	Tip:8
+	KoolMeter:9
+
+class ChatMessage
+	MessageId:uuid
+	ChannelId:uuid
+	ChannelName:string
+	Text:string
+	MessageDate:datetime
+
+class KoolMeterMessage
+	KastId:uuid
+	Timestamp:int
+	KoolValue:double
+
+class KoolMeterMessageResponse
+	@extends Response
+	KastId:uuid
+	KoolMeterMessage:KoolMeterMessage
+	Sequence:long
+
+class ResponseStatus
+	Message:string
+	ErrorCode:string
+	StackTrace:string
+
+class Response
+	ResponseStatus:ResponseStatus
+
+class GotoBreakEndedMessage
+	MessageDate:datetime
+
+class GotoBreakEndedMessageResponse
+	@extends Response
+	KastId:uuid
+	GotoBreakEndedMessage:GotoBreakEndedMessage
+	Sequence:long
+
+class GotoBreakRequest
+	KastId:uuid
+
+class TipMessage
+	ChannelId:uuid
+	ChannelName:string
+	Amount:int
+	MessageDate:datetime
+
+class TipMessageResponse
+	@extends Response
+	KastId:uuid
+	TipMessage:TipMessage
+	Sequence:long
+
+class GotoBreakStartedMessage
+	MessageDate:datetime
+
+class GotoBreakStartedMessageResponse
+	@extends Response
+	KastId:uuid
+	GotoBreakStartedMessage:GotoBreakStartedMessage
+	Sequence:long
+
+class ShoutOutMessageResponse
+	@extends Response
+	KastId:uuid
+	ShoutOutMessage:ShoutOutMessage
+	Sequence:long
+
+class ShoutOutMessage
+	MessageId:uuid
+	OriginSequence:long?
+	ChannelId:uuid
+	ChannelName:string
+	AvatarAssetId:uuid?
+	Text:string
+	MessageDate:datetime
+
+class ShoutOutRequest
+	KastId:uuid
+	Text:string
+
+class PollMessageResponse
+	@extends Response
+	KastId:uuid
+	PollMessage:PollMessage
+	Sequence:long
+
+class PollMessage
+	PollId:uuid
+	VoteTallies:int[]
+	IsStart:bool
+	IsEnded:bool
+	CreatedDate:datetime
+	Duration:timespan
+	MessageDate:datetime
+
+class UpgradeRequest
+	KastId:uuid
+	MessageId:uuid
+	Sequence:long
+
+class ChatRequest
+	KastId:uuid
+	Text:string
+
+class ChatMessagesResponse
+	@extends Response
+	Messages:ChatMessage[]
+	StartSequence:long
+
+class PublishResponse
+	@extends Response
+	Sequence:long
+
+class PublishPollRequest
+	KastId:uuid
+	PollMessage:PollMessage
+
+class ChatMessageResponse
+	@extends Response
+	KastId:uuid
+	Sequence:long
+	ChatMessage:ChatMessage
+
+class OnStageRequestedMessage
+	OnStage:OnStageInfo
+	GuestChannel:ChannelInfo
+
+class OnStageInfo
+	OnStageId:uuid
+	Status:OnStageStatus
+	KastId:uuid
+	ChannelId:uuid
+	GuestChannelId:uuid
+	RequestMessage:string
+	InviteMessage:string
+	RequestDate:datetime?
+	InviteDate:datetime?
+	AcceptRequestDate:datetime?
+	AcceptInviteDate:datetime?
+	StreamStartDate:datetime?
+	OnStageStartDate:datetime?
+	EndDate:datetime?
+	KastSyncDate:datetime?
+	OnStageSyncDate:datetime?
+
+class ChannelInfo
+	ChannelId:uuid
+	ChannelName:string
+	ChannelTitle:string
+	About:string
+	TimeZoneInfoId:string
+	AvatarAssetId:uuid?
+	IsVerified:bool
+	IsThirdPartyVerified:bool
+	SubscriberCount:int?
+	SubscriptionCount:int?
+	KastCount:int?
+	IsSubscribed:bool?
+	SocialNetworks:SocialNetworkInfo[]
+
+class SocialNetworkInfo
+	Type:SocialNetwork
+	IsConnected:bool
+	ProfileUrl:string
+
+class OnStageSyncedResponse
+	@extends Response
+	KastId:uuid
+	OnStageSyncedMessage:OnStageSyncedMessage
+	Sequence:long
+
+class OnStageSyncedMessage
+	OnStage:OnStageInfo
+
+class OnStageStreamStartedResponse
+	@extends Response
+	OnStageStreamStartedMessage:OnStageStreamStartedMessage
+	Sequence:long
+
+class OnStageStreamStartedMessage
+	OnStage:OnStageInfo
+
+class OnStageEndedResponse
+	@extends Response
+	OnStageEndedMessage:OnStageEndedMessage
+	Sequence:long
+
+class OnStageEndedMessage
+	OnStage:OnStageInfo
+
+class OnStageStartedResponse
+	@extends Response
+	KastId:uuid
+	OnStageStartedMessage:OnStageStartedMessage
+	Sequence:long
+
+class OnStageStartedMessage
+	OnStage:OnStageInfo
+	GuestChannel:ChannelInfo
+
+class OnStageInvitedMessage
+	OnStage:OnStageInfo
+	Channel:ChannelInfo
+	Kast:KastInfo
+
+class KastInfo
+	KastId:uuid
+	Status:KastStatus
+	StartedDate:datetime?
+	EndedDate:datetime?
+	Details:KastBasicInfo
+	Schedule:KastScheduleInfo
+	Accessibility:KastAccessibilityInfo
+	ViewCount:int?
+	Watched:bool?
+	TotalAttendees:int?
+
+class KastBasicInfo
+	ChannelId:uuid
+	CategoryId:uuid
+	Title:string
+	Description:string
+	ImageAssetId:uuid?
+	Tags:string[]
+	Location:string
+
+class KastScheduleInfo
+	TicketPrice:decimal?
+	ScheduleId:uuid?
+	StartDate:datetime?
+
+class KastAccessibilityInfo
+	Announcement:string
+	WhoToAnnounceTo:AnnouncementAudience
+	WhoCanWatch:KastAccessibility
+	WhoCanChat:KastAccessibility
+	WhoCanRequestOnStage:KastAccessibility
+
+class OnStageAcceptedMessage
+	OnStage:OnStageInfo
+
+class OnStageAcceptedResponse
+	@extends Response
+	OnStageAcceptedMessage:OnStageAcceptedMessage
+	Sequence:long
+
+class OnStageInvitedResponse
+	@extends Response
+	OnStageInvitedMessage:OnStageInvitedMessage
+	Sequence:long
+
+class OnStageRequestedResponse
+	@extends Response
+	OnStageRequestedMessage:OnStageRequestedMessage
+	Sequence:long
+
+class NotificationMessage
+	NotificationType:NotificationType
+	UserId:uuid?
+	ActingChannelId:uuid?
+	ClientId:uuid?
+	ConnectionId:uuid?
+	ContextId:uuid?
+	MessageDate:datetime
+
+class NotificationResponse
+	@extends Response
+	NotificationMessage:NotificationMessage
+	Sequence:long
+
+class PollResponse
+	@extends Response
+	PollId:uuid
+
+class CreatePollRequest
+	KastId:uuid
+	ChoicesCount:int
+	ResultVisibility:PollResultVisibility
+	Duration:timespan
+
+class PollVoteRequest
+	PollId:uuid
+	Choice:int
+
+class EndPollRequest
+	PollId:uuid
+
+class ExtendPollRequest
+	PollId:uuid
+	ExtendBy:timespan
+
+class AutocompleteResponse
+	@extends Response
+	Result:AutocompleteResult
+
+class AutocompleteResult
+	Tag:TagSearchResult
+	Kast:KastSearchResult
+	Channel:ChannelSearchResult
+
+class TagSearchResult
+	Total:int
+	Items:TagResult[]
+
+class TagResult
+	CategoryId:uuid?
+	Tag:string
+	Count:int
+
+class KastSearchResult
+	Total:int
+	Items:KastResult[]
+
+class KastResult
+	KastId:uuid
+	Status:KastStatus
+	StartedDate:datetime?
+	EndedDate:datetime?
+	Title:string
+	Description:string
+	ImageAssetId:uuid?
+	Tags:string[]
+	Category:string
+	ChannelId:uuid
+	ChannelName:string
+	ChannelTitle:string
+	Location:string
+	ViewCount:int
+
+class ChannelSearchResult
+	Total:int
+	Items:ChannelResult[]
+
+class ChannelResult
+	ChannelId:uuid
+	ChannelName:string
+	ChannelTitle:string
+	AvatarAssetId:uuid?
+	SubscriberCount:int
+
+class TagSearchResponse
+	@extends Response
+	Result:TagSearchResult
+
+class KastSearchResponse
+	@extends Response
+	Result:KastSearchResult
+
+class ChannelSearchResponse
+	@extends Response
+	Result:ChannelSearchResult
+
+class BasicSearchResponse
+	@extends Response
+	Results:BasicSearchResultInfo[]
+
+class BasicSearchResultInfo
+	Id:uuid
+	Title:string
+	ImageAssetId:uuid?
+	Type:SearchResultType
+	MatchText:string
+
+class GuidResponse
+	@extends Response
+	Value:uuid
+
+class CreateScheduleRequest
+	Title:string
+	Description:string
+	ImageAssetId:uuid
+	CategoryId:uuid
+	NextScheduledTime:datetime
+	RepeatType:RepeatType
+	ReminderMins:int?
+	TimeZoneInfoId:string
+	LocalShowTime:datetime
+
+class UpdateScheduleRequest
+	ScheduleId:uuid
+	Title:string
+	Description:string
+	ImageAssetId:uuid?
+	CategoryId:uuid?
+	NextScheduledTime:datetime?
+	RepeatType:RepeatType?
+	ReminderMins:int?
+	TimeZoneInfoId:string
+	LocalShowTime:datetime?
+
+class SchedulesResponse
+	Schedules:ScheduleInfo[]
+
+class ScheduleInfo
+	ScheduleId:uuid
+	Title:string
+	Description:string
+	ImageAssetId:uuid
+	CategoryId:uuid
+	NextScheduledTime:datetime
+	RepeatType:RepeatType
+	ReminderMins:int
+	TimeZoneInfoId:string
+
+class ScheduleResponse
+	ScheduleInfo:ScheduleInfo
+
+class FundsResponse
+	@extends Response
+	Funds:long
+	AvailableFunds:long
+
+class TipRequest
+	Target:uuid
+	AmountInFunds:int
+	KastId:uuid?
+
+class PricesResponse
+	@extends Response
+	Prices:PriceInfo[]
+
+class PriceInfo
+	Name:string
+	Price:int
+
+class CreateKastRequest
+	Details:KastBasicInfo
+	Schedule:KastScheduleInfo
+	Accessibility:KastAccessibilityInfo
+
+class UpdateKastRequest
+	KastId:uuid
+	Title:string
+	Description:string
+	ImageAssetId:uuid?
+	Location:string
+	ScheduleStartDate:datetime?
+
+class ChannelKastsResponse
+	@extends Response
+	Kasts:KastInfo[]
+
+class EpgKastsResponse
+	@extends Response
+	Channels:ChannelInfo[]
+	Kasts:KastInfo[]
+
+class KastResponse
+	@extends Response
+	Channel:ChannelInfo
+	Kast:KastInfo
+
+class KastSecretResponse
+	@extends Response
+	Secret:string
+
+class KastStatusResponse
+	@extends Response
+	Poll:PollMessage
+	OnStage:OnStageInfo
+
+class CategoryResponse
+	@extends Response
+	Categories:CategoryInfo[]
+
+class CategoryInfo
+	CategoryId:uuid
+	Name:string
+
+class KoolKastRequest
+	KastId:uuid
+	Timestamp:int
+
+class ChannelsResponse
+	@extends Response
+	Channels:ChannelInfo[]
+
+class ConsumeAppleReceiptRequest
+	ChannelId:uuid
+	ReceiptData:string
+
+class IapsResponse
+	@extends Response
+	Iaps:IapInfo[]
+
+class IapInfo
+	ProductId:string
+	FundsPurchased:int
+
+class PayoutSettingsResponse
+	@extends Response
+	PayoutSettingsInfo:PayoutSettingsInfo
+
+class PayoutSettingsInfo
+	PayoutSettingsId:uuid
+	ChannelId:uuid
+	PreferredService:PayoutService
+	RecipientIdentifier:string
+	LocalCurrency:SupportedCurrencies
+	KastrTax:int
+
+class PaymentSettingsRequest
+	PaymentSettingsId:uuid
+	PreferredService:PayoutService?
+	RecipientIdentifier:string
+	LocalCurrency:SupportedCurrencies?
+
+class InvoiceResponse
+	@extends Response
+	InvoiceInfo:InvoiceInfo
+
+class InvoiceInfo
+	PayoutSettingsId:uuid
+	RecipientIdentifier:string
+	AmountInFunds:long
+	Amount:decimal
+	Status:InvoiceStatus
+	ServiceUsed:PayoutService
+	LocalCurrency:SupportedCurrencies
+	KastrFee:decimal
+	ServiceFee:decimal
+	TotalPaidOut:decimal
+
+class InvoiceRequest
+	PayoutSettingId:uuid
+	AmountInFunds:long
+
+class InvoicesResponse
+	@extends Response
+	Invoices:InvoiceInfo[]
+
+class StreamingStatsRequest
+	Stats:StreamingStat[]
+
+class StreamingStat
+	RecordId:uuid
+	Timestamp:datetime
+	Duration:timespan
+	Platform:PlatformType
+	DeviceType:string
+	DeviceId:string
+	Uptime:timespan
+	Broadcasting:bool
+	CpuLoad:AggregateStat
+	CpuTopProc1:CpuLoad
+	CpuTopProc2:CpuLoad
+	CpuTopProc3:CpuLoad
+	CpuTopProc4:CpuLoad
+	CpuTopProc5:CpuLoad
+	CpuTopThread1:CpuLoad
+	CpuTopThread2:CpuLoad
+	CpuTopThread3:CpuLoad
+	CpuTopThread4:CpuLoad
+	CpuTopThread5:CpuLoad
+	BatteryLevel:int?
+	BatteryState:BatteryState
+	VideoFps:AggregateStat
+	VideoBitrate:AggregateStat
+	AudioBitrate:AggregateStat
+	VideoFrames:long?
+	AudioPackets:long?
+	VideoBytes:long?
+	AudioBytes:long?
+	AudioLatencyMs:AggregateStat
+	VideoLatencyMs:AggregateStat
+	AudioVideoOffsetMs:AggregateStat
+	AudioUnderflows:BatchCount
+	AudioOverflows:BatchCount
+	VideoUnderflows:BatchCount
+	VideoOverflows:BatchCount
+	StreamServerLatencyMs:long?
+	ApiServerLatencyMs:long?
+	Connection:ConnectionType
+	IpAddress:string
+	CellMCC:string
+	CellMNC:string
+
+class AggregateStat
+	Min:float
+	Max:float
+	Mean:float
+	StdDev:float
+	Count:long
+
+class CpuLoad
+	Name:string
+	Load:float
+
+class BatchCount
+	Batches:int
+	Occurrences:int
+
+class FlagChannelRequest
+	TargetChannelId:uuid
+	AdditionalInfo:string
+
+class FlagKastRequest
+	TargetKastId:uuid
+	AdditionalInfo:string
+	VideoTime:int?
+
+class FlagChatMessageRequest
+	TopicKey:string
+	Sequence:long
+	AdditionalInfo:string
+
+class RegistrationRequest
+	Email:string
+	Password:string
+	PromoCode:string
+
+class UserClientRequest
+	ClientId:uuid
+	Platform:PlatformType
+	PlatformVersion:string
+	AppVersion:string
+	Description:string
+	ModelName:string
+	PlatformBuild:string
+	PushNotificationToken:string
+
+class BooleanResponse
+	@extends Response
+	Value:bool
+
+class EmailUpdateRequest
+	NewEmail:string
+
+class RequestPromoCodeRequest
+	Name:string
+	Email:string
+	Platform:PlatformType?
+
+class PersonalInfoResponse
+	@extends Response
+	PersonalInfo:PersonalInfo
+
+class PersonalInfo
+	UserId:uuid
+	Name:string
+	Surname:string
+	PhoneNumber:string
+	Website:string
+	Gender:string
+	Email:string
+
+class UpdatePersonalInfoRequest
+	Name:string
+	Surname:string
+	PhoneNumber:string
+	Website:string
+	Gender:string
+
+class AssetResponse
+	@extends Response
+	AssetId:uuid?
+	IsComplete:bool
+
+class SocialConnectionsResponse
+	@extends Response
+	Page:int
+	HasMore:bool
+	SocialConnections:SocialConnectionInfo[]
+
+class SocialConnectionInfo
+	UserId:uuid
+	AvatarAssetId:uuid?
+	ScreenName:string
+	FullName:string
+	IsSocialNetworkVerified:bool
+	SocialNetworks:SocialNetworkInfo[]
+
+class ChannelResponse
+	@extends Response
+	Channel:ChannelInfo
+
+class UpdateChannelRequest
+	BannerAssetId:uuid?
+	AvatarAssetId:uuid?
+	ChannelName:string
+	ChannelTitle:string
+	About:string
+	TimeZoneInfoId:string
+
+class ChannelSubscriptionsResponse
+	@extends Response
+	Subscriptions:ChannelInfo[]
+	NextPageToken:string
+
+class ActivitiesResponse
+	@extends Response
+	Activities:ActivityInfo[]
+
+class ActivityInfo
+	ActivityType:ActivityType
+	Channel:ChannelBasicInfo
+	Kast:KastInfo
+	CreatedDate:datetime
+
+class ChannelBasicInfo
+	ChannelId:uuid
+	ChannelName:string
+	ChannelTitle:string
+	AvatarAssetId:uuid?
+	BannerAssetId:uuid?
+	IsVerified:bool
+	IsThirdPartyVerified:bool
+
+class KastMessagesResponse
+	@extends Response
+	Messages:KastMessageWrapper[]
+	StartSequence:long
+
+class KastMessageWrapper
+	KastMessageType:KastMessageType
+	Poll:PollMessage
+	ShoutOut:ShoutOutMessage
+	TipMessage:TipMessage
+	OnStageStarted:OnStageStartedMessage
+	OnStageEnded:OnStageEndedMessage
+	OnStageSynced:OnStageSyncedMessage
+	GotoBreakStarted:GotoBreakStartedMessage
+	GotoBreakEnded:GotoBreakEndedMessage
+	KoolMeter:KoolMeterMessage
+
+class OnStageCreatedResponse
+	@extends Response
+	OnStageId:uuid
+
+class OnStageRequestRequest
+	KastId:uuid
+	Message:string
+
+class OnStageInviteRequest
+	KastId:uuid
+	GuestChannelId:uuid
+	Message:string
+
+class OnStageStartRequest
+	OnStageId:uuid
+	KastSyncTime:datetime
+	OnStageSyncTime:datetime
+
+class OnStageSyncRequest
+	OnStageId:uuid
+	KastSyncTime:datetime
+	OnStageSyncTime:datetime
+
+class OnStageResponse
+	@extends Response
+	OnStage:OnStageInfo
+
+gateway PollService
+	@hostname api.dev.ldn.kastr.tv
+	Start(request:CreatePollRequest)
+		@path /Poll/Start
+		@returnformat json
+		@secure yes
+		@authenticated no
+		@method post
+		@returns PollResponse
+		@content request
+	Vote(request:PollVoteRequest)
+		@path /Poll/Vote
+		@returnformat json
+		@secure yes
+		@authenticated no
+		@method post
+		@returns Response
+		@content request
+	End(request:EndPollRequest)
+		@path /Poll/End
+		@returnformat json
+		@secure yes
+		@authenticated no
+		@method post
+		@returns Response
+		@content request
+	Extend(request:ExtendPollRequest)
+		@path /Poll/Extend
+		@returnformat json
+		@secure yes
+		@authenticated no
+		@method post
+		@returns Response
+		@content request
+
+gateway SearchService
+	@hostname api.dev.ldn.kastr.tv
+	All(query:string isComplete:bool tagTake:int kastTake:int channelTake:int)
+		@path /Search/All?query={query}&isComplete={isComplete}&tagTake={tagTake}&kastTake={kastTake}&channelTake={channelTake}
+		@returnformat json
+		@secure yes
+		@authenticated no
+		@method get
+		@returns AutocompleteResponse
+	Tags(query:string isComplete:bool skip:int take:int)
+		@path /Search/Tags?query={query}&isComplete={isComplete}&skip={skip}&take={take}
+		@returnformat json
+		@secure yes
+		@authenticated no
+		@method get
+		@returns TagSearchResponse
+	Kasts(query:string isComplete:bool skip:int take:int)
+		@path /Search/Kasts?query={query}&isComplete={isComplete}&skip={skip}&take={take}
+		@returnformat json
+		@secure yes
+		@authenticated no
+		@method get
+		@returns KastSearchResponse
+	KastsByCategory(category:string skip:int take:int)
+		@path /Search/KastsByCategory?category={category}&skip={skip}&take={take}
+		@returnformat json
+		@secure yes
+		@authenticated no
+		@method get
+		@returns KastSearchResponse
+	KastsByTag(tag:string skip:int take:int)
+		@path /Search/KastsByTag?tag={tag}&skip={skip}&take={take}
+		@returnformat json
+		@secure yes
+		@authenticated no
+		@method get
+		@returns KastSearchResponse
+	Channels(query:string isComplete:bool skip:int take:int)
+		@path /Search/Channels?query={query}&isComplete={isComplete}&skip={skip}&take={take}
+		@returnformat json
+		@secure yes
+		@authenticated no
+		@method get
+		@returns ChannelSearchResponse
+	SubscriberChannels(query:string isComplete:bool skip:int take:int)
+		@path /Search/SubscriberChannels?query={query}&isComplete={isComplete}&skip={skip}&take={take}
+		@returnformat json
+		@secure yes
+		@authenticated no
+		@method get
+		@returns ChannelSearchResponse
+	SubscriptionChannels(query:string isComplete:bool skip:int take:int)
+		@path /Search/SubscriptionChannels?query={query}&isComplete={isComplete}&skip={skip}&take={take}
+		@returnformat json
+		@secure yes
+		@authenticated no
+		@method get
+		@returns ChannelSearchResponse
+	Find(searchTerm:string)
+		@path /Search/Find?searchTerm={searchTerm}
+		@returnformat json
+		@secure yes
+		@authenticated no
+		@method get
+		@returns BasicSearchResponse
+
+gateway ScheduleService
+	@hostname api.dev.ldn.kastr.tv
+	Create(request:CreateScheduleRequest)
+		@path /Schedule/Create
+		@returnformat json
+		@secure yes
+		@authenticated yes
+		@method post
+		@returns GuidResponse
+		@content request
+	Update(request:UpdateScheduleRequest)
+		@path /Schedule/Update
+		@returnformat json
+		@secure yes
+		@authenticated yes
+		@method post
+		@returns Response
+		@content request
+	GetChannelSchedules(channelId:uuid pageNumber:int pageSize:int)
+		@path /Schedule/GetChannelSchedules?channelId={channelId}&pageNumber={pageNumber}&pageSize={pageSize}
+		@returnformat json
+		@secure yes
+		@authenticated no
+		@method get
+		@returns SchedulesResponse
+	Get(scheduleId:uuid)
+		@path /Schedule/Get?scheduleId={scheduleId}
+		@returnformat json
+		@secure yes
+		@authenticated no
+		@method get
+		@returns ScheduleResponse
+
+gateway FundsService
+	@hostname api.dev.ldn.kastr.tv
+	MyFunds()
+		@path /Funds/MyFunds
+		@returnformat json
+		@secure yes
+		@authenticated yes
+		@method get
+		@returns FundsResponse
+	TipChannel(request:TipRequest)
+		@path /Funds/Tip
+		@returnformat json
+		@secure yes
+		@authenticated yes
+		@method post
+		@returns Response
+		@content request
+	Prices()
+		@path /Funds/Prices
+		@returnformat json
+		@secure yes
+		@authenticated no
+		@method get
+		@returns PricesResponse
+
+gateway KastService
+	@hostname api.dev.ldn.kastr.tv
+	Create(request:CreateKastRequest)
+		@path /Kast/Create
+		@returnformat json
+		@secure yes
+		@authenticated yes
+		@method post
+		@returns GuidResponse
+		@content request
+	Update(request:UpdateKastRequest)
+		@path /Kast/Update
+		@returnformat json
+		@secure yes
+		@authenticated yes
+		@method post
+		@returns Response
+		@content request
+	GetChannelKasts(channelId:uuid pageNumber:int pageSize:int)
+		@path /Kast/GetChannelKasts?channelId={channelId}&pageNumber={pageNumber}&pageSize={pageSize}
+		@returnformat json
+		@secure yes
+		@authenticated no
+		@method get
+		@returns ChannelKastsResponse
+	GetEpgKasts(epgType:EpgType categoryId:uuid?)
+		@path /Kast/GetEpgKasts?epgType={epgType}&categoryId={categoryId}
+		@returnformat json
+		@secure yes
+		@authenticated no
+		@method get
+		@returns EpgKastsResponse
+	Get(kastId:uuid)
+		@path /Kast/Get/{kastId}
+		@returnformat json
+		@secure yes
+		@authenticated no
+		@method get
+		@returns KastResponse
+	GetPublishSecret(kastId:uuid)
+		@path /Kast/GetPublishSecret/{kastId}
+		@returnformat json
+		@secure yes
+		@authenticated no
+		@method get
+		@returns KastSecretResponse
+	GetPlaySecret(kastId:uuid)
+		@path /Kast/GetPlaySecret/{kastId}
+		@returnformat json
+		@secure yes
+		@authenticated no
+		@method get
+		@returns KastSecretResponse
+	Start(kastId:uuid)
+		@path /Kast/Start/{kastId}
+		@returnformat json
+		@secure yes
+		@authenticated no
+		@method post
+		@returns Response
+	End(kastId:uuid)
+		@path /Kast/End/{kastId}
+		@returnformat json
+		@secure yes
+		@authenticated no
+		@method post
+		@returns Response
+	Status(kastId:uuid)
+		@path /Kast/Status/{kastId}
+		@returnformat json
+		@secure yes
+		@authenticated no
+		@method get
+		@returns KastStatusResponse
+	GetCategories()
+		@path /Kast/GetCategories
+		@returnformat json
+		@secure yes
+		@authenticated no
+		@method get
+		@returns CategoryResponse
+	StartBreak(request:GotoBreakRequest)
+		@path /Kast/StartBreak
+		@returnformat json
+		@secure yes
+		@authenticated no
+		@method post
+		@returns Response
+		@content request
+	EndBreak(request:GotoBreakRequest)
+		@path /Kast/EndBreak
+		@returnformat json
+		@secure yes
+		@authenticated no
+		@method post
+		@returns Response
+		@content request
+	Kool(request:KoolKastRequest)
+		@path /Kast/Kool
+		@returnformat json
+		@secure yes
+		@authenticated no
+		@method post
+		@returns Response
+		@content request
+	SubscribeToKast(kastId:uuid)
+		@path /Kast/Subscribe/{kastId}
+		@returnformat json
+		@secure yes
+		@authenticated no
+		@method post
+		@returns Response
+	UnsubscribeToKast(kastId:uuid)
+		@path /Kast/Unsubscribe/{kastId}
+		@returnformat json
+		@secure yes
+		@authenticated no
+		@method post
+		@returns Response
+	Subscribers(kastId:uuid)
+		@path /Kast/Subscribers/{kastId}
+		@returnformat json
+		@secure yes
+		@authenticated no
+		@method get
+		@returns ChannelsResponse
+	ImportantSubscribers(kastId:uuid)
+		@path /Kast/ImportantSubscribers/{kastId}
+		@returnformat json
+		@secure yes
+		@authenticated no
+		@method get
+		@returns ChannelsResponse
+
+gateway PaymentService
+	@hostname api.dev.ldn.kastr.tv
+	ConsumeReceiptApple(request:ConsumeAppleReceiptRequest)
+		@path /Payment/Apple/ConsumeReceipt
+		@returnformat json
+		@secure yes
+		@authenticated yes
+		@method post
+		@returns Response
+		@content request
+	GetIapsListApple()
+		@path /Payment/Apple/GetIapsList
+		@returnformat json
+		@secure yes
+		@authenticated no
+		@method get
+		@returns IapsResponse
+	PayPalWebhook(content:byte[])
+		@path /Payment/PayPalWebhook
+		@returnformat json
+		@secure yes
+		@authenticated no
+		@method post
+		@returns Response
+		@content content
+	MyPayoutSettings()
+		@path /Payment/PaymentSettings/Get
+		@returnformat json
+		@secure yes
+		@authenticated yes
+		@method get
+		@returns PayoutSettingsResponse
+	GetPaymentSettings(settingsId:uuid)
+		@path /Payment/PaymentSettings/Get/{settingsId}
+		@returnformat json
+		@secure yes
+		@authenticated yes
+		@method get
+		@returns PayoutSettingsResponse
+	CreatePaymentSettings(request:PaymentSettingsRequest)
+		@path /Payment/PaymentSettings/Create
+		@returnformat json
+		@secure yes
+		@authenticated yes
+		@method post
+		@returns PayoutSettingsResponse
+		@content request
+	UpdatePaymentSettings(request:PaymentSettingsRequest)
+		@path /Payment/PaymentSettings/Update
+		@returnformat json
+		@secure yes
+		@authenticated yes
+		@method post
+		@returns PayoutSettingsResponse
+		@content request
+	CreateInvoice(request:InvoiceRequest)
+		@path /Payment/Invoice/Create
+		@returnformat json
+		@secure yes
+		@authenticated yes
+		@method post
+		@returns InvoiceResponse
+		@content request
+	GetInvoice(invoiceId:uuid)
+		@path /Payment/Invoice/Get/{invoiceId}
+		@returnformat json
+		@secure yes
+		@authenticated yes
+		@method get
+		@returns InvoiceResponse
+	GetInvoices(settingsId:uuid pageNumber:int pageSize:int)
+		@path /Payment/Invoice/Get?settingsId={settingsId}&pageNumber={pageNumber}&pageSize={pageSize}
+		@returnformat json
+		@secure yes
+		@authenticated yes
+		@method get
+		@returns InvoicesResponse
+
+gateway StatsService
+	@hostname api.dev.ldn.kastr.tv
+	Record(request:StreamingStatsRequest)
+		@path /Stats/Record
+		@returnformat json
+		@secure yes
+		@authenticated yes
+		@method post
+		@returns Response
+		@content request
+
+gateway FlaggedContentService
+	@hostname api.dev.ldn.kastr.tv
+	FlagChannel(request:FlagChannelRequest)
+		@path /FlaggedContent/FlagChannel
+		@returnformat json
+		@secure yes
+		@authenticated no
+		@method post
+		@returns Response
+		@content request
+	FlagKast(request:FlagKastRequest)
+		@path /FlaggedContent/FlagKast
+		@returnformat json
+		@secure yes
+		@authenticated no
+		@method post
+		@returns Response
+		@content request
+	FlagChatMessage(request:FlagChatMessageRequest)
+		@path /FlaggedContent/FlagChatMessage
+		@returnformat json
+		@secure yes
+		@authenticated no
+		@method post
+		@returns Response
+		@content request
+
+gateway UserService
+	@hostname api.dev.ldn.kastr.tv
+	Register(request:RegistrationRequest)
+		@path /User/Register
+		@returnformat json
+		@secure yes
+		@authenticated no
+		@method post
+		@returns Response
+		@content request
+	RegisterClient(request:UserClientRequest)
+		@path /User/RegisterClient
+		@returnformat json
+		@secure yes
+		@authenticated no
+		@method post
+		@returns Response
+		@content request
+	IsExisting(email:string)
+		@path /User/IsExisting?email={email}
+		@returnformat json
+		@secure yes
+		@authenticated no
+		@method get
+		@returns BooleanResponse
+	VerifyEmail(email:string token:string)
+		@path /User/VerifyEmail?email={email}&token={token}
+		@returnformat json
+		@secure yes
+		@authenticated no
+		@method get
+		@returns BooleanResponse
+	UpdateEmail(request:EmailUpdateRequest)
+		@path /User/UpdateEmail
+		@returnformat json
+		@secure yes
+		@authenticated no
+		@method post
+		@returns Response
+		@content request
+	RequestPromoCode(request:RequestPromoCodeRequest)
+		@path /User/RequestPromoCode
+		@returnformat json
+		@secure yes
+		@authenticated no
+		@method post
+		@returns Response
+		@content request
+	GetPersonalInfo()
+		@path /User/GetPersonalInfo
+		@returnformat json
+		@secure yes
+		@authenticated no
+		@method get
+		@returns PersonalInfoResponse
+	UpdatePersonalInfo(request:UpdatePersonalInfoRequest)
+		@path /User/UpdatePersonalInfo
+		@returnformat json
+		@secure yes
+		@authenticated no
+		@method post
+		@returns Response
+		@content request
+
+gateway AssetService
+	@hostname api.dev.ldn.kastr.tv
+	Upload(content:byte[])
+		@path /Asset/Upload
+		@returnformat json
+		@secure yes
+		@authenticated no
+		@method post
+		@returns AssetResponse
+		@content content
+	IsChunkUploaded(flowIdentifier:string flowChunkNumber:long)
+		@path /Asset/Upload?flowIdentifier={flowIdentifier}&flowChunkNumber={flowChunkNumber}
+		@returnformat json
+		@secure yes
+		@authenticated no
+		@method get
+		@returns void
+
+gateway SocialGraphService
+	@hostname api.dev.ldn.kastr.tv
+	GetSocialConnections(pageNumber:int pageSize:int)
+		@path /SocialGraph/GetSocialConnections?pageNumber={pageNumber}&pageSize={pageSize}
+		@returnformat json
+		@secure yes
+		@authenticated yes
+		@method get
+		@returns SocialConnectionsResponse
+	GetCommonSocialConnections(userId:uuid pageNumber:int pageSize:int)
+		@path /SocialGraph/GetCommonSocialConnections?userId={userId}&pageNumber={pageNumber}&pageSize={pageSize}
+		@returnformat json
+		@secure yes
+		@authenticated yes
+		@method get
+		@returns SocialConnectionsResponse
+	DisconnectFromSocialNetwork(socialNetwork:SocialNetwork)
+		@path /SocialGraph/DisconnectFromSocialNetwork?socialNetwork={socialNetwork}
+		@returnformat json
+		@secure yes
+		@authenticated yes
+		@method post
+		@returns Response
+	PushSocialNetworkConnections(socialNetwork:SocialNetwork)
+		@path /SocialGraph/PushSocialNetworkConnections?socialNetwork={socialNetwork}
+		@returnformat json
+		@secure yes
+		@authenticated yes
+		@method post
+		@returns Response
+
+gateway ChannelService
+	@hostname api.dev.ldn.kastr.tv
+	MyChannels()
+		@path /Channel/MyChannels
+		@returnformat json
+		@secure yes
+		@authenticated no
+		@method get
+		@returns ChannelsResponse
+	Get(channelId:uuid)
+		@path /Channel/Get/{channelId}
+		@returnformat json
+		@secure yes
+		@authenticated no
+		@method get
+		@returns ChannelResponse
+	Update(request:UpdateChannelRequest)
+		@path /Channel/Update
+		@returnformat json
+		@secure yes
+		@authenticated no
+		@method post
+		@returns Response
+		@content request
+	SubscribeToChannel(channelId:uuid)
+		@path /Channel/SubscribeToChannel?channelId={channelId}
+		@returnformat json
+		@secure yes
+		@authenticated yes
+		@method post
+		@returns Response
+	UnsubscribeFromChannel(channelId:uuid)
+		@path /Channel/UnsubscribeFromChannel?channelId={channelId}
+		@returnformat json
+		@secure yes
+		@authenticated yes
+		@method post
+		@returns Response
+	GetChannelSubscribers(channelId:uuid pageToken:string maxResults:int)
+		@path /Channel/GetChannelSubscribers?channelId={channelId}&pageToken={pageToken}&maxResults={maxResults}
+		@returnformat json
+		@secure yes
+		@authenticated no
+		@method get
+		@returns ChannelSubscriptionsResponse
+	GetChannelSubscriptions(channelId:uuid pageToken:string maxResults:int)
+		@path /Channel/GetChannelSubscriptions?channelId={channelId}&pageToken={pageToken}&maxResults={maxResults}
+		@returnformat json
+		@secure yes
+		@authenticated no
+		@method get
+		@returns ChannelSubscriptionsResponse
+	GetActivities(beforeDate:datetime? maxResults:int)
+		@path /Channel/Activity?beforeDate={beforeDate}&maxResults={maxResults}
+		@returnformat json
+		@secure yes
+		@authenticated no
+		@method get
+		@returns ActivitiesResponse
+	BlockChannel(channelId:uuid)
+		@path /Channel/BlockChannel?channelId={channelId}
+		@returnformat json
+		@secure yes
+		@authenticated yes
+		@method post
+		@returns Response
+	UnblockChannel(channelId:uuid)
+		@path /Channel/UnblockChannel?channelId={channelId}
+		@returnformat json
+		@secure yes
+		@authenticated yes
+		@method post
+		@returns Response
+	GetChannelsBlocked()
+		@path /Channel/GetChannelsBlocked
+		@returnformat json
+		@secure yes
+		@authenticated no
+		@method get
+		@returns ChannelsResponse
+
+gateway ChatService
+	@hostname api.dev.ldn.kastr.tv
+	PublishChat(request:ChatRequest)
+		@path /Chat/PublishChat
+		@returnformat json
+		@secure yes
+		@authenticated yes
+		@method post
+		@returns PublishResponse
+		@content request
+	PublishShoutOut(request:ShoutOutRequest)
+		@path /Chat/PublishShoutOut
+		@returnformat json
+		@secure yes
+		@authenticated yes
+		@method post
+		@returns Response
+		@content request
+	ChatMessagesBefore(kastId:uuid sequence:long take:int)
+		@path /Chat/ChatMessagesBefore?kastId={kastId}&sequence={sequence}&take={take}
+		@returnformat json
+		@secure yes
+		@authenticated no
+		@method get
+		@returns ChatMessagesResponse
+	ChatMessagesAfter(kastId:uuid sequence:long take:int)
+		@path /Chat/ChatMessagesAfter?kastId={kastId}&sequence={sequence}&take={take}
+		@returnformat json
+		@secure yes
+		@authenticated no
+		@method get
+		@returns ChatMessagesResponse
+	KastMessagesBefore(kastId:uuid sequence:long take:int)
+		@path /Chat/KastMessagesBefore?kastId={kastId}&sequence={sequence}&take={take}
+		@returnformat json
+		@secure yes
+		@authenticated no
+		@method get
+		@returns KastMessagesResponse
+	KastMessagesAfter(kastId:uuid sequence:long take:int)
+		@path /Chat/KastMessagesAfter?kastId={kastId}&sequence={sequence}&take={take}
+		@returnformat json
+		@secure yes
+		@authenticated no
+		@method get
+		@returns KastMessagesResponse
+
+gateway OnStageService
+	@hostname api.dev.ldn.kastr.tv
+	RequestOnStage(onStageRequestRequest:OnStageRequestRequest)
+		@path /OnStage/RequestOnStage
+		@returnformat json
+		@secure yes
+		@authenticated no
+		@method post
+		@returns OnStageCreatedResponse
+		@content onStageRequestRequest
+	InviteOnStage(onStageInviteRequest:OnStageInviteRequest)
+		@path /OnStage/InviteOnStage
+		@returnformat json
+		@secure yes
+		@authenticated no
+		@method post
+		@returns OnStageCreatedResponse
+		@content onStageInviteRequest
+	AcceptRequest(onStageId:uuid)
+		@path /OnStage/AcceptRequest/{onStageId}
+		@returnformat json
+		@secure yes
+		@authenticated no
+		@method post
+		@returns Response
+	AcceptInvite(onStageId:uuid)
+		@path /OnStage/AcceptInvite/{onStageId}
+		@returnformat json
+		@secure yes
+		@authenticated no
+		@method post
+		@returns Response
+	StartStream(onStageId:uuid)
+		@path /OnStage/StartStream/{onStageId}
+		@returnformat json
+		@secure yes
+		@authenticated no
+		@method post
+		@returns Response
+	Start(request:OnStageStartRequest)
+		@path /OnStage/Start
+		@returnformat json
+		@secure yes
+		@authenticated no
+		@method post
+		@returns Response
+		@content request
+	Sync(request:OnStageSyncRequest)
+		@path /OnStage/Sync
+		@returnformat json
+		@secure yes
+		@authenticated no
+		@method post
+		@returns Response
+		@content request
+	End(onStageId:uuid)
+		@path /OnStage/End/{onStageId}
+		@returnformat json
+		@secure yes
+		@authenticated no
+		@method post
+		@returns Response
+	Get(onstageId:uuid)
+		@path /OnStage/Get/{onstageId}
+		@returnformat json
+		@secure yes
+		@authenticated no
+		@method get
+		@returns OnStageResponse
+	TopViewers(kastId:uuid skip:int take:int)
+		@path /OnStage/TopViewers/{kastId}?skip={skip}&take={take}
+		@returnformat json
+		@secure yes
+		@authenticated no
+		@method get
+		@returns ChannelsResponse
+
