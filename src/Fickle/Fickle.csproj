@@ -71,6 +71,8 @@
     <Compile Include="Expressions\Fluent\StatementBlockScope.cs" />
     <Compile Include="Expressions\Fluent\TypeDefinitionExpressionScope.cs" />
     <Compile Include="Ficklefile\FicklefileWriter.cs" />
+    <Compile Include="Generators\CSharp\InterpolatedString.cs" />
+    <Compile Include="Generators\CSharp\CSharpAwaitedTaskType.cs" />
     <Compile Include="FickleNullable.cs" />
     <Compile Include="Expressions\BaseExpression.cs" />
     <Compile Include="Expressions\NamespaceExpression.cs" />
@@ -83,6 +85,11 @@
     <Compile Include="CodeGenerationContext.cs" />
     <Compile Include="CodeGenerationOptions.cs" />
     <Compile Include="FickleDelegateType.cs" />
+    <Compile Include="Generators\CSharp\Binders\CSharpClassExpressionBinder.cs" />
+    <Compile Include="Generators\CSharp\Binders\CSharpEnumExpressionBinder.cs" />
+    <Compile Include="Generators\CSharp\Binders\CSharpGatewayExpressionBinder.cs" />
+    <Compile Include="Generators\CSharp\CSharpServiceModelCodeGenerator.cs" />
+    <Compile Include="Generators\CSharp\CSharpCodeGenerator.cs" />
     <Compile Include="Generators\ExpressionTypeCounter.cs" />
     <Compile Include="Generators\Javascript\Binders\GatewayExpressionBinder.cs" />
     <Compile Include="Generators\Javascript\JavascriptCodeGenerator.cs" />

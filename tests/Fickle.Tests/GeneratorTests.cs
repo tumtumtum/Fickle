@@ -133,5 +133,25 @@ namespace Fickle.Tests
 
 			serviceModelcodeGenerator.Generate(serviceModel);
 		}
+
+		[Test]
+		public void Test_Generate_CSharp_Files()
+		{
+			var options = new CodeGenerationOptions
+			{
+				GenerateClasses = true,
+				TypeNamePrefix = "TN",
+				Namespace = "Io.Fickle.Test.Servicemodel"
+			};
+
+			var outputDir = FileSystemManager.Default.ResolveDirectory("./" + new StackTrace().GetFrame(0).GetMethod().Name);
+			var serviceModel = FicklefileParserTests.GetTestServiceModel();
+
+			outputDir.Create(true);
+
+			var serviceModelcodeGenerator = ServiceModelCodeGenerator.GetCodeGenerator("csharp", outputDir, options);
+
+			serviceModelcodeGenerator.Generate(serviceModel);
+		}
 	}
 }

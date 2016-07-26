@@ -11,6 +11,7 @@ namespace Fickle.Expressions
 		Protected = 0x04,
 		Static = 0x08,
 		Constant = 0x10,
-		ClasseslessFunction = 0x20
+		ClasseslessFunction = 0x20,
+		ReadOnly = 0x22
 	}
 }
