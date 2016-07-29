@@ -24,7 +24,6 @@ namespace Fickle.Generators.CSharp.Binders
 		protected override Expression VisitTypeDefinitionExpression(TypeDefinitionExpression expression)
 		{
 			var comment = new CommentExpression("This file is AUTO GENERATED");
-			var namespaceExpression = new NamespaceExpression(this.codeGenerationContext.Options.Namespace);
 
 			var includeExpressions = new List<IncludeExpression>
 			{
@@ -32,10 +31,17 @@ namespace Fickle.Generators.CSharp.Binders
 				FickleExpression.Include("System.Collections.Generic")
 			};
 
-			var headerGroup = includeExpressions.ToStatementisedGroupedExpression();
-			var header = new Expression[] { comment, headerGroup, namespaceExpression }.ToStatementisedGroupedExpression(GroupedExpressionsExpressionStyle.Wide);
+			foreach (var include in this.codeGenerationContext.Options.Includes)
+			{
+				includeExpressions.Add(FickleExpression.Include(include));
+			}
 
-			return new TypeDefinitionExpression(expression.Type, header, expression.Body, false, expression.Attributes, expression.InterfaceTypes);
+			var headerGroup = includeExpressions.ToStatementisedGroupedExpression();
+			var header = new Expression[] { comment, headerGroup }.ToStatementisedGroupedExpression(GroupedExpressionsExpressionStyle.Wide);
+
+			var typeDefinitionExpression = new TypeDefinitionExpression(expression.Type, null, expression.Body, false, expression.Attributes, expression.InterfaceTypes);
+
+			return new NamespaceExpression(this.codeGenerationContext.Options.Namespace, header, typeDefinitionExpression);
 		}
 	}
 }

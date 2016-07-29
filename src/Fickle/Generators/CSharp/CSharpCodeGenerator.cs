@@ -1,7 +1,6 @@
 ﻿using System;
 using System.IO;
 using System.Linq.Expressions;
-using System.Reflection;
 using Fickle.Expressions;
 using Platform;
 
@@ -24,7 +23,7 @@ namespace Fickle.Generators.CSharp
 	[PrimitiveTypeName(typeof(double), "double", false)]
 	[PrimitiveTypeName(typeof(double?), "double?", true)]
 	[PrimitiveTypeName(typeof(decimal), "decimal", false)]
-	//[PrimitiveTypeName(typeof(decimal?), "decimal?", true)]
+	[PrimitiveTypeName(typeof(decimal?), "decimal?", true)]
 	[PrimitiveTypeName(typeof(string), "string", true)]
 	[PrimitiveTypeName(typeof(void), "void", false)]
 	[PrimitiveTypeName(typeof(FickleListType), "List", true)]
@@ -537,9 +536,20 @@ namespace Fickle.Generators.CSharp
 
 		protected override Expression VisitNamespaceExpresson(NamespaceExpression expression)
 		{
+			if (expression.Header != null)
+			{
+				this.Visit(expression.Header);
+				this.WriteLine();
+				this.WriteLine();
+			}
+
 			this.Write("namespace ");
-			this.Write(expression.NameSpace);
-			this.WriteLine(';');
+			this.WriteLine(expression.NameSpace);
+			using (this.AcquireIndentationContext(BraceLanguageStyleIndentationOptions.IncludeBracesNewLineAfter))
+			{
+				this.Visit(expression.Body);
+				this.WriteLine();
+			}
 
 			return expression;
 		}
@@ -600,35 +610,15 @@ namespace Fickle.Generators.CSharp
 					var expressions = ((GroupedExpressionsExpression)expression.Body).Expressions;
 
 					var i = 0;
-
 					foreach (Expression rootExpression in expressions)
 					{
-						if (rootExpression is GroupedExpressionsExpression)
+						i++;
+
+						this.Visit(rootExpression);
+
+						if (i < expressions.Count)
 						{
-							var binaryExpressions = ((GroupedExpressionsExpression) rootExpression).Expressions;
-
-							foreach (Expression binaryExpression in binaryExpressions)
-							{
-								var assignment = (BinaryExpression)binaryExpression;
-
-								this.Write(((ParameterExpression) assignment.Left).Name);
-								this.Write("(");
-								this.Visit(assignment.Right);
-								this.Write(")");
-
-								if (i++ != binaryExpressions.Count - 1)
-								{
-									this.WriteLine(',');
-								}
-								else
-								{
-									this.WriteLine(';');
-								}
-							}
-						}
-						else 
-						{
-							this.Visit(rootExpression);
+							this.Write(',');
 						}
 
 						this.WriteLine();

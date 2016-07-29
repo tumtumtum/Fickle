@@ -121,6 +121,7 @@ namespace Fickle.Generators.CSharp.Binders
 			{
 				var contentStream = Expression.Variable(streamType, "contentStream");
 				methodVariables.Add(contentStream);
+				methodStatements.Add(Expression.Assign(contentStream, Expression.Constant(null)));
 				var responseContent = Expression.Property(httpResponseMessage, "Content");
 				var contentStreamCall = FickleExpression.Call(responseContent, new CSharpAwaitedTaskType(streamType), "ReadAsStreamAsync", null);
 				var diposeStream = Expression.IfThen(Expression.NotEqual(contentStream, Expression.Constant(null)), FickleExpression.Call(contentStream, "Dispose", null).ToStatementBlock());
@@ -151,8 +152,8 @@ namespace Fickle.Generators.CSharp.Binders
 
 		private Expression CreateParameterisedConstructor()
 		{
-			var httpClientParam = Expression.Parameter(this.httpClientType, "client");
-			var httpStreamSerializerParam = Expression.Parameter(this.httpStreamSerializerType, "serializer");
+			var httpClientParam = Expression.Parameter(this.httpClientType, HttpClientFieldName);
+			var httpStreamSerializerParam = Expression.Parameter(this.httpStreamSerializerType, HttpStreamSerializerFieldName);
 
 			var parameters = new Expression[]
 			{
@@ -160,8 +161,8 @@ namespace Fickle.Generators.CSharp.Binders
 				httpStreamSerializerParam
 			};
 
-			var clientField = Expression.Variable(this.httpClientType, HttpClientFieldName);
-			var serailizerField = Expression.Variable(this.httpStreamSerializerType, HttpStreamSerializerFieldName);
+			var clientField = Expression.Variable(this.httpClientType, "this." + HttpClientFieldName);
+			var serailizerField = Expression.Variable(this.httpStreamSerializerType, "this." + HttpStreamSerializerFieldName);
 
 			var body = FickleExpression.Block(new Expression[]
 			{
@@ -183,13 +184,19 @@ namespace Fickle.Generators.CSharp.Binders
 				FickleExpression.Include("System.Collections.Generic"),
 				FickleExpression.Include("System.Net.Http"),
 				FickleExpression.Include("System.Threading.Tasks"),
-				FickleExpression.Include("Kastr.Service.Model")
+				FickleExpression.Include("System.IO"),
+				FickleExpression.Include("System.Net")
 			};
+
+			foreach (var include in this.CodeGenerationContext.Options.Includes)
+			{
+				includeExpressions.Add(FickleExpression.Include(include));
+			}
 
 			var comment = new CommentExpression("This file is AUTO GENERATED");
 
-			var client = new FieldDefinitionExpression("webServiceClient", this.httpClientType, AccessModifiers.Private | AccessModifiers.ReadOnly);
-			var serializer = new FieldDefinitionExpression("httpStreamSerializer", this.httpStreamSerializerType, AccessModifiers.Private | AccessModifiers.ReadOnly);
+			var client = new FieldDefinitionExpression(HttpClientFieldName, this.httpClientType, AccessModifiers.Private | AccessModifiers.ReadOnly);
+			var serializer = new FieldDefinitionExpression(HttpStreamSerializerFieldName, this.httpStreamSerializerType, AccessModifiers.Private | AccessModifiers.ReadOnly);
 
 			var body = GroupedExpressionsExpression.FlatConcat
 			(
@@ -201,11 +208,12 @@ namespace Fickle.Generators.CSharp.Binders
 			);
 
 			var headerGroup = includeExpressions.Sorted(IncludeExpression.Compare).ToGroupedExpression();
-			var namespaceExpression = new NamespaceExpression(this.CodeGenerationContext.Options.Namespace);
 
-			var header = new Expression[] { comment, headerGroup, namespaceExpression }.ToGroupedExpression(GroupedExpressionsExpressionStyle.Wide);
+			var header = new Expression[] { comment, headerGroup }.ToGroupedExpression(GroupedExpressionsExpressionStyle.Wide);
 
-			return new TypeDefinitionExpression(expression.Type, header, body, false, expression.Attributes, expression.InterfaceTypes);
+			var typeDefinitionExpression = new TypeDefinitionExpression(expression.Type, null, body, false, expression.Attributes, expression.InterfaceTypes);
+
+			return new NamespaceExpression(this.CodeGenerationContext.Options.Namespace, header, typeDefinitionExpression);
 		}
 	}
 }

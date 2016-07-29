@@ -140,7 +140,6 @@ namespace Fickle.Tests
 			var options = new CodeGenerationOptions
 			{
 				GenerateClasses = true,
-				TypeNamePrefix = "TN",
 				Namespace = "Io.Fickle.Test.Servicemodel"
 			};
 

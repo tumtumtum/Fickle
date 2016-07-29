@@ -30,6 +30,23 @@ namespace Fickle.Generators.CSharp
 			return serviceModel;
 		}
 
+		public override void Generate(ServiceModel serviceModel)
+		{
+			base.Generate(serviceModel);
+
+			this.GenerateHttpStreamSerializerInterface(serviceModel);
+		}
+
+		protected virtual void GenerateHttpStreamSerializerInterface(ServiceModel serviceModel)
+		{
+			using (var writer = this.GetTextWriterForFile("IHttpStreamSerializer.cs"))
+			{
+				var serializerInterfaceWriter = new SerializerInterfaceWriter(writer, this.Options);
+
+				serializerInterfaceWriter.Write(this.Options.ServiceModelInfo);
+			}
+		}
+
 		protected override void GenerateClass(CodeGenerationContext codeGenerationContext, TypeDefinitionExpression expression)
 		{
 			using (var writer = this.GetTextWriterForFile(expression.Type.Name + ".cs"))

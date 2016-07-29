@@ -23,10 +23,11 @@ namespace Fickle.Generators.CSharp.Binders
 		protected override Expression VisitTypeDefinitionExpression(TypeDefinitionExpression expression)
 		{
 			var comment = new CommentExpression("This file is AUTO GENERATED");
-			var namespaceExpression = new NamespaceExpression(this.codeGenerationContext.Options.Namespace);
-			var header = new Expression[] {comment, namespaceExpression}.ToStatementisedGroupedExpression(GroupedExpressionsExpressionStyle.Wide);
+			var header = new Expression[] {comment}.ToStatementisedGroupedExpression(GroupedExpressionsExpressionStyle.Wide);
 
-			return new TypeDefinitionExpression(expression.Type, header, expression.Body, false, expression.Attributes, expression.InterfaceTypes);
+			var typeDefinitionExpression = new TypeDefinitionExpression(expression.Type, null, expression.Body, false, expression.Attributes, expression.InterfaceTypes);
+
+			return new NamespaceExpression(this.codeGenerationContext.Options.Namespace, header, typeDefinitionExpression);
 		}
 	}
 }
