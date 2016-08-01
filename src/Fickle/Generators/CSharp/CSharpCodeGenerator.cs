@@ -1,6 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 using Fickle.Expressions;
 using Platform;
 
@@ -30,9 +33,17 @@ namespace Fickle.Generators.CSharp
 	public class CSharpCodeGenerator
 		: BraceLanguageStyleSourceCodeGenerator
 	{
+		private Dictionary<string, Type> mappedTypes;
+		 
 		public CSharpCodeGenerator(TextWriter writer)
+			: this(writer, new Dictionary<string, Type>())
+		{
+		}
+
+		public CSharpCodeGenerator(TextWriter writer, Dictionary<string, Type> mappedTypes)
 			: base(writer)
 		{
+			this.mappedTypes = mappedTypes;
 		}
 
 		protected override void Write(Type type, bool nameOnly)
@@ -148,7 +159,15 @@ namespace Fickle.Generators.CSharp
 				return;
 			}
 
-			base.Write(type, nameOnly);
+			Type mappedType;
+			if (this.mappedTypes.TryGetValue(type.Name, out mappedType))
+			{
+				this.Write(mappedType.FullName);
+			}
+			else
+			{
+				base.Write(type, nameOnly);
+			}
 		}
 
 		private static string GetNameWithoutGenericArity(Type t)
@@ -543,12 +562,19 @@ namespace Fickle.Generators.CSharp
 				this.WriteLine();
 			}
 
-			this.Write("namespace ");
-			this.WriteLine(expression.NameSpace);
-			using (this.AcquireIndentationContext(BraceLanguageStyleIndentationOptions.IncludeBracesNewLineAfter))
+			if (string.IsNullOrEmpty(expression.NameSpace))
 			{
 				this.Visit(expression.Body);
-				this.WriteLine();
+			}
+			else
+			{
+				this.Write("namespace ");
+				this.WriteLine(expression.NameSpace);
+				using (this.AcquireIndentationContext(BraceLanguageStyleIndentationOptions.IncludeBracesNewLineAfter))
+				{
+					this.Visit(expression.Body);
+					this.WriteLine();
+				}
 			}
 
 			return expression;

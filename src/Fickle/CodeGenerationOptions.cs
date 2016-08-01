@@ -20,6 +20,7 @@ namespace Fickle
 		public string Namespace { get; set; }
 		public ServiceModelInfo ServiceModelInfo { get; set; }
 		public IEnumerable<string> Includes { get; set; }
+		public IEnumerable<string> MappedTypeAssemblies { get; set; }
 
 		public CodeGenerationOptions()
 		{
@@ -30,6 +31,7 @@ namespace Fickle
 			this.ResponseStatusTypeName = "ResponseStatus";
 			this.ResponseStatusPropertyName = "ResponseStatus";
 			this.Includes = new List<string>();
+			this.MappedTypeAssemblies = new List<string>();
 
 			this.ServiceModelInfo = new ServiceModelInfo
 			{
