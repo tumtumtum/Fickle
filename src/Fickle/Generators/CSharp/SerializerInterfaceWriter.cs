@@ -27,7 +27,7 @@ namespace Fickle.Generators.CSharp
 				{
 					this.WriteLine("T Deserialize<T>(Stream inputStream);");
 					this.WriteLine();
-					this.WriteLine("void Serialize<T>(T value, Stream outputStream);");
+					this.WriteLine("string Serialize<T>(T value);");
 				}
 			}
 		}

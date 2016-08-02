@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Text;
 using Fickle.Expressions;
 using Platform;
 
@@ -37,25 +38,36 @@ namespace Fickle.Generators.CSharp.Binders
 
 		protected override Expression VisitMethodDefinitionExpression(MethodDefinitionExpression method)
 		{
+			var client = Expression.Variable(this.httpClientType, HttpClientFieldName);
+
 			var methodName = method.Name;
 			var methodParameters = new List<Expression>(method.Parameters);
 			var methodVariables = new List<ParameterExpression>();
 			var methodStatements = new List<Expression>();
 
-			var path = method.Attributes["Path"];
+			var hostname = this.currentTypeDefinitionExpression.Attributes["Hostname"];
+			var fullPath = "http://" + hostname + method.Attributes["Path"];
+			var relativePath = method.Attributes["Path"];
 
-			if (path.StartsWith("/"))
+			if (relativePath.StartsWith("/"))
 			{
-				path = path.Substring(1);
+				relativePath = relativePath.Substring(1);
 			}
 
-			
+			var requestUrl = Expression.Variable(typeof(InterpolatedString), "requestUrl");
+			methodVariables.Add(requestUrl);
+
+			var baseAddressProperty = FickleExpression.Property(client, this.httpClientType, "BaseAddress");
+			methodStatements.Add(Expression.IfThenElse(Expression.Equal(baseAddressProperty, Expression.Constant(null)),
+				Expression.Assign(requestUrl, Expression.Constant(new InterpolatedString(fullPath))).ToStatementBlock(),
+				Expression.Assign(requestUrl, Expression.Constant(new InterpolatedString(relativePath))).ToStatementBlock()));
+
 			var httpMethodType = FickleType.Define("HttpMethod");
 			var httpRequestMessageType = FickleType.Define("HttpRequestMessage");
 			var httpRequestMessagesArgs = new
 			{
 				httpMethod = FickleExpression.New(httpMethodType, "HttpMethod", method.Attributes["Method"]),
-				url = Expression.Constant(new InterpolatedString(path))
+				requestUrl
 			};
 
 			var httpRequestMessageNew = FickleExpression.New(httpRequestMessageType, "HttpRequestMessage", httpRequestMessagesArgs);
@@ -77,63 +89,43 @@ namespace Fickle.Generators.CSharp.Binders
 					throw new Exception("Content paramter not found");
 				}
 
-				var httpContentType = FickleType.Define("HttpContent");
-				var transportContextType = FickleType.Define("TransportContext");
-				var serializeActionType = FickleType.Define("Action").MakeGenericType(streamType, httpContentType, transportContextType);
-
-				var serializeAction = Expression.Variable(serializeActionType, "serializeAction");
-				methodVariables.Add(serializeAction);
-
-				var streamParam = Expression.Parameter(streamType, "stream");
-				var serializeArgs = new
-				{
-					contentParam,
-					streamParam
-				};
-
-				var actionParams = new Expression[]
-				{
-					streamParam,
-					Expression.Parameter(httpContentType, "httpContent"),
-					Expression.Parameter(transportContextType, "transportContext")
-				};
-
-				var serializeCall = FickleExpression.Call(httpStreamSerializer, "Serialize", serializeArgs).ToStatementBlock();
-				var serializeActionLambda = FickleExpression.SimpleLambda(null, serializeCall, new Expression[] {}, actionParams);
-				methodStatements.Add(Expression.Assign(serializeAction, serializeActionLambda));
-
-				var pushStreamContentType = FickleType.Define("PushStreamContent");
-				var pushStreamContentNew = FickleExpression.New(pushStreamContentType, "PushStreamContent", serializeAction);
-				methodStatements.Add(Expression.Assign(FickleExpression.Property(httpRequestMessage, pushStreamContentType, "Content"), pushStreamContentNew));
+				var serializeCall = FickleExpression.Call(httpStreamSerializer, typeof(string), "Serialize", contentParam);
+				var stringContentNew = FickleExpression.New(FickleType.Define("StringContent"), "StringContent", serializeCall);
+				methodStatements.Add(Expression.Assign(FickleExpression.Property(httpRequestMessage, httpRequestMessageType, "Content"), stringContentNew));
 			}
-
 
 			var httpResponseMessageType = FickleType.Define("HttpResponseMessage");
 			var httpResponseMessage = Expression.Variable(httpResponseMessageType, "httpResponseMessage");
 			methodVariables.Add(httpResponseMessage);
 
-			var client = Expression.Variable(this.httpClientType, HttpClientFieldName);
 			var clientCall = FickleExpression.Call(client, new CSharpAwaitedTaskType(httpResponseMessageType), "SendAsync", httpRequestMessage);
 			methodStatements.Add(Expression.Assign(httpResponseMessage, clientCall));
 			methodStatements.Add(FickleExpression.Call(httpResponseMessage, "EnsureSuccessStatusCode", null));
 
 			if (method.ReturnType != typeof (void))
 			{
-				var contentStream = Expression.Variable(streamType, "contentStream");
-				methodVariables.Add(contentStream);
-				methodStatements.Add(Expression.Assign(contentStream, Expression.Constant(null)));
-				var responseContent = Expression.Property(httpResponseMessage, "Content");
-				var contentStreamCall = FickleExpression.Call(responseContent, new CSharpAwaitedTaskType(streamType), "ReadAsStreamAsync", null);
-				var diposeStream = Expression.IfThen(Expression.NotEqual(contentStream, Expression.Constant(null)), FickleExpression.Call(contentStream, "Dispose", null).ToStatementBlock());
-				var tryFinally = Expression.TryFinally(Expression.Assign(contentStream, contentStreamCall).ToStatement(), diposeStream);
-				methodStatements.Add(tryFinally);
-
 				var result = Expression.Variable(method.ReturnType, "result");
 				methodVariables.Add(result);
 
+				var contentStream = Expression.Variable(streamType, "contentStream");
+				methodVariables.Add(contentStream);
+				methodStatements.Add(Expression.Assign(contentStream, Expression.Constant(null)));
+
+				var responseContent = Expression.Property(httpResponseMessage, "Content");
+				var contentStreamCall = FickleExpression.Call(responseContent, new CSharpAwaitedTaskType(streamType), "ReadAsStreamAsync", null);
+
 				var deserializeCall = FickleExpression.Call(httpStreamSerializer, method.ReturnType, "Deserialize", contentStream);
 				deserializeCall.Method.MakeGenericMethod(method.ReturnType);
-				methodStatements.Add(Expression.Assign(result, deserializeCall));
+
+				var tryBlock = FickleExpression.Grouped(
+					Expression.Assign(contentStream, contentStreamCall).ToStatement(),
+					Expression.Assign(result, deserializeCall).ToStatement()
+					);
+
+				var diposeStream = Expression.IfThen(Expression.NotEqual(contentStream, Expression.Constant(null)), FickleExpression.Call(contentStream, "Dispose", null).ToStatementBlock());
+
+				var tryFinally = Expression.TryFinally(tryBlock, diposeStream);
+				methodStatements.Add(tryFinally);
 
 				methodStatements.Add(FickleExpression.Return(result));
 			}
