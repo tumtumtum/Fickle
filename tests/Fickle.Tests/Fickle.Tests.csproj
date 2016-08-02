@@ -104,6 +104,10 @@
       <Project>{aa0ed558-3bf6-4ced-8897-415b4d0c858d}</Project>
       <Name>Fickle</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Fickle.WebApi.Tests.ServiceModel\Fickle.WebApi.Tests.ServiceModel.csproj">
+      <Project>{a44ad355-7ec6-4fc1-9f4a-96a79eeade29}</Project>
+      <Name>Fickle.WebApi.Tests.ServiceModel</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />

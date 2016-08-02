@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.IO;
+using Fickle.WebApi.Tests.ServiceModel.ServiceModel;
 using NUnit.Framework;
 using Platform.VirtualFileSystem;
 
@@ -141,6 +142,43 @@ namespace Fickle.Tests
 			{
 				GenerateClasses = true,
 				Namespace = "Io.Fickle.Test.Servicemodel"
+			};
+
+			var outputDir = FileSystemManager.Default.ResolveDirectory("./" + new StackTrace().GetFrame(0).GetMethod().Name);
+			var serviceModel = FicklefileParserTests.GetTestServiceModel();
+
+			outputDir.Create(true);
+
+			var serviceModelcodeGenerator = ServiceModelCodeGenerator.GetCodeGenerator("csharp", outputDir, options);
+
+			serviceModelcodeGenerator.Generate(serviceModel);
+		}
+
+		[Test]
+		public void Test_Generate_CSharp_To_Console()
+		{
+			var options = new CodeGenerationOptions
+			{
+				GenerateClasses = true,
+				Namespace = "Io.Fickle.Test.Servicemodel"
+			};
+
+			var serviceModel = FicklefileParserTests.GetTestServiceModel();
+			var serviceModelcodeGenerator = ServiceModelCodeGenerator.GetCodeGenerator("csharp", TextWriter.Null, options);
+
+			serviceModelcodeGenerator.Generate(serviceModel);
+		}
+
+		[Test]
+		public void Test_Generate_CSharp_Files_With_Mapped_Type_Assembly()
+		{
+			
+			var options = new CodeGenerationOptions
+			{
+				GenerateClasses = false,
+				GenerateEnums = false,
+				Namespace = "Io.Fickle.Test.Servicemodel",
+				MappedTypeAssemblies = new []{ typeof(Person).Assembly.Location }
 			};
 
 			var outputDir = FileSystemManager.Default.ResolveDirectory("./" + new StackTrace().GetFrame(0).GetMethod().Name);
