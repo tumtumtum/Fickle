@@ -1,4 +1,6 @@
-﻿namespace Fickle
+﻿using System.Collections.Generic;
+
+namespace Fickle
 {
 	public class CodeGenerationOptions
 	{
@@ -17,6 +19,8 @@
 		public string TypeNamePrefix { get; set; }
 		public string Namespace { get; set; }
 		public ServiceModelInfo ServiceModelInfo { get; set; }
+		public IEnumerable<string> Includes { get; set; }
+		public IEnumerable<string> MappedTypeAssemblies { get; set; }
 
 		public CodeGenerationOptions()
 		{
@@ -26,6 +30,8 @@
 			this.GeneratePod = true;
 			this.ResponseStatusTypeName = "ResponseStatus";
 			this.ResponseStatusPropertyName = "ResponseStatus";
+			this.Includes = new List<string>();
+			this.MappedTypeAssemblies = new List<string>();
 
 			this.ServiceModelInfo = new ServiceModelInfo
 			{

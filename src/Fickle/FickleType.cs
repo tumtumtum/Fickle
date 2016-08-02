@@ -27,6 +27,10 @@ namespace Fickle
 		public override Type UnderlyingSystemType => this;
 		public override bool ContainsGenericParameters => false;
 		public override Assembly Assembly => typeof(FickleType).Assembly;
+		public override bool IsGenericType => isGenericMethod;
+		public override Type[] GenericTypeArguments => genericTypeArguments;
+		private bool isGenericMethod;
+		private Type[] genericTypeArguments;
 
 		public static FickleType Define(string name, bool byRef = false, bool isPrimitive = false, bool isInterface = false)
 		{
@@ -335,6 +339,24 @@ namespace Fickle
 		public override bool IsAssignableFrom(Type c)
 		{
 			return true;
+		}
+
+		public override Type MakeGenericType(params Type[] typeArguments)
+		{
+			this.isGenericMethod = true;
+			this.genericTypeArguments = typeArguments;
+
+			return this;
+		}
+
+		public override Type[] GetGenericArguments()
+		{
+			return this.genericTypeArguments;
+		}
+
+		public override Type GetGenericTypeDefinition()
+		{
+			return this.baseType;
 		}
 
 		public override int GetHashCode()

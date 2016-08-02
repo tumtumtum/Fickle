@@ -15,6 +15,9 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fickle.WebApi.TestWebService", "Fickle.WebApi.TestWebService\Fickle.WebApi.TestWebService.csproj", "{5DB140F8-4899-4482-BC03-02CBEF67670E}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fickle.Tests", "..\tests\Fickle.Tests\Fickle.Tests.csproj", "{B1CCA1D4-80A1-4374-A32D-C3A24FC16C80}"
+	ProjectSection(ProjectDependencies) = postProject
+		{A44AD355-7EC6-4FC1-9F4A-96A79EEADE29} = {A44AD355-7EC6-4FC1-9F4A-96A79EEADE29}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fickle.WebApi", "Fickle.WebApi\Fickle.WebApi.csproj", "{A9600AED-C73A-4F5A-ACAD-6E1D157FD47A}"
 EndProject

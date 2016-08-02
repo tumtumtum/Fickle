@@ -12,12 +12,15 @@ namespace Fickle
 		private readonly Type declaringType;
 		private readonly ParameterInfo[] parameters; 
 		private readonly MethodAttributes methodAttributes;
+		private bool isGenericMethod;
+		private Type[] genericTypeArguments;
 
 		public override string Name { get { return name; } }
 		public override Type ReturnType { get { return returnType; } }
 		public override Type DeclaringType { get { return declaringType; } }
 		public override Type ReflectedType { get { return declaringType; } }
 		public override MethodAttributes Attributes { get { return methodAttributes; } }
+		public override bool IsGenericMethod { get { return isGenericMethod; } }
 
 		public FickleMethodInfo(Type declaringType, Type returnType, string name, ParameterInfo[] parameters, bool isStatic = false)
 		{
@@ -26,6 +29,7 @@ namespace Fickle
 			this.declaringType = declaringType;
 			this.parameters = parameters;
 			this.methodAttributes = MethodAttributes.Public;
+			this.isGenericMethod = false;
 
 			if (isStatic)
 			{
@@ -36,6 +40,19 @@ namespace Fickle
 		public override ParameterInfo[] GetParameters()
 		{
 			return (ParameterInfo[])this.parameters.Clone();
+		}
+
+		public override MethodInfo MakeGenericMethod(params Type[] typeArguments)
+		{
+			this.isGenericMethod = true;
+			this.genericTypeArguments = typeArguments;
+
+			return this;
+		}
+
+		public override Type[] GetGenericArguments()
+		{
+			return this.genericTypeArguments;
 		}
 
 		public override string ToString()
