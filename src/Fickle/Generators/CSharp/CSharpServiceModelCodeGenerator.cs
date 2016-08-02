@@ -65,6 +65,11 @@ namespace Fickle.Generators.CSharp
 
 		protected override void GenerateClass(CodeGenerationContext codeGenerationContext, TypeDefinitionExpression expression)
 		{
+			if (this.mappedTypes.ContainsKey(expression.Type.Name))
+			{
+				return;
+			}
+
 			using (var writer = this.GetTextWriterForFile(expression.Type.Name + ".cs"))
 			{
 				var classFileExpression = CSharpClassExpressionBinder.Bind(codeGenerationContext, expression);
@@ -89,6 +94,11 @@ namespace Fickle.Generators.CSharp
 
 		protected override void GenerateEnum(CodeGenerationContext codeGenerationContext, TypeDefinitionExpression expression)
 		{
+			if (this.mappedTypes.ContainsKey(expression.Type.Name))
+			{
+				return;
+			}
+
 			using (var writer = this.GetTextWriterForFile(expression.Type.Name + ".cs"))
 			{
 				var enumFileExpression = CSharpEnumExpressionBinder.Bind(codeGenerationContext, expression);
