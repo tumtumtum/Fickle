@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 using Fickle.Expressions;
 using Fickle.Expressions.Fluent;
 using Platform;
@@ -97,6 +98,8 @@ namespace Fickle.Generators.Objective.Binders
 			var path = StringUriUtils.Combine("%@://%@%@", declaredPath);
 			var httpMethod = method.Attributes["Method"];
 			var declaredProtocol = Convert.ToBoolean(method.Attributes["Secure"]) ? "https" : "http";
+			var retryBlockVariable = Expression.Variable(new FickleDelegateType(typeof(void), new FickleParameterInfo(FickleType.Define("id"), "block")), "retryBlock");
+			var retryBlockParameter = Expression.Variable(FickleType.Define("id"), "block");
 
 			var parametersByName = method.Parameters.ToDictionary(c => ((ParameterExpression)c).Name, c => (ParameterExpression)c, StringComparer.InvariantCultureIgnoreCase);
 
@@ -136,9 +139,19 @@ namespace Fickle.Generators.Objective.Binders
 			var responseFilter = FickleExpression.Property(self, "FKGatewayResponseFilter", "responseFilter");
 			var conversion = Expression.Convert(blockArg, returnType);
 			
+			var innerRetryBlockBody = FickleExpression.Block
+			(
+				FickleExpression.Call(Expression.Convert(retryBlockParameter, retryBlockVariable.Type), typeof(void), "Invoke", new { block = retryBlockParameter }).ToStatement()
+			);
+
+			var innerRetryBlock = (Expression)FickleExpression.SimpleLambda
+			(
+				typeof(void), innerRetryBlockBody, new Expression[0]
+			);
+
 			var body = FickleExpression.GroupedWide
 			(
-				Expression.IfThen(Expression.NotEqual(responseFilter, Expression.Constant(null, responseFilter.Type)), Expression.Assign(blockArg, FickleExpression.Call(responseFilter, typeof(object), "gateway", new { value = self, receivedResponse = blockArg, fromRequestURL = url, withRequestObject = requestObject, andOptions = localOptions })).ToStatementBlock()),
+				Expression.IfThen(Expression.NotEqual(responseFilter, Expression.Constant(null, responseFilter.Type)), Expression.Assign(blockArg, FickleExpression.Call(responseFilter, typeof(object), "gateway", new { value = self, receivedResponse = blockArg, fromRequestURL = url, withRequestObject = requestObject, retryBlock = innerRetryBlock, andOptions = localOptions })).ToStatementBlock()),
 				Expression.IfThen
 				(
 					Expression.AndAlso(Expression.NotEqual(blockArg, Expression.Constant(null, blockArg.Type)), Expression.NotEqual(callback, Expression.Constant(null, callback.Type))),
@@ -280,14 +293,13 @@ namespace Fickle.Generators.Objective.Binders
                     Expression.Assign(FickleExpression.Property(client, currentType, "delegate"), self),
                     clientCallExpression
                 ),
-		        new Expression[] { client }
+		        new Expression[] { client },
+				retryBlockParameter
 		    );
 
             retryBlock = FickleExpression.Call(retryBlock, retryBlock.Type, "copy", null);
 
-		    var retryBlockVariable = Expression.Variable(retryBlock.Type, "retryBlock");
-
-            var block = FickleExpression.Block
+			var block = FickleExpression.Block
 			(
 				variables.Concat(retryBlockVariable).ToArray(),
 				Expression.Assign(requestObject, requestObjectValue),
@@ -321,12 +333,7 @@ namespace Fickle.Generators.Objective.Binders
 				FickleExpression.Call(localOptions, typeof(void), "setObject", new { value = url, forKey = "$RequestURL" }).ToStatement(),
 				integrateOptions,
                 Expression.Assign(retryBlockVariable, retryBlock),
-                FickleExpression.Call(localOptions, "setObject", new
-                {
-                    obj = retryBlockVariable,
-                    forKey = "$RetryBlock"
-                }).ToStatement(),
-                FickleExpression.Call(retryBlockVariable, typeof(void), "Invoke", null).ToStatement()
+                FickleExpression.Call(retryBlockVariable, typeof(void), "Invoke", retryBlockVariable).ToStatement()
             );
 
 			optionsParameter = optionsParam;

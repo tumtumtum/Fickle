@@ -508,9 +508,25 @@ namespace Fickle.Generators.Objective
 
 		protected virtual void WriteVariableDeclaration(ParameterExpression node)
 		{
-			if (node.Type is FickleDelegateType)
+			var block = false;
+			var type = node.Type;
+
+			var attributedType = type as FickleAttributedType;
+
+			if (attributedType != null)
 			{
-				var delegateType = (FickleDelegateType)node.Type;
+				block = attributedType.Modifiable;
+				type = attributedType.Type;
+			}
+
+			var delegateType = type as FickleDelegateType;
+			
+			if (delegateType != null)
+			{
+				if (block)
+				{
+					this.Write("__block ");
+				}
 
 				if (delegateType.ReturnType != null)
 				{
@@ -536,7 +552,7 @@ namespace Fickle.Generators.Objective
 			}
 			else
 			{
-				this.Write(node.Type);
+				this.Write(type);
 				this.Write(' ');
 				this.Write(node.Name);
 				this.WriteLine(';');
@@ -555,7 +571,7 @@ namespace Fickle.Generators.Objective
 					}
 				}
 
-				if (node.Variables != null && node.Variables.Count > 0)
+				if (node.Variables?.Count > 0)
 				{
 					this.WriteLine();
 				}
@@ -710,7 +726,7 @@ namespace Fickle.Generators.Objective
 				return node;
 			}
 
-			if (node.Method.Name == "Invoke" && node.Object.Type is FickleDelegateType)
+			if (node.Method.Name == "Invoke" && (node.Object?.Type is FickleDelegateType || (node.Object?.Type as FickleAttributedType)?.Type is FickleDelegateType))
 			{
 				this.Visit(node.Object);
 				this.Write('(');

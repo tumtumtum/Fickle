@@ -8,5 +8,5 @@
 
 
 @protocol FKGatewayResponseFilter<NSObject>
--(id) gateway:(NSObject*)gateway receivedResponse:(id)response fromRequestURL:(NSString*)url withRequestObject:(id)obj andOptions:(NSMutableDictionary*)options;
+-(id) gateway:(NSObject*)gateway receivedResponse:(id)response fromRequestURL:(NSString*)url withRequestObject:(id)obj retryBlock:(void(^)())retryBlock andOptions:(NSMutableDictionary*)options;
 @end
