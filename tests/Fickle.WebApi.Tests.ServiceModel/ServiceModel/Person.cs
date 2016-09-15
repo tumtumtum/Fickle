@@ -8,5 +8,11 @@ namespace Fickle.WebApi.Tests.ServiceModel.ServiceModel
 		public string Name { get; set; }
 		public Sex? Sex { get; set; }
 		public Person[] Friends { get; set; }
+
+		[FickleExclude]
+		public string Excluded { get; set; }
+
+		[FickleExclude]
+		public Excluded ShouldNotBeIncluded { get; set; }
 	}
 }

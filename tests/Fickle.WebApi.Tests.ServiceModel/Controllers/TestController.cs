@@ -68,5 +68,11 @@ namespace Fickle.WebApi.Tests.ServiceModel.Controllers
 		public void AddUser(User user)
 		{
 		}
+
+		[FickleExclude]
+		[AcceptVerbs("GET")]
+		public void AddExcluded(Excluded thing)
+		{
+		}
 	}
 }
