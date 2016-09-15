@@ -6,7 +6,6 @@ using System.Net.Http.Formatting;
 using System.Reflection;
 using System.Web.Http;
 using System.Web.Http.Description;
-using Fickle.Ficklefile;
 using Fickle.Model;
 using Fickle.Reflectors;
 using Platform;
@@ -20,7 +19,7 @@ namespace Fickle.WebApi
 		private readonly string hostname;
 		private readonly HttpConfiguration configuration;
 		private readonly ServiceModelReflectionOptions options;
-		
+
 		public WebApiRuntimeServiceModelReflector(ServiceModelReflectionOptions options, HttpConfiguration configuration, Assembly referencingAssembly, string hostname)
 		{
 			this.referencingAssembly = referencingAssembly;
@@ -72,6 +71,11 @@ namespace Fickle.WebApi
 
 				foreach (var property in type.GetProperties(BindingFlags.Public | BindingFlags.Instance))
 				{
+					if (property.GetCustomAttributes<FickleExcludeAttribute>().Any())
+					{
+						continue;
+					}
+
 					AddType(set, property.PropertyType);
 				}
 
@@ -93,7 +97,7 @@ namespace Fickle.WebApi
 				{
 					var s = attribute.Type.Namespace + ".";
 
-                    foreach (var type in attribute.Type.Assembly.GetTypes()
+					foreach (var type in attribute.Type.Assembly.GetTypes()
 						.Where(c => c != attribute.Type)
 						.Where(c => c.Namespace == attribute.Type.Namespace
 							|| c.Namespace != null && c.Namespace.StartsWith(s)))
@@ -106,7 +110,7 @@ namespace Fickle.WebApi
 			foreach (var description in descriptions)
 			{
 				AddType(types, description.ResponseDescription.ResponseType ?? description.ResponseDescription.DeclaredType);
-				
+
 				foreach (var type in description.ParameterDescriptions.Select(c => c.ParameterDescriptor.ParameterType))
 				{
 					AddType(types, type);
@@ -122,13 +126,13 @@ namespace Fickle.WebApi
 			{
 				return null;
 			}
-			
+
 			if (TypeSystem.IsPrimitiveType(type))
 			{
 				if (type.GetUnwrappedNullableType().IsEnum)
 				{
 					return TypeSystem.GetPrimitiveName(type);
-                }
+				}
 				else
 				{
 					return TypeSystem.GetPrimitiveName(type).ToLower();
@@ -140,11 +144,11 @@ namespace Fickle.WebApi
 				return null;
 			}
 
-			if (typeof (IEnumerable<>).IsAssignableFromIgnoreGenericParameters(type))
+			if (typeof(IEnumerable<>).IsAssignableFromIgnoreGenericParameters(type))
 			{
 				Type enumerableType;
 
-				if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof (IEnumerable<>))
+				if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(IEnumerable<>))
 				{
 					enumerableType = type;
 				}
@@ -164,7 +168,9 @@ namespace Fickle.WebApi
 
 		public override ServiceModel Reflect()
 		{
-			var descriptions = configuration.Services.GetApiExplorer().ApiDescriptions.AsEnumerable().ToList();
+			var descriptions = configuration.Services.GetApiExplorer().ApiDescriptions.AsEnumerable()
+				.Where(c => !c.ActionDescriptor.GetCustomAttributes<FickleExcludeAttribute>().Any())
+				.ToList();
 
 			if (this.options.ControllersTypesToIgnore != null)
 			{
@@ -201,6 +207,7 @@ namespace Fickle.WebApi
 			{
 				var baseTypeName = GetTypeName(type.BaseType);
 				var properties = type.GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly)
+					.Where(c => !c.GetCustomAttributes<FickleExcludeAttribute>().Any())
 					.Select(c => new ServiceProperty
 					{
 						Name = c.Name,
@@ -211,13 +218,13 @@ namespace Fickle.WebApi
 				{
 					Name = GetTypeName(type),
 					BaseTypeName = baseTypeName,
- 					Properties = properties
+					Properties = properties
 				};
 
 				classes.Add(serviceClass);
 			}
 
-			var allowedMethods = new HashSet<string>(new [] { "GET", "POST" }, StringComparer.InvariantCultureIgnoreCase);
+			var allowedMethods = new HashSet<string>(new[] { "GET", "POST" }, StringComparer.InvariantCultureIgnoreCase);
 
 			foreach (var controller in controllers)
 			{
@@ -226,7 +233,7 @@ namespace Fickle.WebApi
 				secureByDefault = this.referencingAssembly.GetCustomAttributes<FickleSecureAttribute>()?.FirstOrDefault()?.Secure ?? false;
 
 				var controllerSecureByDefault = controller.GetCustomAttributes<FickleSecureAttribute>(true)?.FirstOrDefault()?.Secure ?? secureByDefault;
-				
+
 				var serviceNameSuffix = "Service";
 				var attribute = this.referencingAssembly.GetCustomAttribute<FickleSdkInfoAttribute>();
 
@@ -239,11 +246,12 @@ namespace Fickle.WebApi
 					serviceModelInfo.Version = attribute.Version ?? serviceModelInfo.Version;
 				}
 
-				
 
 
-				foreach (var api in descriptions.Where(c => c.ActionDescriptor.ControllerDescriptor == controller)
-					.Where(c => allowedMethods.Contains(c.HttpMethod.Method)))
+
+				foreach (var api in descriptions
+					.Where(c => c.ActionDescriptor.ControllerDescriptor == controller &&
+					            allowedMethods.Contains(c.HttpMethod.Method)))
 				{
 					var formatters = api.ActionDescriptor.ControllerDescriptor.Configuration.Formatters;
 					var returnType = api.ResponseDescription.ResponseType ?? api.ResponseDescription.DeclaredType;
@@ -288,13 +296,13 @@ namespace Fickle.WebApi
 						Method = api.HttpMethod.Method.ToLower(),
 						Parameters = parameters
 					};
-					
+
 					if (contentServiceParameter != null)
 					{
 						serviceMethod.Content = contentServiceParameter.Name;
 						serviceMethod.ContentServiceParameter = contentServiceParameter;
 					}
-					
+
 					methods.Add(serviceMethod);
 				}
 

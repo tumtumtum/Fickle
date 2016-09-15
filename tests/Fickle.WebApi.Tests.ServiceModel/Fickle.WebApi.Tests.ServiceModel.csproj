@@ -55,6 +55,7 @@
     <Compile Include="Controllers\TestController.cs" />
     <Compile Include="FickleConfig.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ServiceModel\Excluded.cs" />
     <Compile Include="ServiceModel\Person.cs" />
     <Compile Include="ServiceModel\Sex.cs" />
     <Compile Include="ServiceModel\TestEnums.cs" />
