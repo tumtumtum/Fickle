@@ -14,18 +14,16 @@ namespace Fickle.Generators.CSharp.Binders
 		private TypeDefinitionExpression currentTypeDefinitionExpression;
 		public CodeGenerationContext CodeGenerationContext { get; set; }
 
-		private readonly FickleType httpClientType;
-		private readonly FickleType httpStreamSerializerType;
+		private readonly FickleType fickleApiClientType;
 
-		public const string HttpClientFieldName = "httpClient";
-		public const string HttpStreamSerializerFieldName = "httpStreamSerializer";
+		public const string FickleApiClientFieldName = "fickleApiClient";
+		public const string HostnameFieldName = "Hostname";
 
 		private CSharpGatewayExpressionBinder(CodeGenerationContext codeGenerationContext)
 		{
 			this.CodeGenerationContext = codeGenerationContext;
 
-			this.httpClientType = FickleType.Define(this.CodeGenerationContext.Options.ServiceClientTypeName ?? "HttpClient");
-			this.httpStreamSerializerType = FickleType.Define("IHttpStreamSerializer");
+			this.fickleApiClientType = FickleType.Define("IFickleApiClient");
 		}
 
 		public static Expression Bind(CodeGenerationContext codeCodeGenerationContext, Expression expression)
@@ -37,132 +35,121 @@ namespace Fickle.Generators.CSharp.Binders
 
 		protected override Expression VisitMethodDefinitionExpression(MethodDefinitionExpression method)
 		{
-			var client = Expression.Variable(this.httpClientType, HttpClientFieldName);
+			var client = Expression.Variable(this.fickleApiClientType, FickleApiClientFieldName);
 
-			var methodName = method.Name;
+			var apiCallGenericTypes = new List<Type>();
+
+			var returnTaskType = FickleType.Define("Task");
+
+			if (method.ReturnType != typeof (void))
+			{
+				returnTaskType.MakeGenericType(method.ReturnType);
+			}
+
 			var methodParameters = new List<Expression>(method.Parameters);
 			var methodVariables = new List<ParameterExpression>();
 			var methodStatements = new List<Expression>();
 
-			var hostname = this.currentTypeDefinitionExpression.Attributes["Hostname"];
-			var fullPath = "http://" + hostname + method.Attributes["Path"];
-			var relativePath = method.Attributes["Path"];
+			var requestUrl = Expression.Variable(typeof(InterpolatedString), "fickleRequestUrl");
+			methodVariables.Add(requestUrl);
+			methodStatements.Add(Expression.Assign(requestUrl, Expression.Constant(new InterpolatedString(method.Attributes["Path"]))));
 
-			if (relativePath.StartsWith("/"))
+			var httpMethod = Expression.Constant(method.Attributes["Method"]);
+			var isSecure = Expression.Constant(method.Attributes["Secure"] == "True");
+			var isAuthenticated = Expression.Constant(method.Attributes["Authenticated"] == "True");
+			var returnFormat = Expression.Constant(method.Attributes["ReturnFormat"]);
+
+			
+
+			if (method.ReturnType != typeof (void))
 			{
-				relativePath = relativePath.Substring(1);
+				apiCallGenericTypes.Add(method.ReturnType);
 			}
 
-			var requestUrl = Expression.Variable(typeof(InterpolatedString), "requestUrl");
-			methodVariables.Add(requestUrl);
-
-			var baseAddressProperty = FickleExpression.Property(client, this.httpClientType, "BaseAddress");
-			methodStatements.Add(Expression.IfThenElse(Expression.Equal(baseAddressProperty, Expression.Constant(null)),
-				Expression.Assign(requestUrl, Expression.Constant(new InterpolatedString(fullPath))).ToStatementBlock(),
-				Expression.Assign(requestUrl, Expression.Constant(new InterpolatedString(relativePath))).ToStatementBlock()));
-
-			var httpMethodType = FickleType.Define("HttpMethod");
-			var httpRequestMessageType = FickleType.Define("HttpRequestMessage");
-			var httpRequestMessagesArgs = new
-			{
-				httpMethod = FickleExpression.New(httpMethodType, "HttpMethod", method.Attributes["Method"]),
-				requestUrl
-			};
-
-			var httpRequestMessageNew = FickleExpression.New(httpRequestMessageType, "HttpRequestMessage", httpRequestMessagesArgs);
-			var httpRequestMessage = Expression.Variable(httpRequestMessageType, "httpRequestMessage");
-			methodVariables.Add(httpRequestMessage);
-			methodStatements.Add(Expression.Assign(httpRequestMessage, httpRequestMessageNew));
-
-			var streamType = FickleType.Define("Stream");
-			var httpStreamSerializer = Expression.Variable(this.httpStreamSerializerType, HttpStreamSerializerFieldName);
+			object apiArgs;
 
 			var contentParameterName = method.Attributes["Content"];
 
 			if (!string.IsNullOrEmpty(contentParameterName))
 			{
-				var contentParam = method.Parameters.FirstOrDefault(x => ((ParameterExpression)x).Name.Equals(contentParameterName, StringComparison.InvariantCultureIgnoreCase));
+				var contentParam = method.Parameters.FirstOrDefault(x => ((ParameterExpression) x).Name.Equals(contentParameterName, StringComparison.InvariantCultureIgnoreCase));
 
 				if (contentParam == null)
 				{
 					throw new Exception("Content paramter not found");
 				}
 
-				var serializeCall = FickleExpression.Call(httpStreamSerializer, typeof(string), "Serialize", contentParam);
-				var stringContentNew = FickleExpression.New(FickleType.Define("StringContent"), "StringContent", serializeCall);
-				methodStatements.Add(Expression.Assign(FickleExpression.Property(httpRequestMessage, httpRequestMessageType, "Content"), stringContentNew));
+				apiCallGenericTypes.Add(contentParam.Type);
+
+				apiArgs = new
+				{
+					requestUrl,
+					httpMethod,
+					isSecure,
+					isAuthenticated,
+					returnFormat,
+					contentParam
+				};
+			}
+			else
+			{
+				apiArgs = new
+				{
+					requestUrl,
+					httpMethod,
+					isSecure,
+					isAuthenticated,
+					returnFormat
+				};
 			}
 
-			var httpResponseMessageType = FickleType.Define("HttpResponseMessage");
-			var httpResponseMessage = Expression.Variable(httpResponseMessageType, "httpResponseMessage");
-			methodVariables.Add(httpResponseMessage);
+			var clientCall = FickleExpression.Call(client, returnTaskType, "ExecuteAsync", apiArgs);
 
-			var clientCall = FickleExpression.Call(client, new CSharpAwaitedTaskType(httpResponseMessageType), "SendAsync", httpRequestMessage);
-			methodStatements.Add(Expression.Assign(httpResponseMessage, clientCall));
-			methodStatements.Add(FickleExpression.Call(httpResponseMessage, "EnsureSuccessStatusCode", null));
-
-			if (method.ReturnType != typeof (void))
+			if (apiCallGenericTypes.Count > 0)
 			{
-				var result = Expression.Variable(method.ReturnType, "result");
-				methodVariables.Add(result);
-
-				var contentStream = Expression.Variable(streamType, "contentStream");
-				methodVariables.Add(contentStream);
-				methodStatements.Add(Expression.Assign(contentStream, Expression.Constant(null)));
-
-				var responseContent = Expression.Property(httpResponseMessage, "Content");
-				var contentStreamCall = FickleExpression.Call(responseContent, new CSharpAwaitedTaskType(streamType), "ReadAsStreamAsync", null);
-
-				var deserializeCall = FickleExpression.Call(httpStreamSerializer, method.ReturnType, "Deserialize", contentStream);
-				deserializeCall.Method.MakeGenericMethod(method.ReturnType);
-
-				var tryBlock = FickleExpression.Grouped(
-					Expression.Assign(contentStream, contentStreamCall).ToStatement(),
-					Expression.Assign(result, deserializeCall).ToStatement()
-					);
-
-				var diposeStream = Expression.IfThen(Expression.NotEqual(contentStream, Expression.Constant(null)), FickleExpression.Call(contentStream, "Dispose", null).ToStatementBlock());
-
-				var tryFinally = Expression.TryFinally(tryBlock, diposeStream);
-				methodStatements.Add(tryFinally);
-
-				methodStatements.Add(FickleExpression.Return(result));
+				clientCall.Method.MakeGenericMethod(apiCallGenericTypes.ToArray());
 			}
 			
+			var result = Expression.Variable(returnTaskType, "fickleResult");
+			methodVariables.Add(result);
+
+			methodStatements.Add(Expression.Assign(result, clientCall));
+			methodStatements.Add(FickleExpression.Return(result));
+
 			var methodBody = FickleExpression.Block
 			(
 				methodVariables.ToArray(),
 				methodStatements.ToArray()
 			);
 
-			var returnType = method.ReturnType != typeof (void) ? method.ReturnType : null;
-			var returnTaskType = new CSharpAwaitedTaskType(returnType);
-
-			return new MethodDefinitionExpression(methodName, methodParameters.ToReadOnlyCollection(), AccessModifiers.Public, returnTaskType, methodBody, false, null);
+			return new MethodDefinitionExpression(method.Name, methodParameters.ToReadOnlyCollection(), AccessModifiers.Public, returnTaskType, methodBody, false, null);
 		}
 
 		private Expression CreateParameterisedConstructor()
 		{
-			var httpClientParam = Expression.Parameter(this.httpClientType, HttpClientFieldName);
-			var httpStreamSerializerParam = Expression.Parameter(this.httpStreamSerializerType, HttpStreamSerializerFieldName);
+			var fickleApiClientParam = Expression.Parameter(this.fickleApiClientType, FickleApiClientFieldName);
 
 			var parameters = new Expression[]
 			{
-				httpClientParam,
-				httpStreamSerializerParam
+				fickleApiClientParam
 			};
 
-			var clientField = Expression.Variable(this.httpClientType, "this." + HttpClientFieldName);
-			var serailizerField = Expression.Variable(this.httpStreamSerializerType, "this." + HttpStreamSerializerFieldName);
+			var clientField = Expression.Variable(this.fickleApiClientType, "this." + FickleApiClientFieldName);
 
-			var body = FickleExpression.Block(new Expression[]
-			{
-				Expression.Assign(clientField, httpClientParam).ToStatement(),
-				Expression.Assign(serailizerField, httpStreamSerializerParam).ToStatement()
-
-			} );
+			var body = FickleExpression.Block(Expression.Assign(clientField, fickleApiClientParam).ToStatement());
 
 			return new MethodDefinitionExpression(this.currentTypeDefinitionExpression.Type.Name, parameters.ToReadOnlyCollection(), AccessModifiers.Public, null, body, false, null, null);
+		}
+
+		private Expression CreateStaticConstructor()
+		{
+			var hostname = this.currentTypeDefinitionExpression.Attributes["Hostname"];
+			var hostnameField = Expression.Variable(typeof(string), HostnameFieldName);
+			var body = FickleExpression.Block(Expression.Assign(hostnameField, Expression.Constant(hostname)).ToStatement());
+
+			var parameters = new Expression[0];
+
+			return new MethodDefinitionExpression(this.currentTypeDefinitionExpression.Type.Name, parameters.ToReadOnlyCollection(), AccessModifiers.Static, null, body, false, null, null);
 		}
 
 		protected override Expression VisitTypeDefinitionExpression(TypeDefinitionExpression expression)
@@ -173,10 +160,7 @@ namespace Fickle.Generators.CSharp.Binders
 			{
 				FickleExpression.Include("System"),
 				FickleExpression.Include("System.Collections.Generic"),
-				FickleExpression.Include("System.Net.Http"),
-				FickleExpression.Include("System.Threading.Tasks"),
-				FickleExpression.Include("System.IO"),
-				FickleExpression.Include("System.Net")
+				FickleExpression.Include("System.Threading.Tasks")
 			};
 
 			foreach (var include in this.CodeGenerationContext.Options.Includes)
@@ -186,14 +170,15 @@ namespace Fickle.Generators.CSharp.Binders
 
 			var comment = new CommentExpression("This file is AUTO GENERATED");
 
-			var client = new FieldDefinitionExpression(HttpClientFieldName, this.httpClientType, AccessModifiers.Private | AccessModifiers.ReadOnly);
-			var serializer = new FieldDefinitionExpression(HttpStreamSerializerFieldName, this.httpStreamSerializerType, AccessModifiers.Private | AccessModifiers.ReadOnly);
+			var hostname = new FieldDefinitionExpression(HostnameFieldName, typeof(string), AccessModifiers.Public | AccessModifiers.Static | AccessModifiers.ReadOnly);
+			var client = new FieldDefinitionExpression(FickleApiClientFieldName, this.fickleApiClientType, AccessModifiers.Private | AccessModifiers.ReadOnly);
 
 			var body = GroupedExpressionsExpression.FlatConcat
 			(
 				GroupedExpressionsExpressionStyle.Wide,
+				hostname,
 				client,
-				serializer,
+				this.CreateStaticConstructor(),
 				this.CreateParameterisedConstructor(),
 				this.Visit(expression.Body)
 			);
