@@ -91,7 +91,7 @@
     <Compile Include="Generators\CSharp\Binders\CSharpGatewayExpressionBinder.cs" />
     <Compile Include="Generators\CSharp\CSharpServiceModelCodeGenerator.cs" />
     <Compile Include="Generators\CSharp\CSharpCodeGenerator.cs" />
-    <Compile Include="Generators\CSharp\SerializerInterfaceWriter.cs" />
+    <Compile Include="Generators\CSharp\FickleApiClientInterfaceWriter.cs" />
     <Compile Include="Generators\ExpressionTypeCounter.cs" />
     <Compile Include="Generators\Javascript\Binders\GatewayExpressionBinder.cs" />
     <Compile Include="Generators\Javascript\JavascriptCodeGenerator.cs" />

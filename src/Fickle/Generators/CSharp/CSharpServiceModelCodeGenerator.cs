@@ -55,11 +55,11 @@ namespace Fickle.Generators.CSharp
 
 		protected virtual void GenerateHttpStreamSerializerInterface(ServiceModel serviceModel)
 		{
-			using (var writer = this.GetTextWriterForFile("IHttpStreamSerializer.cs"))
+			using (var writer = this.GetTextWriterForFile("IFickleApiClient.cs"))
 			{
-				var serializerInterfaceWriter = new SerializerInterfaceWriter(writer, this.Options);
+				var fickleApiClientInterfaceWriter = new FickleApiClientInterfaceWriter(writer, this.Options);
 
-				serializerInterfaceWriter.Write(this.Options.ServiceModelInfo);
+				fickleApiClientInterfaceWriter.Write(this.Options.ServiceModelInfo);
 			}
 		}
 
